@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-lang">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="pageTitle">Emergências - MissionCare Plus</title>
+    
+    <!-- Importação de Fontes e Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    
+    <!-- Scripts para modo offline -->
+    <script src="/js/connection-manager.js"></script>
+    <script src="/js/mode-switcher.js"></script>
+    <script src="/js/sync-manager.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
+            --primary-color: #0d9488; /* Tailwind teal-600 */
+            --danger-color: #dc2626; /* Tailwind red-600 */
+        }
+        .lang-btn {
+            padding: 0.25rem 0.5rem; border-radius: 9999px;
+            cursor: pointer; transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .lang-btn.active {
+            border-color: var(--primary-color);
+            background-color: white;
+        }
+        
+        /* Estilos para o indicador de conexão */
+        .connection-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .connection-indicator.online {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .connection-indicator.offline {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .connection-indicator i {
+            margin-right: 5px;
+        }
+        
+        /* Estilos para notificações */
+        .mode-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 80%;
+            text-align: center;
+        }
+        .mode-notification.online {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+        .mode-notification.offline {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+        .mode-notification-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .mode-notification-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .mode-notification-text strong {
+            font-weight: 700;
+        }
+        .mode-notification-text small {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        /* Estilos para modo offline */
+        .offline-banner {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* Estilos para navegação e layout de lista */
+        body {
+            padding-bottom: 80px;
+        }
+        .emergency-item-header {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; padding: 1.25rem 1rem; background-color: white;
+            border: 1px solid #e5e7eb; border-radius: 0.75rem;
+            cursor: pointer; transition: background-color 0.2s ease;
+        }
+        .emergency-item-header:hover {
+            background-color: #f9fafb;
+        }
+        .emergency-item-header h3 {
+            font-size: 1.125rem; font-weight: 700; text-transform: uppercase;
+            color: #111827;
+        }
+        .emergency-item-header svg {
+            width: 24px; height: 24px; color: var(--danger-color);
+            transition: transform 0.3s ease;
+        }
+        .emergency-item-content {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            padding: 0 1rem; background-color: #f9fafb;
+            border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+            border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem;
+        }
+        .emergency-item.open .emergency-item-content {
+            max-height: 1000px; padding: 1.25rem 1rem;
+        }
+        .emergency-item.open .emergency-item-header svg {
+            transform: rotate(90deg);
+        }
+        
+        /* Estilos para a versão offline */
+        .emergency-item-offline {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .emergency-item-offline-header {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; padding: 1rem; background-color: white;
+            cursor: pointer; transition: background-color 0.2s ease;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .emergency-item-offline-header:hover {
+            background-color: #f9fafb;
+        }
+        .emergency-item-offline-header h3 {
+            font-size: 1rem; font-weight: 700; text-transform: uppercase;
+            color: #111827;
+        }
+        .emergency-item-offline-header svg {
+            width: 20px; height: 20px; color: var(--danger-color);
+            transition: transform 0.3s ease;
+        }
+        .emergency-item-offline.open .emergency-item-offline-header svg {
+            transform: rotate(90deg);
+        }
+        .emergency-item-offline-content {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            padding: 0 1rem;
+        }
+        .emergency-item-offline.open .emergency-item-offline-content {
+            max-height: 500px; padding: 1rem;
+        }
+        
+        /* Estilos para botão de emergência offline */
+        .emergency-quick-access {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .emergency-quick-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background-color: white;
+            border: 2px solid #ef4444;
+            border-radius: 0.75rem;
+            color: #ef4444;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .emergency-quick-btn:hover {
+            background-color: #ef4444;
+            color: white;
+        }
+        .emergency-quick-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .emergency-quick-btn span {
+            font-size: 0.875rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Indicador de Conexão -->
+    <div id="connection-indicator" class="connection-indicator online">
+        <i class="fas fa-wifi"></i> Online
+    </div>
+
+    <!-- Container da Aplicação -->
+    <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-gray-100">
+        <!-- MODO ONLINE -->
+        <div id="online-mode">
+            <!-- TELA DA LISTA DE EMERGÊNCIAS -->
+            <div id="list-screen">
+                <header class="sticky top-0 z-10 flex items-center bg-gray-100/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                    <h1 data-i18n="headerTitle" class="text-gray-800 text-xl font-bold leading-tight flex-1 text-center">Emergências em Campo</h1>
+                    <!-- SELETOR DE IDIOMA -->
+                    <div class="absolute top-3 right-3 flex space-x-1 bg-gray-200 p-1 rounded-full">
+                        <button class="lang-btn" data-lang="pt">🇧🇷</button>
+                        <button class="lang-btn" data-lang="es">🇪🇸</button>
+                    </div>
+                </header>
+                <main class="flex-grow p-4">
+                    <!-- Seção de Primeiros Socorros -->
+                    <div class="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <h2 class="text-lg font-bold text-gray-800 mb-3" data-i18n="trainingTitle">Capacitação Essencial</h2>
+                        <p class="text-gray-600 mb-4" data-i18n="trainingText">Esteja preparado. Instale o aplicativo oficial da Cruz Vermelha para aprender técnicas vitais de primeiros socorros.</p>
+                        <a href="https://play.google.com/store/apps/details?id=com.cube.gdpc.fa&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center text-center py-3 px-4 border-2 border-red-600 rounded-full shadow-sm text-base font-bold text-red-600 bg-transparent hover:bg-red-600 hover:text-white" data-i18n="trainingButton">
+                            Aprenda com a Cruz Vermelha
+                        </a>
+                    </div>
+                    <!-- Lista de Emergências -->
+                    <div id="emergency-list" class="space-y-3">
+                        <!-- A lista será populada dinamicamente pelo JavaScript -->
+                    </div>
+                </main>
+            </div>
+        </div>
+        
+        <!-- MODO OFFLINE -->
+        <div id="offline-mode" class="hidden">
+            <!-- TELA DA LISTA DE EMERGÊNCIAS - VERSÃO OFFLINE -->
+            <div id="list-screen-offline">
+                <header class="sticky top-0 z-10 flex items-center bg-gray-100/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                    <h1 data-i18n="headerTitleOffline" class="text-gray-800 text-xl font-bold leading-tight flex-1 text-center">Emergências - Modo Offline</h1>
+                    <!-- SELETOR DE IDIOMA -->
+                    <div class="absolute top-3 right-3 flex space-x-1 bg-gray-200 p-1 rounded-full">
+                        <button class="lang-btn" data-lang="pt">🇧🇷</button>
+                        <button class="lang-btn" data-lang="es">🇪🇸</button>
+                    </div>
+                </header>
+                
+                <div class="offline-banner m-4">
+                    <i class="fas fa-wifi-slash"></i>
+                    <span data-i18n="offlineModeActive">Modo Offline Ativado - Informações Limitadas</span>
+                </div>
+                
+                <main class="flex-grow p-4">
+                    <!-- Acesso Rápido a Emergências Críticas -->
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-gray-800 mb-3" data-i18n="quickAccessTitle">Acesso Rápido</h2>
+                        <div class="emergency-quick-access">
+                            <button class="emergency-quick-btn" onclick="showEmergencyDetail('rcp')">
+                                <i class="fas fa-heartbeat"></i>
+                                <span data-i18n="rcpButton">RCP</span>
+                            </button>
+                            <button class="emergency-quick-btn" onclick="showEmergencyDetail('engasgo')">
+                                <i class="fas fa-head-side-cough"></i>
+                                <span data-i18n="chokingButton">Engasgo</span>
+                            </button>
+                            <button class="emergency-quick-btn" onclick="showEmergencyDetail('sangramento')">
+                                <i class="fas fa-tint"></i>
+                                <span data-i18n="bleedingButton">Sangramento</span>
+                            </button>
+                            <button class="emergency-quick-btn" onclick="showEmergencyDetail('queimadura')">
+                                <i class="fas fa-fire-extinguisher"></i>
+                                <span data-i18n="burnButton">Queimadura</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de Emergências Simplificada -->
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800 mb-3" data-i18n="emergencyListTitle">Lista de Emergências</h2>
+                        <div id="emergency-list-offline" class="space-y-3">
+                            <!-- A lista será populada dinamicamente pelo JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Informação de Capacitação Offline -->
+                    <div class="mt-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <h2 class="text-lg font-bold text-gray-800 mb-3" data-i18n="offlineTrainingTitle">Capacitação Offline</h2>
+                        <p class="text-gray-600 mb-4" data-i18n="offlineTrainingText">Quando tiver acesso à internet, baixe materiais de treinamento para uso offline.</p>
+                        <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <p class="text-yellow-700 text-sm" data-i18n="offlineTrainingNote">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Em emergências, siga os protocolos básicos mostrados aqui e procure ajuda médica o mais rápido possível.
+                            </p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            
+            <!-- TELA DE DETALHES DE EMERGÊNCIA OFFLINE -->
+            <div id="emergency-detail-screen" class="hidden">
+                <header class="sticky top-0 z-10 flex items-center bg-gray-100/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                    <button onclick="backToEmergencyList()" class="mr-2">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h1 id="emergency-detail-title" class="text-gray-800 text-xl font-bold leading-tight flex-1 text-center">Título da Emergência</h1>
+                </header>
+                
+                <main class="flex-grow p-4">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                        <div class="mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                            <h3 class="text-lg font-bold text-red-800 mb-2" data-i18n="firstAidTitle">Primeiros Socorros</h3>
+                            <div id="emergency-detail-steps" class="text-red-700">
+                                <!-- Passos serão inseridos aqui -->
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2" data-i18n="whatToDoTitle">O Que Fazer</h3>
+                            <div id="emergency-detail-what" class="text-gray-700">
+                                <!-- Informações serão inseridas aqui -->
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <h3 class="text-lg font-bold text-yellow-800 mb-2" data-i18n="warningTitle">Atenção</h3>
+                            <p id="emergency-detail-warning" class="text-yellow-700">
+                                <!-- Avisos serão inseridos aqui -->
+                            </p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BARRA DE NAVEGAÇÃO GLOBAL -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
+      <div class="mx-auto flex h-16 max-w-4xl items-center justify-around">
+        <button onclick="window.history.back()" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+          <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+          <span class="mt-1 text-xs font-bold uppercase tracking-wider" data-i18n="navBack">Voltar</span>
+        </button>
+        <div class="h-8 w-px bg-gray-200"></div>
+        <a href="index.html" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+          <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+          <span class="mt-1 text-xs font-bold uppercase tracking-wider" data-i18n="navHome">Início</span>
+        </a>
+      </div>
+    </nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- INÍCIO DA LÓGICA DE TRADUÇÃO ---
+    const translations = {
+        "pt": {
+            "pageTitle": "Emergências - MissionCare Plus",
+            "headerTitle": "Emergências em Campo",
+            "headerTitleOffline": "Emergências - Modo Offline",
+            "trainingTitle": "Capacitação Essencial",
+            "trainingText": "Esteja preparado. Instale o aplicativo oficial da Cruz Vermelha para aprender técnicas vitais de primeiros socorros.",
+            "trainingButton": "Aprenda com a Cruz Vermelha",
+            "offlineTrainingTitle": "Capacitação Offline",
+            "offlineTrainingText": "Quando tiver acesso à internet, baixe materiais de treinamento para uso offline.",
+            "offlineTrainingNote": "Em emergências, siga os protocolos básicos mostrados aqui e procure ajuda médica o mais rápido possível.",
+            "summaryTitle": "Resumo",
+            "firstAidTitle": "Primeiros Socorros",
+            "fullProcedureButton": "Ver Procedimento Completo",
+            "navBack": "Voltar",
+            "navHome": "Início",
+            "offlineModeActive": "Modo Offline Ativado - Informações Limitadas",
+            "quickAccessTitle": "Acesso Rápido",
+            "rcpButton": "RCP",
+            "chokingButton": "Engasgo",
+            "bleedingButton": "Sangramento",
+            "burnButton": "Queimadura",
+            "emergencyListTitle": "Lista de Emergências",
+            "whatToDoTitle": "O Que Fazer",
+            "warningTitle": "Atenção",
+            "emergencyData": [
+                { id: "afogamento", titulo: "Afogamento", resumo: "Parada respiratória por submersão em líquido, com risco de hipóxia e lesão cerebral.", primeiros_socorros: "Retire a vítima da água com segurança, mantenha vias aéreas livres, inicie respiração boca‑a‑boca e RCP o mais rápido possível; evite hipotermia e transporte para atendimento rápido.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/afogamento/afogamento" },
+                { id: "choque", titulo: "Choque", resumo: "Perfusão sanguínea comprometida, levando a baixa oxigenação tecidual e risco de falência de órgãos.", primeiros_socorros: "Deite a pessoa com pernas elevadas, aqueça, controle hemorragias, não ofereça líquidos por via oral, chame socorro médico urgente.", link: "https://www.msdmanuals.com/pt/casa/distúrbios-do-coração-e-dos-vasos-sanguíneos/hipotensão-arterial-e-choque/choque" },
+                { id: "doenca_altitude", titulo: "Doença da altitude", resumo: "Quadro por baixa pressão de oxigênio em altitudes elevadas (>2400 m), com cefaleia, náuseas, fadiga e possível edema cerebral ou pulmonar.", primeiros_socorros: "Desça para altitude inferior, mantenha hidratação, descanso; em casos graves (HAPE/HACE), esforço mínimo, oxigênio se disponível e evacuação urgente.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/doença-da-altitude/doença-da-altitude" },
+                { id: "entorses_estiramentos", titulo: "Entorses e estiramentos", resumo: "Lesão ligamentar ou muscular por torção da articulação, causando dor e inchaço.", primeiros_socorros: "Aplicar RICE (Repouso, Ice, Compressão, Elevação); imobilizar levemente e evitar sobrecarga; buscar atendimento se inchaço ou dor persistirem.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/primeiros-socorros/lesões-dos-tecidos-moles" },
+                { id: "feridas", titulo: "Feridas", resumo: "Lesões abertas na pele que podem sangrar ou infectar facilmente.", primeiros_socorros: "Limpe com água limpa, desinfete com antisséptico, pressione para estancar sangramento e cubra com curativo estéril; observe sinais de infecção.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/primeiros-socorros/feridas" },
+                { id: "fraturas", titulo: "Fraturas", resumo: "Quebra de osso, geralmente acompanhada de dor intensa, inchaço e deformidade.", primeiros_socorros: "Imobilize com talas improvisadas sem mover desnecessariamente; aplique gelo na área e transporte para avaliação médica urgente.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/fraturas/considerações-gerais-sobre-fraturas" },
+                { id: "insolacao", titulo: "Insolação", resumo: "Golpe de calor por exposição excessiva ao sol ou calor, com febre alta, confusão e possível inconsciência.", primeiros_socorros: "Leve a vítima para local fresco, aplique compressas frias ou banho morno, ofereça líquidos e monitore; busque socorro urgentemente.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/distúrbios-causados-pelo-calor/insolação" },
+                { id: "eletricidade", titulo: "Lesões por eletricidade", resumo: "Choque elétrico pode causar queimaduras, arritmia, convulsões ou parada cardíaca.", primeiros_socorros: "Desligue a fonte; só toque na vítima após isolamento; avalie sinais vitais; se sem pulso, inicie RCP; transporte para avaliação urgente.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/lesões-provocadas-por-eletricidade-e-raios/lesões-provocadas-pela-eletricidade" },
+                { id: "raios", titulo: "Lesões por raios", resumo: "Descarga elétrica atmosférica extremamente potente; pode causar queimaduras, parada cardíaca ou trauma interno.", primeiros_socorros: "Afaste a vítima de local perigoso, trate queimaduras, monitore sinais vitais, inicie RCP se necessário e solicite socorro imediato.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/lesões-provocadas-por-eletricidade-e-raios/lesões-provocadas-por-raios" },
+                { id: "mordida_humana", titulo: "Mordida humana", resumo: "Alta chance de infecção por bactérias presentes na boca humana.", primeiros_socorros: "Lave bem com água e sabão, aplique antisséptico, cubra com curativo limpo; procure atendimento médico para avaliação e possível antibiótico.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/mordidas-e-picadas/mordida-humana" },
+                { id: "mordida_animal", titulo: "Mordida de animal", resumo: "Ferida causada por animal, risco de raiva ou infecção bacteriana.", primeiros_socorros: "Lave cuidadosamente por vários minutos, aplique antisséptico, cubra; busque atendimento médico para profilaxia (vacinação ou soro).", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/mordidas-e-picadas/mordidas-de-animais" },
+                { id: "mordida_serpente", titulo: "Mordida de serpente", resumo: "Veneno pode causar necrose, hemorragias ou efeitos neurotóxicos graves.", primeiros_socorros: "Mantenha vítima calma e imóvel; posicione o local afetado abaixo do coração; evite sucção ou torniquete; evacuação médica urgente.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/mordidas-e-picadas/mordidas-de-serpentes" },
+                { id: "obstrucao_respiratoria", titulo: "Obstrução das vias respiratórias", resumo: "Bloqueio da traqueia por objeto/alimento, risco imediato de asfixia.", primeiros_socorros: "Adultos: manobra de Heimlich até 5 vezes. Bebês: cinco tapas nas costas, depois cinco compressões torácicas; se inconsciente, iniciar RCP.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/primeiros-socorros/obstrução-das-vias-respiratórias" },
+                { id: "queimadura_quimica_olho", titulo: "Queimaduras químicas nos olhos", resumo: "Contato de substâncias corrosivas nos olhos, risco de lesão ocular grave.", primeiros_socorros: "Lave o olho afetado com água corrente por pelo menos 15 minutos, sem esfregar; cubra levemente e busque atendimento oftalmológico imediato.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/lesões-oculares/queimaduras-no-olho" },
+                { id: "parada_cardiaca", titulo: "Parada cardíaca", resumo: "Cessação súbita da função cardíaca e circulatória, requer ação imediata para salvar vida.", primeiros_socorros: "Verifique resposta e respiração; chame socorro; inicie RCP (compressões rápidas 120/min com proporção 30:2); use DEA se disponível.", link: "https://www.msdmanuals.com/pt/casa/distúrbios-do-coração-e-dos-vasos-sanguíneos/parada-cardíaca-e-reanimação-cardiopulmonar-rcp/parada-cardíaca-e-reanimação-cardiopulmonar-rcp" },
+                { id: "picadas_insetos", titulo: "Picadas de abelhas/vespas/formigas", resumo: "Reação química ou alérgica à toxina injetada pelo inseto; risco de anafilaxia.", primeiros_socorros: "Remova ferrão sem espremer, lave o local, aplique compressa fria; monitore sinais de reação grave (inchaço, dificuldade respiratória) e busque socorro urgente.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/mordidas-e-picadas/picadas-de-abelhas-vespas-vespões-e-formigas" },
+                { id: "prioridades_primeiros_socorros", titulo: "Prioridades dos primeiros socorros", resumo: "Sequência ABC: vias aéreas, respiração, circulação — avaliação inicial do paciente.", primeiros_socorros: "Avalie ABC: A (vias aéreas), B (respiração), C (circulação); inicie suporte conforme necessidade (RCP, controle de sangramento, oxigênio, posição).", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/primeiros-socorros/prioridades-dos-primeiros-socorros-de-emergência" },
+                { id: "queimaduras", titulo: "Queimaduras", resumo: "Lesão da pele por calor, químico ou radiação, com possível risco de choque ou infecção.", primeiros_socorros: "Resfrie com água corrente por 10–20 min; cubra com pano limpo e úmido; não aplique substâncias caseiras; busque atendimento em queimaduras extensas.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/queimaduras/inalação-de-fumaça" },
+                { id: "ulcera_frio", titulo: "Úlcera de frio", resumo: "Lesão de pele e tecidos pelo frio extremo (frostbite), com risco de necrose.", primeiros_socorros: "Reaqueça a área afetada gradualmente com água morna; não esfregue; proteja de recongelamento; busque atendimento se houver lesão profunda.", link: "https://www.msdmanuals.com/pt/casa/lesões-e-envenenamentos/lesões-provocadas-pelo-frio/%C3%BAlcera-de-frio" }
+            ],
+            // Dados offline para emergências críticas
+            "criticalEmergencyData": {
+                "rcp": {
+                    title: "RCP (Reanimação Cardiopulmonar)",
+                    steps: [
+                        "Verifique se a pessoa está consciente e respirando",
+                        "Peça ajuda imediatamente (chame por socorro)",
+                        "Deite a pessoa de costas em superfície firme",
+                        "Posicione as mãos uma sobre a outra no centro do peito",
+                        "Comprima o peito com frequência de 100-120 compressões por minuto",
+                        "Após 30 compressões, faça 2 ventilações (boca a boca)",
+                        "Continue o ciclo de 30:2 até ajuda chegar ou a pessoa recuperar"
+                    ],
+                    whatToDo: "Mantenha as compressões firmes e rápidas. Não interrompa a menos que seja absolutamente necessário. Se houver um DEA (Desfibrilador Externo Automático) disponível, use-o o mais rápido possível.",
+                    warning: "A RCP é extremamente cansativa. Se possível, troque com outra pessoa a cada 2 minutos sem interromper as compressões."
+                },
+                "engasgo": {
+                    title: "Engasgo",
+                    steps: [
+                        "Pergunte: 'Você está engasgado?'",
+                        "Se a pessoa conseguir falar ou tossir, não interfira",
+                        "Se não conseguir falar, aplique a manobra de Heimlich",
+                        "Fique atrás da pessoa e envolva a cintura com os braços",
+                        "Feche o punho e posicione acima do umbigo",
+                        "Comprima para dentro e para cima com movimentos rápidos",
+                        "Repita até o objeto sair ou a pessoa desmaiar"
+                    ],
+                    whatToDo: "Para bebês, use tapas nas costas e compressões no peito. Se a pessoa desmaiar, inicie RCP imediatamente.",
+                    warning: "Não dê tapas nas costas em adultos engasgados. Isso pode empurrar o objeto mais para baixo."
+                },
+                "sangramento": {
+                    title: "Sangramento Intenso",
+                    steps: [
+                        "Use luvas se disponível",
+                        "Aplique pressão direta sobre o ferimento com um pano limpo",
+                        "Eleve a área afetada acima do nível do coração se possível",
+                        "Mantenha a pressão por pelo menos 10 minutos",
+                        "Se o sangue continuar, aplique mais pressão e mais panos",
+                        "Não remova os primeiros panos para verificar",
+                        "Procure atendimento médico imediato"
+                    ],
+                    whatToDo: "Se o sangramento for em um membro, aplique um torniquete apenas como último recurso e acima do ferimento. Anote a hora da aplicação.",
+                    warning: "Torniquetes devem ser usados apenas em situações extremas, pois podem causar danos aos tecidos se mantidos por muito tempo."
+                },
+                "queimadura": {
+                    title: "Queimaduras",
+                    steps: [
+                        "Afaste a pessoa da fonte do calor",
+                        "Resfrie a área com água corrente por 10-20 minutos",
+                        "Remova anéis, roupas ou joias da área queimada",
+                        "Cubra com gaze esterilizada ou pano limpo",
+                        "Não use gelo, manteiga ou outros remédios caseiros",
+                        "Para queimaduras graves, procure atendimento médico",
+                        "Mantenha a pessoa aquecida para evitar hipotermia"
+                    ],
+                    whatToDo: "Não estoure bolhas. Se a queimadura for grande ou no rosto, mãos, pés ou articulações, procure atendimento médico imediato.",
+                    warning: "Queimaduras elétricas e químicas requerem atenção médica imediata, mesmo que pareçam pequenas."
+                }
+            }
+        },
+        "es": {
+            "pageTitle": "Emergencias - MissionCare Plus",
+            "headerTitle": "Emergencias en el Campo",
+            "headerTitleOffline": "Emergencias - Modo Offline",
+            "trainingTitle": "Capacitación Esencial",
+            "trainingText": "Esté preparado. Instale la aplicación oficial de la Cruz Roja para aprender técnicas vitales de primeros auxilios.",
+            "trainingButton": "Aprenda con la Cruz Roja",
+            "offlineTrainingTitle": "Capacitación Offline",
+            "offlineTrainingText": "Cuando tenga acceso a internet, descargue materiales de capacitación para uso offline.",
+            "offlineTrainingNote": "En emergencias, siga los protocolos básicos que se muestran aquí y busque ayuda médica lo más rápido posible.",
+            "summaryTitle": "Resumen",
+            "firstAidTitle": "Primeros Auxilios",
+            "fullProcedureButton": "Ver Procedimiento Completo",
+            "navBack": "Volver",
+            "navHome": "Inicio",
+            "offlineModeActive": "Modo Offline Activado - Información Limitada",
+            "quickAccessTitle": "Acceso Rápido",
+            "rcpButton": "RCP",
+            "chokingButton": "Atragantamiento",
+            "bleedingButton": "Sangrado",
+            "burnButton": "Quemadura",
+            "emergencyListTitle": "Lista de Emergencias",
+            "whatToDoTitle": "Qué Hacer",
+            "warningTitle": "Atención",
+            "emergencyData": [
+                { id: "afogamento", titulo: "Ahogamiento", resumo: "Paro respiratorio por inmersión en líquido, con riesgo de hipoxia y lesión cerebral.", primeiros_socorros: "Retire a la víctima del agua de forma segura, mantenga las vías respiratorias despejadas, inicie respiración boca a boca y RCP lo antes posible; evite la hipotermia y transporte para atención rápida.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/ahogamiento/ahogamiento" },
+                { id: "choque", titulo: "Shock", resumo: "Perfusión sanguínea comprometida, que lleva a una baja oxigenación de los tejidos y riesgo de fallo orgánico.", primeiros_socorros: "Acueste a la persona con las piernas elevadas, abríguela, controle hemorragias, no ofrezca líquidos por vía oral, llame a emergencias médicas urgentes.", link: "https://www.msdmanuals.com/es/hogar/trastornos-del-corazón-y-los-vasos-sanguíneos/hipotensión-arterial-y-shock/shock" },
+                { id: "doenca_altitude", titulo: "Mal de altura", resumo: "Cuadro por baja presión de oxígeno en altitudes elevadas (>2400 m), con cefalea, náuseas, fatiga y posible edema cerebral o pulmonar.", primeiros_socorros: "Descienda a una altitud inferior, mantenga la hidratación, descanse; en casos graves (EAPC/EACC), esfuerzo mínimo, oxígeno si está disponible y evacuación urgente.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/mal-de-altura/mal-de-altura" },
+                { id: "entorses_estiramentos", titulo: "Esguinces y distensiones", resumo: "Lesión de ligamentos o músculos por torsión de la articulación, que causa dolor e hinchazón.", primeiros_socorros: "Aplicar RICE (Reposo, Hielo, Compresión, Elevación); inmovilizar ligeramente y evitar sobrecarga; buscar atención si la hinchazón o el dolor persisten.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/primeros-auxilios/lesiones-de-partes-blandas" },
+                { id: "feridas", titulo: "Heridas", resumo: "Lesiones abiertas en la piel que pueden sangrar o infectarse fácilmente.", primeiros_socorros: "Limpie con agua limpia, desinfecte con antiséptico, presione para detener el sangrado y cubra con un vendaje estéril; observe signos de infección.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/primeros-auxilios/heridas" },
+                { id: "fraturas", titulo: "Fracturas", resumo: "Rotura de un hueso, generalmente acompañada de dolor intenso, hinchazón y deformidad.", primeiros_socorros: "Inmovilice con férulas improvisadas sin mover innecesariamente; aplique hielo en la zona y transporte para evaluación médica urgente.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/fracturas/introducción-a-las-fracturas" },
+                { id: "insolacao", titulo: "Insolación", resumo: "Golpe de calor por exposición excesiva al sol o al calor, con fiebre alta, confusión y posible pérdida de conocimiento.", primeiros_socorros: "Lleve a la víctima a un lugar fresco, aplique compresas frías o un baño tibio, ofrezca líquidos y vigile; busque ayuda urgentemente.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/trastornos-producidos-por-el-calor/insolación-o-golpe-de-calor" },
+                { id: "eletricidade", titulo: "Lesiones por electricidad", resumo: "Un choque eléctrico puede causar quemaduras, arritmias, convulsiones o paro cardíaco.", primeiros_socorros: "Desconecte la fuente; solo toque a la víctima después del aislamiento; evalúe los signos vitales; si no tiene pulso, inicie la RCP; transporte para una evaluación urgente.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/lesiones-por-electricidad-y-por-rayos/lesiones-por-electricidad" },
+                { id: "raios", titulo: "Lesiones por rayos", resumo: "Descarga eléctrica atmosférica extremadamente potente; puede causar quemaduras, paro cardíaco o traumatismo interno.", primeiros_socorros: "Aleje a la víctima de la zona de peligro, trate las quemaduras, vigile los signos vitales, inicie la RCP si es necesario y solicite ayuda inmediata.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/lesiones-por-electricidad-y-por-rayos/lesiones-por-rayos" },
+                { id: "mordida_humana", titulo: "Mordedura humana", resumo: "Alta probabilidad de infección por bacterias presentes en la boca humana.", primeiros_socorros: "Lave bien con agua y jabón, aplique un antiséptico, cubra con un vendaje limpio; busque atención médica para evaluación y posible antibiótico.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/mordeduras-y-picaduras/mordeduras-de-seres-humanos" },
+                { id: "mordida_animal", titulo: "Mordedura de animal", resumo: "Herida causada por un animal, con riesgo de rabia o infección bacteriana.", primeiros_socorros: "Lave cuidadosamente durante varios minutos, aplique un antiséptico, cubra; busque atención médica para profilaxis (vacunación o suero).", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/mordeduras-y-picaduras/mordeduras-de-animales" },
+                { id: "mordida_serpente", titulo: "Mordedura de serpiente", resumo: "El veneno puede causar necrosis, hemorragias o efectos neurotóxicos graves.", primeiros_socorros: "Mantenga a la víctima calmada e inmóvil; coloque el lugar afectado por debajo del corazón; evite la succión o el torniquete; evacuación médica urgente.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/mordeduras-y-picaduras/mordeduras-de-serpiente" },
+                { id: "obstrucao_respiratoria", titulo: "Obstrucción de las vías respiratorias", resumo: "Bloqueo de la tráquea por un objeto/alimento, con riesgo inmediato de asfixia.", primeiros_socorros: "Adultos: maniobra de Heimlich hasta 5 veces. Bebés: cinco palmadas en la espalda, luego cinco compresiones torácicas; si está inconsciente, inicie la RCP.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/primeros-auxilios/obstrucción-de-las-vías-respiratorias" },
+                { id: "queimadura_quimica_olho", titulo: "Quemaduras químicas en los ojos", resumo: "Contacto de sustancias corrosivas en los ojos, con riesgo de lesión ocular grave.", primeiros_socorros: "Lave el ojo afectado con agua corriente durante al menos 15 minutos, sin frotar; cubra ligeramente y busque atención oftalmológica inmediata.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/lesiones-oculares/quemaduras-oculares" },
+                { id: "parada_cardiaca", titulo: "Paro cardíaco", resumo: "Cese súbito de la función cardíaca y circulatoria, requiere acción inmediata para salvar la vida.", primeiros_socorros: "Verifique la respuesta y la respiración; pida ayuda; inicie la RCP (compresiones rápidas 120/min con una proporción de 30:2); use un DEA si está disponible.", link: "https://www.msdmanuals.com/es/hogar/trastornos-del-corazón-y-los-vasos-sanguíneos/paro-cardíaco-y-rcp/paro-cardíaco-y-reanimación-cardiopulmonar-rcp" },
+                { id: "picadas_insetos", titulo: "Picaduras de abejas/avispas/hormigas", resumo: "Reacción química o alérgica a la toxina inyectada por el insecto; riesgo de anafilaxia.", primeiros_socorros: "Retire el aguijón sin apretar, lave la zona, aplique una compresa fría; vigile los signos de una reacción grave (hinchazón, dificultad para respirar) y busque ayuda urgente.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/mordeduras-y-picaduras/picaduras-de-abejas-avispas-avispones-y-hormigas" },
+                { id: "prioridades_primeiros_socorros", titulo: "Prioridades de primeros auxilios", resumo: "Secuencia ABC: vías aéreas, respiración, circulación — evaluación inicial del paciente.", primeiros_socorros: "Evalúe el ABC: A (vías aéreas), B (respiración), C (circulación); inicie el soporte según sea necesario (RCP, control de hemorragias, oxígeno, posición).", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/primeros-auxilios/prioridades-en-los-primeros-auxilios" },
+                { id: "queimaduras", titulo: "Quemaduras", resumo: "Lesión de la piel por calor, productos químicos o radiación, con posible riesgo de shock o infección.", primeiros_socorros: "Enfríe con agua corriente durante 10–20 min; cubra con un paño limpio y húmedo; no aplique sustancias caseras; busque atención para quemaduras extensas.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/quemaduras/quemaduras" },
+                { id: "ulcera_frio", titulo: "Congelación", resumo: "Lesión de la piel y tejidos por frío extremo (frostbite), con riesgo de necrosis.", primeiros_socorros: "Recaliente el área afectada gradualmente con agua tibia; no frote; proteja de una nueva congelación; busque atención médica si hay lesión profunda.", link: "https://www.msdmanuals.com/es/hogar/traumatismos-y-envenenamientos/lesiones-por-frío/congelación" }
+            ],
+            // Dados offline para emergências críticas em espanhol
+            "criticalEmergencyData": {
+                "rcp": {
+                    title: "RCP (Reanimación Cardiopulmonar)",
+                    steps: [
+                        "Verifique si la persona está consciente y respirando",
+                        "Pida ayuda inmediatamente (llame a emergencias)",
+                        "Acueste a la persona boca arriba sobre una superficie firme",
+                        "Posicione las manos una sobre la otra en el centro del pecho",
+                        "Comprima el pecho con una frecuencia de 100-120 compresiones por minuto",
+                        "Después de 30 compresiones, haga 2 ventilaciones (boca a boca)",
+                        "Continúe el ciclo de 30:2 hasta que llegue ayuda o la persona se recupere"
+                    ],
+                    whatToDo: "Mantenga las compresiones firmes y rápidas. No interrumpa a menos que sea absolutamente necesario. Si hay un DEA (Desfibrilador Externo Automático) disponible, úselo lo más rápido posible.",
+                    warning: "La RCP es extremadamente agotadora. Si es posible, cambie con otra persona cada 2 minutos sin interrumpir las compresiones."
+                },
+                "engasgo": {
+                    title: "Atragantamiento",
+                    steps: [
+                        "Pregunte: '¿Está atragantado?'",
+                        "Si la persona puede hablar o toser, no interfiera",
+                        "Si no puede hablar, aplique la maniobra de Heimlich",
+                        "Párese detrás de la persona y envuelva la cintura con los brazos",
+                        "Cierre el puño y posiciónelo encima del ombligo",
+                        "Comprima hacia adentro y hacia arriba con movimientos rápidos",
+                        "Repita hasta que el objeto salga o la persona se desmaye"
+                    ],
+                    whatToDo: "Para bebés, use palmadas en la espalda y compresiones en el pecho. Si la persona se desmaya, inicie RCP inmediatamente.",
+                    warning: "No dé palmadas en la espalda a adultos atragantados. Esto puede empujar el objeto más hacia abajo."
+                },
+                "sangramento": {
+                    title: "Sangrado Intenso",
+                    steps: [
+                        "Use guantes si están disponibles",
+                        "Aplique presión directa sobre la herida con un paño limpio",
+                        "Eleve el área afectada por encima del nivel del corazón si es posible",
+                        "Mantenga la presión durante al menos 10 minutos",
+                        "Si la sangre continúa, aplique más presión y más paños",
+                        "No quite los primeros paños para verificar",
+                        "Busque atención médica inmediata"
+                    ],
+                    whatToDo: "Si el sangrado es en una extremidad, aplique un torniquete solo como último recurso y por encima de la herida. Anote la hora de aplicación.",
+                    warning: "Los torniquetes deben usarse solo en situaciones extremas, ya que pueden causar daños a los tejidos si se mantienen durante mucho tiempo."
+                },
+                "queimadura": {
+                    title: "Quemaduras",
+                    steps: [
+                        "Aleje a la persona de la fuente de calor",
+                        "Enfríe el área con agua corriente durante 10-20 minutos",
+                        "Quite anillos, ropa o joyas del área quemada",
+                        "Cubra con gasa estéril o un paño limpio",
+                        "No use hielo, mantequilla u otros remedios caseros",
+                        "Para quemaduras graves, busque atención médica",
+                        "Mantenga a la persona abrigada para evitar hipotermia"
+                    ],
+                    whatToDo: "No reviente las ampollas. Si la quemadura es grande o está en la cara, manos, pies o articulaciones, busque atención médica inmediata.",
+                    warning: "Las quemaduras eléctricas y químicas requieren atención médica inmediata, incluso si parecen pequeñas."
+                }
+            }
+        }
+    };
+    
+    // Elementos do DOM
+    const onlineMode = document.getElementById('online-mode');
+    const offlineMode = document.getElementById('offline-mode');
+    const emergencyListContainer = document.getElementById('emergency-list');
+    const emergencyListContainerOffline = document.getElementById('emergency-list-offline');
+    const listScreenOffline = document.getElementById('list-screen-offline');
+    const emergencyDetailScreen = document.getElementById('emergency-detail-screen');
+    const emergencyDetailTitle = document.getElementById('emergency-detail-title');
+    const emergencyDetailSteps = document.getElementById('emergency-detail-steps');
+    const emergencyDetailWhat = document.getElementById('emergency-detail-what');
+    const emergencyDetailWarning = document.getElementById('emergency-detail-warning');
+    
+    // Função para renderizar a lista online
+    const renderList = (lang) => {
+        emergencyListContainer.innerHTML = '';
+        const data = translations[lang].emergencyData;
+        
+        data.forEach(item => {
+            const itemWrapper = document.createElement('div');
+            itemWrapper.className = 'emergency-item';
+            itemWrapper.innerHTML = `
+                <button class="emergency-item-header">
+                    <h3>${item.titulo}</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                </button>
+                <div class="emergency-item-content">
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="text-base font-semibold text-gray-700 border-b pb-2 mb-2">${translations[lang].summaryTitle}</h4>
+                            <p class="text-gray-600 text-base leading-relaxed">${item.resumo}</p>
+                        </div>
+                        <div class="p-3 bg-red-50 rounded-lg border border-red-200">
+                            <h4 class="text-base font-semibold text-red-800 border-b border-red-200 pb-2 mb-2">${translations[lang].firstAidTitle}</h4>
+                            <p class="text-red-700 text-base leading-relaxed">${item.primeiros_socorros}</p>
+                        </div>
+                        <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="inline-block mt-2 w-full text-center py-2 px-4 border-2 border-teal-600 rounded-full shadow-sm text-base font-bold text-teal-600 bg-transparent hover:bg-teal-600 hover:text-white">${translations[lang].fullProcedureButton}</a>
+                    </div>
+                </div>
+            `;
+            
+            itemWrapper.querySelector('.emergency-item-header').addEventListener('click', () => {
+                document.querySelectorAll('.emergency-item.open').forEach(openItem => {
+                    if (openItem !== itemWrapper) {
+                        openItem.classList.remove('open');
+                    }
+                });
+                itemWrapper.classList.toggle('open');
+            });
+            emergencyListContainer.appendChild(itemWrapper);
+        });
+    };
+    
+    // Função para renderizar a lista offline
+    const renderOfflineList = (lang) => {
+        emergencyListContainerOffline.innerHTML = '';
+        const data = translations[lang].emergencyData;
+        
+        // Limitar a lista para as emergências mais críticas no modo offline
+        const criticalEmergencies = [
+            'parada_cardiaca', 'obstrucao_respiratoria', 'afogamento', 
+            'sangramento', 'queimaduras', 'choque'
+        ];
+        
+        const filteredData = data.filter(item => criticalEmergencies.includes(item.id));
+        
+        filteredData.forEach(item => {
+            const itemWrapper = document.createElement('div');
+            itemWrapper.className = 'emergency-item-offline';
+            itemWrapper.innerHTML = `
+                <button class="emergency-item-offline-header">
+                    <h3>${item.titulo}</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                </button>
+                <div class="emergency-item-offline-content">
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-1">${translations[lang].summaryTitle}</h4>
+                            <p class="text-gray-600 text-sm leading-relaxed">${item.resumo}</p>
+                        </div>
+                        <div class="p-2 bg-red-50 rounded-lg border border-red-200">
+                            <h4 class="text-sm font-semibold text-red-800 border-b border-red-200 pb-1 mb-1">${translations[lang].firstAidTitle}</h4>
+                            <p class="text-red-700 text-sm leading-relaxed">${item.primeiros_socorros}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            itemWrapper.querySelector('.emergency-item-offline-header').addEventListener('click', () => {
+                document.querySelectorAll('.emergency-item-offline.open').forEach(openItem => {
+                    if (openItem !== itemWrapper) {
+                        openItem.classList.remove('open');
+                    }
+                });
+                itemWrapper.classList.toggle('open');
+            });
+            emergencyListContainerOffline.appendChild(itemWrapper);
+        });
+    };
+    
+    // Função para mostrar detalhes de emergência offline
+    function showEmergencyDetail(emergencyType) {
+        const lang = localStorage.getItem('language') || 'pt';
+        const emergencyData = translations[lang].criticalEmergencyData[emergencyType];
+        
+        if (!emergencyData) return;
+        
+        // Preencher os detalhes
+        emergencyDetailTitle.textContent = emergencyData.title;
+        
+        // Preencher os passos
+        emergencyDetailSteps.innerHTML = '';
+        const stepsList = document.createElement('ol');
+        stepsList.className = 'list-decimal pl-5 space-y-1';
+        
+        emergencyData.steps.forEach(step => {
+            const li = document.createElement('li');
+            li.textContent = step;
+            li.className = 'mb-1';
+            stepsList.appendChild(li);
+        });
+        
+        emergencyDetailSteps.appendChild(stepsList);
+        
+        // Preencher "O Que Fazer"
+        emergencyDetailWhat.textContent = emergencyData.whatToDo;
+        
+        // Preencher "Atenção"
+        emergencyDetailWarning.textContent = emergencyData.warning;
+        
+        // Mostrar a tela de detalhes
+        listScreenOffline.classList.add('hidden');
+        emergencyDetailScreen.classList.remove('hidden');
+    }
+    
+    // Função para voltar à lista de emergências
+    function backToEmergencyList() {
+        emergencyDetailScreen.classList.add('hidden');
+        listScreenOffline.classList.remove('hidden');
+    }
+    
+    // Tornar a função global para uso nos botões
+    window.showEmergencyDetail = showEmergencyDetail;
+    window.backToEmergencyList = backToEmergencyList;
+    
+    const setLanguage = (lang) => {
+        document.getElementById('html-lang').setAttribute('lang', lang);
+        localStorage.setItem('language', lang);
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            element.textContent = translations[lang][key] || translations['pt'][key];
+        });
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+        
+        // Re-renderiza as listas com o idioma selecionado
+        renderList(lang);
+        renderOfflineList(lang);
+    };
+    
+    document.querySelectorAll('.lang-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            setLanguage(button.dataset.lang);
+        });
+    });
+    
+    const initialLang = localStorage.getItem('language') || 'pt';
+    setLanguage(initialLang);
+    
+    // Inicializar as listas
+    renderList(initialLang);
+    renderOfflineList(initialLang);
+});
+</script>
+</body>
+</html>
