@@ -1,0 +1,193 @@
+{
+  "anamnese": {
+    "critical_symptoms": {
+      "pt": [
+        {
+          "symptom": "Dor no peito",
+          "urgency": "Emergência",
+          "recommendations": [
+            "Procure atendimento médico imediatamente",
+            "Mantenha-se em repouso",
+            "Evite esforços físicos",
+            "Tome aspirina se disponível e não alérgico"
+          ]
+        },
+        {
+          "symptom": "Falta de ar",
+          "urgency": "Emergência",
+          "recommendations": [
+            "Procure atendimento médico imediatamente",
+            "Mantenha-se calmo",
+            "Sente-se em posição ereta",
+            "Afrouxe roupas apertadas"
+          ]
+        },
+        {
+          "symptom": "Sangramento intenso",
+          "urgency": "Urgente",
+          "recommendations": [
+            "Aplique pressão direta no ferimento",
+            "Eleve a área afetada se possível",
+            "Procure atendimento médico",
+            "Mantenha-se hidratado"
+          ]
+        },
+        {
+          "symptom": "Perda de consciência",
+          "urgency": "Emergência",
+          "recommendations": [
+            "Verifique se está respirando",
+            "Inicie RCP se treinado e necessário",
+            "Procure atendimento médico de emergência",
+            "Coloque em posição de recuperação"
+          ]
+        }
+      ],
+      "es": [
+        {
+          "symptom": "Dolor en el pecho",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Busque atención médica inmediatamente",
+            "Manténgase en reposo",
+            "Evite esfuerzos físicos",
+            "Tome aspirina si está disponible y no es alérgico"
+          ]
+        },
+        {
+          "symptom": "Falta de aire",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Busque atención médica inmediatamente",
+            "Manténgase calmado",
+            "Siéntese en posición erguida",
+            "Afloje la ropa ajustada"
+          ]
+        },
+        {
+          "symptom": "Sangrado intenso",
+          "urgency": "Urgente",
+          "recommendations": [
+            "Aplique presión directa en la herida",
+            "Eleve el área afectada si es posible",
+            "Busque atención médica",
+            "Manténgase hidratado"
+          ]
+        },
+        {
+          "symptom": "Pérdida de conocimiento",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Verifique si está respirando",
+            "Inicie RCP si está entrenado y es necesario",
+            "Busque atención médica de emergencia",
+            "Colóquelo en posición de recuperación"
+          ]
+        }
+      ],
+      "en": [
+        {
+          "symptom": "Chest pain",
+          "urgency": "Emergency",
+          "recommendations": [
+            "Seek immediate medical attention",
+            "Keep resting",
+            "Avoid physical exertion",
+            "Take aspirin if available and not allergic"
+          ]
+        },
+        {
+          "symptom": "Shortness of breath",
+          "urgency": "Emergency",
+          "recommendations": [
+            "Seek immediate medical attention",
+            "Stay calm",
+            "Sit in an upright position",
+            "Loosen tight clothing"
+          ]
+        },
+        {
+          "symptom": "Severe bleeding",
+          "urgency": "Urgent",
+          "recommendations": [
+            "Apply direct pressure to the wound",
+            "Elevate the affected area if possible",
+            "Seek medical attention",
+            "Stay hydrated"
+          ]
+        },
+        {
+          "symptom": "Loss of consciousness",
+          "urgency": "Emergency",
+          "recommendations": [
+            "Check if breathing",
+            "Start CPR if trained and necessary",
+            "Seek emergency medical attention",
+            "Place in recovery position"
+          ]
+        }
+      ]
+    },
+    "common_symptoms": {
+      "pt": {
+        "febre": {
+          "recommendations": [
+            "Repouse e mantenha-se hidratado",
+            "Tome antitérmico se disponível",
+            "Vista roupas leves",
+            "Procure ajuda se persistir por mais de 3 dias"
+          ]
+        },
+        "dor de cabeça": {
+          "recommendations": [
+            "Repouse em ambiente tranquilo",
+            "Tome analgésico se disponível",
+            "Evite luzes brilhantes e ruídos",
+            "Procure ajuda se for intensa ou persistente"
+          ]
+        }
+      },
+      "es": {
+        "fiebre": {
+          "recommendations": [
+            "Descanse y manténgase hidratado",
+            "Tome antitérmico si está disponible",
+            "Vista ropa ligera",
+            "Busque ayuda si persiste por más de 3 días"
+          ]
+        },
+        "dolor de cabeza": {
+          "recommendations": [
+            "Descanse en un ambiente tranquilo",
+            "Tome analgésico si está disponible",
+            "Evite luces brillantes y ruidos",
+            "Busque ayuda si es intenso o persistente"
+          ]
+        }
+      },
+      "en": {
+        "fever": {
+          "recommendations": [
+            "Rest and stay hydrated",
+            "Take fever medication if available",
+            "Wear light clothing",
+            "Seek help if persists for more than 3 days"
+          ]
+        },
+        "headache": {
+          "recommendations": [
+            "Rest in a quiet environment",
+            "Take pain medication if available",
+            "Avoid bright lights and noises",
+            "Seek help if severe or persistent"
+          ]
+        }
+      }
+    },
+    "warning_signs": {
+      "pt": "Procure atendimento médico imediatamente se apresentar: dificuldade para respirar, dor no peito intensa, confusão mental, sangramento que não para, perda de consciência, ou febre muito alta que não responde a medicamentos.",
+      "es": "Busque atención médica inmediatamente si presenta: dificultad para respirar, dolor en el pecho intenso, confusión mental, sangrado que no se detiene, pérdida de conocimiento, o fiebre muy alta que no responde a medicamentos.",
+      "en": "Seek immediate medical attention if you experience: difficulty breathing, severe chest pain, confusion, uncontrolled bleeding, loss of consciousness, or very high fever that does not respond to medication."
+    }
+  }
+}
