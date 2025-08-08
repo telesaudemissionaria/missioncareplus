@@ -1,13 +1,10 @@
-// service-worker.js
-const CACHE = 'missioncare-v1';
-
-// Liste aqui TUDO que precisa abrir offline
+const CACHE = 'missioncare-v1.2';
 const PRECACHE = [
   './',
   './index.html',
   './manifest.json',
-
-  // Páginas (use os nomes RENOMEADOS)
+  './style.css',
+  // Páginas do aplicativo
   './3-triagem-adulto.html',
   './3b-triagem-pediatria.html',
   './4-emergencias.html',
@@ -16,67 +13,108 @@ const PRECACHE = [
   './8-medicamentos.html',
   './9-contatos.html',
   './sintomas-graves.html',
-
-  // Ícones PWA (ajuste se mudar os nomes/locais)
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-
-  // CDNs críticos (respostas opacas, mas funcionam offline se pré-cacheadas)
+  // Recursos externos (com fallback)
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900',
-  'https://fonts.gstatic.com/'
+  'https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900'
 ];
 
+// Instalação do Service Worker
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(cache => cache.addAll(PRECACHE))
+      .then(cache => {
+        return cache.addAll(PRECACHE.map(url => new Request(url, { cache: 'reload' })));
+      })
       .then(() => self.skipWaiting())
+      .catch(err => console.error('Falha no cache:', err))
   );
 });
 
+// Ativação do Service Worker
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(k => (k !== CACHE ? caches.delete(k) : null)))
+    caches.keys().then(keys => 
+      Promise.all(keys.map(key => {
+        if (key !== CACHE) return caches.delete(key);
+      }))
     ).then(() => self.clients.claim())
   );
 });
 
+// Estratégia de cache: Network First para navegações, Cache First para demais recursos
 self.addEventListener('fetch', (e) => {
   const req = e.request;
-
-  // Navegações (HTML): NetworkFirst com fallback pra cache e, por fim, index (app shell)
-  if (req.mode === 'navigate' || (req.method === 'GET' && req.headers.get('accept')?.includes('text/html'))) {
-    e.respondWith((async () => {
-      try {
-        const fresh = await fetch(req);
-        const cache = await caches.open(CACHE);
-        cache.put(req, fresh.clone());
-        return fresh;
-      } catch (err) {
-        const cache = await caches.open(CACHE);
-        const cached = await cache.match(req);
-        return cached || cache.match('./index.html');
-      }
-    })());
+  const url = new URL(req.url);
+  
+  // Ignorar requisições para o Chrome Extension
+  if (url.protocol === 'chrome-extension:') {
     return;
   }
-
-  // Demais (CSS/JS/Fontes/Imagens): CacheFirst
-  e.respondWith((async () => {
-    const cache = await caches.open(CACHE);
-    const cached = await cache.match(req, { ignoreVary: true });
-    if (cached) return cached;
-    try {
-      const fresh = await fetch(req);
-      if (req.method === 'GET' && fresh && fresh.status === 200) {
-        cache.put(req, fresh.clone());
-      }
-      return fresh;
-    } catch (err) {
-      return cached; // se não tiver, falha silenciosa
-    }
-  })());
+  
+  // Estratégia para páginas HTML (navegação)
+  if (req.mode === 'navigate' || 
+      (req.method === 'GET' && req.headers.get('accept')?.includes('text/html'))) {
+    e.respondWith(
+      fetch(req)
+        .then(response => {
+          // Clonar a resposta para armazenar em cache
+          const responseClone = response.clone();
+          caches.open(CACHE).then(cache => cache.put(req, responseClone));
+          return response;
+        })
+        .catch(() => {
+          // Fallback para o cache se offline
+          return caches.match(req)
+            .then(cached => cached || caches.match('./index.html'));
+        })
+    );
+    return;
+  }
+  
+  // Estratégia para demais recursos (Cache First)
+  e.respondWith(
+    caches.match(req)
+      .then(cached => {
+        if (cached) return cached;
+        
+        return fetch(req)
+          .then(response => {
+            // Armazenar em cache apenas respostas válidas
+            if (req.method === 'GET' && response.status === 200) {
+              const responseClone = response.clone();
+              caches.open(CACHE).then(cache => cache.put(req, responseClone));
+            }
+            return response;
+          })
+          .catch(() => {
+            // Fallback para recursos críticos
+            if (req.destination === 'style' || req.destination === 'script') {
+              return caches.match('./style.css');
+            }
+            return new Response('Offline', { status: 503 });
+          });
+      })
+  );
 });
+
+// Sincronização em segundo plano
+self.addEventListener('sync', (e) => {
+  if (e.tag === 'sync-data') {
+    e.waitUntil(syncData());
+  }
+});
+
+// Função de sincronização de dados
+async function syncData() {
+  try {
+    // Lógica de sincronização aqui
+    console.log('Sincronizando dados...');
+    // Exemplo: enviar dados para o servidor
+    // await sendDataToServer();
+    return true;
+  } catch (err) {
+    console.error('Erro na sincronização:', err);
+    return false;
+  }
+}
