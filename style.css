@@ -1,0 +1,39 @@
+:root {
+    --primary-color: #0d9488; /* teal-600 */
+    --primary-color-light: #f0fdfa; /* teal-50 */
+    --primary-color-rgb: 13, 148, 136;
+    --text-color-dark: #374151; /* gray-700 */
+    --text-color-light: #6b7280; /* gray-500 */
+    font-family: 'Lexend', 'Noto Sans', sans-serif;
+}
+body {
+    color: var(--text-color-dark);
+    background-color: #ffffff;
+}
+.custom-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.custom-label {
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease-in-out;
+}
+.custom-input:checked + .custom-label {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+.form-input:focus,
+.form-textarea:focus {
+    --tw-ring-color: rgba(var(--primary-color-rgb), 0.4);
+    box-shadow: 0 0 0 1px var(--primary-color), 0 0 0 3px var(--tw-ring-color);
+    border-color: var(--primary-color);
+}
+.tab-button.active {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 600;
+}
