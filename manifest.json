@@ -1,22 +1,106 @@
 {
   "name": "MissionCare Plus",
   "short_name": "MissionCare+",
-  "description": "Levando cura e esperança aos confins da Terra. Um assistente de saúde para missionários.",
-  "start_url": ".",
+  "description": "Levando cura e esperança aos confins da Terra. Um assistente de saúde para missionários em áreas remotas.",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f3f4f6",
-  "theme_color": "#2563eb",
+  "theme_color": "#0d9488",
   "orientation": "portrait-primary",
+  "categories": ["medical", "health", "education", "productivity"],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "scope": "./",
   "icons": [
     {
-      "src": "https://placehold.co/192x192/2563eb/FFFFFF?text=MC+",
+      "src": "https://placehold.co/72x72/0d9488/FFFFFF?text=MC+",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "72x72",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://placehold.co/512x512/2563eb/FFFFFF?text=MC+",
+      "src": "https://placehold.co/96x96/0d9488/FFFFFF?text=MC+",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "96x96",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/128x128/0d9488/FFFFFF?text=MC+",
+      "type": "image/png",
+      "sizes": "128x128",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/144x144/0d9488/FFFFFF?text=MC+",
+      "type": "image/png",
+      "sizes": "144x144",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/152x152/0d9488/FFFFFF?text=MC+",
+      "type": "image/png",
+      "sizes": "152x152",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/192x192/0d9488/FFFFFF?text=MC+",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/384x384/0d9488/FFFFFF?text=MC+",
+      "type": "image/png",
+      "sizes": "384x384",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/512x512/0d9488/FFFFFF?text=MC+",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "https://placehold.co/1280x720/0d9488/FFFFFF?text=MissionCare+Home",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "https://placehold.co/750x1334/0d9488/FFFFFF?text=MissionCare+Mobile",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Emergências",
+      "short_name": "Emergências",
+      "description": "Acesso rápido a informações de emergência",
+      "url": "./4-emergencias.html",
+      "icons": [{ "src": "https://placehold.co/96x96/0d9488/FFFFFF?text=!", "sizes": "96x96" }]
+    },
+    {
+      "name": "Contatos",
+      "short_name": "Contatos",
+      "description": "Informações de contato e suporte",
+      "url": "./9-contatos.html",
+      "icons": [{ "src": "https://placehold.co/96x96/0d9488/FFFFFF?text=@", "sizes": "96x96" }]
+    },
+    {
+      "name": "Devocional",
+      "short_name": "Devocional",
+      "description": "Renovação diária para missionários",
+      "url": "./2-devocional.html",
+      "icons": [{ "src": "https://placehold.co/96x96/0d9488/FFFFFF?text=✝", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }
