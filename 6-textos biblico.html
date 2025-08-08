@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang="app.title">Renovação Diária - MissionCare Plus</title>
+
+    <!-- Importação de Fontes e Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@440;500;700;900">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
+            --primary-color: #0d9488; /* Tailwind teal-600 */
+            --text-color-dark: #374151; /* gray-700 */
+            --text-color-light: #6b7280; /* gray-500 */
+        }
+        .devotional-card {
+            background-size: cover;
+            background-position: center;
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        /* Estilos para as bandeiras */
+        .lang-switcher {
+            display: flex;
+            gap: 10px;
+            margin-left: auto; /* Empurra para a direita */
+        }
+        .lang-switcher button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .lang-switcher button:hover {
+            background-color: #f0f0f0;
+        }
+        .lang-switcher img {
+            width: 28px; /* Tamanho um pouco maior para as bandeiras */
+            height: 28px;
+            display: block;
+            border-radius: 50%; /* Para que as bandeiras fiquem redondas */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        /* Estilos para a mensagem de notificação */
+        #app-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        #app-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        #app-message.error {
+            background-color: #dc2626; /* red-600 */
+        }
+        #app-message.success {
+            background-color: #0d9488; /* teal-600 */
+        }
+        #app-message.info {
+            background-color: #2563eb; /* blue-600 */
+        }
+        /* Estilos para o indicador de modo offline */
+        .offline-indicator {
+            position: fixed;
+            bottom: 70px;
+            right: 10px;
+            background-color: #f59e0b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+        }
+        .offline-indicator.show {
+            display: block;
+        }
+        /* Estilo para imagens offline */
+        .offline-image {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect fill="%230d9488" width="800" height="600"/><path fill="%23ffffff" d="M400,150 L500,350 L300,350 Z" opacity="0.3"/><circle fill="%23ffffff" cx="400" cy="300" r="80" opacity="0.2"/><text x="400" y="450" font-family="Arial" font-size="24" fill="white" text-anchor="middle">MissionCare Plus</text></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <!-- Container da Aplicação -->
+    <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-white">
+        <!-- Mensagem de Notificação -->
+        <div id="app-message" class="hidden"></div>
+        
+        <!-- Indicador de Modo Offline -->
+        <div id="offline-indicator" class="offline-indicator">Modo Offline</div>
+
+        <!-- Conteúdo Principal -->
+        <div>
+            <header class="sticky top-0 z-10 flex items-center bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                <a href="#" class="text-gray-600 hover:text-gray-900 p-2 -ml-2" onclick="goBack()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+                </a>
+                <h1 data-lang="header.title" class="text-gray-800 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-8">Renovação Diária</h1>
+
+                <!-- Language Switcher -->
+                <div class="lang-switcher">
+                    <button id="lang-pt" title="Português (Brasil)" aria-label="Mudar para Português (Brasil)">
+                        <img src="https://flagcdn.com/br.svg" alt="Bandeira do Brasil">
+                    </button>
+                    <button id="lang-es" title="Español (España)" aria-label="Mudar para Español (España)">
+                        <img src="https://flagcdn.com/es.svg" alt="Bandeira da Espanha">
+                    </button>
+                    <button id="lang-en" title="English" aria-label="Switch to English">
+                        <img src="https://flagcdn.com/us.svg" alt="Flag of United States">
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-grow pb-24"> <!-- Aumentado o padding-bottom para dar espaço aos botões -->
+                <div id="loading-state" class="p-4">
+                     <div class="animate-pulse flex flex-col items-stretch justify-end rounded-xl pt-[132px] bg-gray-200 h-64">
+                         <div class="p-4 space-y-2">
+                             <div class="h-6 bg-gray-300 rounded w-3/4"></div>
+                             <div class="h-6 bg-gray-300 rounded w-1/2"></div>
+                             <div class="h-4 bg-gray-300 rounded w-1/4 mt-2"></div>
+                         </div>
+                     </div>
+                     <p data-lang="loading.message" class="text-center text-gray-500 mt-4">A procurar inspiração...</p>
+                </div>
+
+                <div id="content-state" class="hidden p-4 mb-8"> <!-- Adicionado margin-bottom para afastar do footer -->
+                    <div id="devotional-card" class="devotional-card flex flex-col items-stretch justify-end rounded-xl pt-[132px] min-h-[256px]">
+                        <div class="w-full bg-gradient-to-t from-black/60 to-transparent p-4 rounded-b-xl">
+                            <h2 id="devotional-title" class="text-white text-2xl font-bold leading-tight mb-2"></h2>
+                            <p id="scripture-text" class="text-white text-base font-medium leading-normal"></p>
+                            <p id="scripture-reference" class="text-white text-sm font-light leading-normal mt-1"></p>
+                        </div>
+                    </div>
+                    <div id="devotional-content-container" class="bg-gray-50 p-4 mt-4 rounded-xl shadow-sm border border-gray-200">
+                        <p id="devotional-text" class="text-gray-700 text-base leading-relaxed mb-4"></p>
+                        <p id="closing-prayer-reflection" class="text-gray-700 text-base leading-relaxed italic font-semibold"></p>
+                    </div>
+
+                    <!-- Botões de Ação - Movidos para melhor visualização -->
+                    <div class="flex justify-center gap-4 mt-6">
+                        <button id="new-devotional-btn" class="flex items-center px-6 py-3 bg-teal-600 text-white font-bold rounded-full shadow-md hover:bg-teal-700 transition-colors" aria-label="Gerar novo devocional">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0116 3.898V16a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1.899A7.002 7.002 0 014 9.101V7a1 1 0 011-1h1a1 1 0 011 1v2.101a5.002 5.002 0 0010 0V7a1 1 0 011-1h1a1 1 0 011 1v2.101a7.002 7.002 0 01-16 3.898V16a1 1 0 01-1 1H4a1 1 0 01-1-1v-1.899A7.002 7.002 0 014 9.101V7a1 1 0 011-1h1a1 1 0 011 1z" clip-rule="evenodd" /></svg>
+                            <span data-lang="button.new_devotional">Novo Devocional</span>
+                        </button>
+                        <button id="share-devotional-btn" class="flex items-center px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-full shadow-md hover:bg-gray-300 transition-colors" aria-label="Partilhar devocional">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.977l-1.293 1.293a1 1 0 00-1.414 0l-1.293-1.293A3 3 0 102 8a3 3 0 002.977 2.977l1.293 1.293a1 1 0 001.414 0l1.293 1.293A3 3 0 1018 12a3 3 0 00-2.977-2.977l-1.293-1.293a1 1 0 00-1.414 0l-1.293 1.293A3 3 0 1015 8z" /></svg>
+                            <span data-lang="button.share">Partilhar</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- BARRA DE NAVEGAÇÃO GLOBAL -->
+        <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
+            <div class="mx-auto flex h-16 max-w-4xl items-center justify-around">
+                <button onclick="goBack()" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                    <span data-lang="nav_voltar" class="mt-1 text-xs font-bold uppercase tracking-wider">Voltar</span>
+                </button>
+                <div class="h-8 w-px bg-gray-200"></div>
+                <a href="index.html" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+                    <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                    <span data-lang="nav_inicio" class="mt-1 text-xs font-bold uppercase tracking-wider">Início</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+
+    // Função para voltar na história do navegador
+    window.goBack = function() {
+        window.history.back();
+    };
+
+    // Elementos do DOM
+    const loadingState = document.getElementById('loading-state');
+    const contentState = document.getElementById('content-state');
+    const devotionalCard = document.getElementById('devotional-card');
+    const devotionalTitle = document.getElementById('devotional-title');
+    const scriptureText = document.getElementById('scripture-text');
+    const scriptureReference = document.getElementById('scripture-reference');
+    const devotionalText = document.getElementById('devotional-text');
+    const closingPrayerReflection = document.getElementById('closing-prayer-reflection');
+    const newDevotionalBtn = document.getElementById('new-devotional-btn');
+    const shareDevotionalBtn = document.getElementById('share-devotional-btn');
+    const langPtBtn = document.getElementById('lang-pt');
+    const langEsBtn = document.getElementById('lang-es');
+    const langEnBtn = document.getElementById('lang-en');
+    const appMessage = document.getElementById('app-message');
+    const offlineIndicator = document.getElementById('offline-indicator');
+
+    let currentLanguage = localStorage.getItem('appLanguage') || 'pt';
+    let isOnline = navigator.onLine;
+
+    // Verificar status de conexão
+    function updateOnlineStatus() {
+        isOnline = navigator.onLine;
+        if (!isOnline) {
+            offlineIndicator.classList.add('show');
+            showMessage(translations[currentLanguage]['offline.mode'], 'info', 5000);
+        } else {
+            offlineIndicator.classList.remove('show');
+            // Se voltou a ficar online, tenta sincronizar dados
+            syncOfflineData();
+        }
+    }
+
+    // Adicionar event listeners para mudança de status de conexão
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    // Objeto de traduções para textos estáticos da UI
+    const translations = {
+        'pt': {
+            'app.title': 'Renovação Diária - MissionCare Plus',
+            'header.title': 'Renovação Diária',
+            'loading.message': 'A procurar inspiração...',
+            'button.new_devotional': 'Novo Devocional',
+            'button.share': 'Partilhar',
+            'nav_voltar': 'Voltar',
+            'nav_inicio': 'Início',
+            'share.success': 'Devocional copiado!',
+            'share.error': 'Erro ao copiar. Por favor, tente novamente.',
+            'offline.mode': 'Modo Offline ativado. Usando dados armazenados localmente.',
+            'sync.success': 'Dados sincronizados com sucesso!',
+            'sync.error': 'Erro ao sincronizar dados. Tente novamente quando estiver online.'
+        },
+        'es': {
+            'app.title': 'Renovación Diaria - MissionCare Plus',
+            'header.title': 'Renovación Diaria',
+            'loading.message': 'Buscando inspiración...',
+            'button.new_devotional': 'Nuevo Devocional',
+            'button.share': 'Compartir',
+            'nav_voltar': 'Volver',
+            'nav_inicio': 'Inicio',
+            'share.success': '¡Devocional copiado!',
+            'share.error': 'Error al copiar. Por favor, inténtelo de nuevo.',
+            'offline.mode': 'Modo Offline activado. Usando datos almacenados localmente.',
+            'sync.success': '¡Datos sincronizados con éxito!',
+            'sync.error': 'Error al sincronizar datos. Inténtalo de nuevo cuando estés en línea.'
+        },
+        'en': {
+            'app.title': 'Daily Renewal - MissionCare Plus',
+            'header.title': 'Daily Renewal',
+            'loading.message': 'Seeking inspiration...',
+            'button.new_devotional': 'New Devotional',
+            'button.share': 'Share',
+            'nav_voltar': 'Back',
+            'nav_inicio': 'Home',
+            'share.success': 'Devotional copied!',
+            'share.error': 'Error copying. Please try again.',
+            'offline.mode': 'Offline mode activated. Using locally stored data.',
+            'sync.success': 'Data synchronized successfully!',
+            'sync.error': 'Error synchronizing data. Try again when you are online.'
+        }
+    };
+
+    // Dados dos devocionais (diretamente do JSON fornecido)
+    const devotionalsData = {
+      "devocionais": [
+        {
+          "title": {
+            "pt": "Um ano novo",
+            "es": "Un año nuevo",
+            "en": "A New Year"
+          },
+          "scripture_reference": {
+            "pt": "Apocalipse 21:5",
+            "es": "Apocalipsis 21:5",
+            "en": "Revelation 21:5"
+          },
+          "scripture_text": {
+            "pt": "“Aquele que estava assentado no trono disse: 'Estou fazendo novas todas as coisas!'. E acrescentou: 'Escreva isto, pois estas palavras são verdadeiras e dignas de confiança'.”",
+            "es": "“El que estaba sentado en el trono dijo: '¡Yo hago nuevas todas las cosas!'. Y añadió: 'Escribe esto, porque estas palabras son verdaderas y dignas de confianza'.”",
+            "en": "“He who was seated on the throne said, 'I am making everything new!' Then he said, 'Write this down, for these words are trustworthy and true.'”"
+          },
+          "devotional_text": {
+            "pt": "Cada novo ano em nossas vidas é uma oportunidade para fazer um balanço de quem somos, o que somos e para onde nós vamos. É um tempo quando podemos acertar os erros do ano passado, e ajustar o curso de nossa jornada para a frente, sob a luz da vontade de Deus para nossas vidas. É hora de mudar e renovar. O poema de Lord Alfred Tennyson, \"Ring out, wild bells\", nos lembra que este é um tempo para nos dedicarmos a mudar o olhar do passado para o futuro, celebrando o novo, a verdade, o amor e o Cristo que há de vir.",
+            "es": "Cada nuevo año en nuestras vidas es una oportunidad para hacer un balance de quiénes somos, qué somos y hacia dónde vamos. Es un tiempo en el que podemos corregir los errores del año pasado y ajustar el rumbo de nuestro viaje hacia adelante, bajo la luz de la voluntad de Dios para nuestras vidas. Es hora de cambiar y renovar. El poema de Lord Alfred Tennyson, \"Ring out, wild bells\", nos recuerda que este es un tiempo para dedicarnos a cambiar nuestra mirada del pasado hacia el futuro, celebrando lo nuevo, la verdad, el amor y el Cristo que ha de venir.",
+            "en": "Each new year in our lives is an opportunity to take stock of who we are, what we are, and where we are going. It is a time when we can right the wrongs of the past year and adjust the course of our journey forward, under the light of God's will for our lives. It is a time to change and renew. The poem \"Ring out, wild bells\" by Lord Alfred Tennyson reminds us that this is a time to dedicate ourselves to shifting our gaze from the past to the future, celebrating the new, the truth, the love, and the Christ who is to come."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Oração: Deus, nos use para trazer as mudanças que você deseja. Amém.",
+            "es": "Oración: Dios, úsanos para traer los cambios que deseas. Amén.",
+            "en": "Prayer: God, use us to bring about the changes you desire. Amen."
+          }
+        },
+        {
+          "title": {
+            "pt": "Alegrai-vos no Senhor: Adoração, Maravilha e Deleite",
+            "es": "Regocijaos en el Señor: Adoración, Maravilla y Deleite",
+            "en": "Rejoice in the Lord: Worship, Wonder, and Delight"
+          },
+          "scripture_reference": {
+            "pt": "Filipenses 4:4",
+            "es": "Filipenses 4:4",
+            "en": "Philippians 4:4"
+          },
+          "scripture_text": {
+            "pt": "“Alegrem-se sempre no Senhor. Novamente direi: alegrem-se!”",
+            "es": "“¡Regocijaos en el Señor siempre! Otra vez digo: ¡Regocijaos!”",
+            "en": "“Rejoice in the Lord always. I will say it again: Rejoice!”"
+          },
+          "devotional_text": {
+            "pt": "Uma das principais questões em aconselhamento espiritual é: "Que tipo de Deus você adora?" Alguns veem Deus como um ogro crítico. O apóstolo Paulo, antes um fariseu que via Deus através da Lei, teve um encontro transformador com Cristo na estrada para Damasco. Ele passou a deleitar-se no Deus que se humilhou, serviu e foi exaltado. A história de Jesus Cristo é uma história incrível que vale a pena contar e recontar, pois pecadores são transformados por este evangelho da graça. Quando Paulo vê a transformação na vida de seus amados filipenses, ele se alegra.",
+            "es": "Una de las preguntas clave en el consejo espiritual es: \"¿Qué tipo de Dios adoras?\" Algunos ven a Dios como un ogro crítico. El apóstol Pablo, antes un fariseo que veía a Dios a través de la Ley, tuvo un encuentro transformador con Cristo en el camino a Damasco. Pasó a deleitarse en el Dios que se humilló, sirvió y fue exaltado. La historia de Jesucristo es una historia increíble que vale la pena contar y volver a contar, pues los pecadores son transformados por este evangelio de la gracia. Cuando Pablo ve la transformación en la vida de sus amados filipenses, se regocija.",
+            "en": "One of the key questions in spiritual counseling is: \"What kind of God do you worship?\" Some see God as a critical ogre. The apostle Paul, once a Pharisee who saw God through the Law, had a transformative encounter with Christ on the road to Damascus. He came to delight in the God who humbled Himself, served, and was exalted. The story of Jesus Christ is an incredible one worth telling and retelling, as sinners are transformed by this gospel of grace. When Paul sees the transformation in the lives of his beloved Philippians, he rejoices."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: Que tipo de Deus nós adoramos? Precisamos refletir novamente sobre a vida de Cristo como um corretivo para a nossa compreensão do Pai.",
+            "es": "Reflexión: ¿Qué tipo de Dios adoramos? Necesitamos reflexionar de nuevo sobre la vida de Cristo como un correctivo para nuestra comprensión del Padre.",
+            "en": "Reflection: What kind of God do we worship? We need to reflect again on the life of Christ as a corrective to our understanding of the Father."
+          }
+        },
+        {
+          "title": {
+            "pt": "Primeiro o mais importante",
+            "es": "Primero lo más importante",
+            "en": "First Things First"
+          },
+          "scripture_reference": {
+            "pt": "Mateus 6:33",
+            "es": "Mateo 6:33",
+            "en": "Matthew 6:33"
+          },
+          "scripture_text": {
+            "pt": "“Busquem, pois, em primeiro lugar o Reino de Deus e a sua justiça, e todas essas coisas lhes serão acrescentadas.”",
+            "es": "“Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.”",
+            "en": "“But seek first his kingdom and his righteousness, and all these things will be given to you as well.”"
+          },
+          "devotional_text": {
+            "pt": "Nossa vida é cheia da "Tirania do urgente". Celular, e-mail e reuniões nos puxam em todas as direções. Marcos 1:35 nos informa que Jesus levantava-se de madrugada para ter um tempo a sós com Deus e rever as prioridades para seu dia. Precisamos, "De Propósito", fazer com que buscar a Deus seja nossa primeira prioridade. Dizer "Sim" a uma coisa significa dizer "Não" a outras. Não seja escravizado por dispositivos digitais. Considere o "Top 10" de Deus, que é amá-lo com todo nosso coração, alma e espírito. Comece certo e seja dirigido por Deus. Basta pedir e você receberá!",
+            "es": "Nuestra vida está llena de la "Tiranía de lo urgente". El celular, el correo electrónico y las reuniones nos jalan en todas direcciones. Marcos 1:35 nos informa que Jesús se levantaba de madrugada para tener un tiempo a solas con Dios y revisar las prioridades para su día. Necesitamos, "A Propósito", hacer que buscar a Dios sea nuestra primera prioridad. Decir "Sí" a una cosa significa decir "No" a otras. No seas esclavo de los dispositivos digitales. Considera el "Top 10" de Dios, que es amarlo con todo nuestro corazón, alma y espíritu. Comienza bien y sé dirigido por Dios. ¡Solo pide y recibirás!",
+            "en": "Our lives are filled with the "Tyranny of the Urgent." Cell phones, emails, and meetings pull us in every direction. Mark 1:35 tells us that Jesus would rise early in the morning to have time alone with God and review the priorities for His day. We need, "On Purpose," to make seeking God our first priority. Saying "Yes" to one thing means saying "No" to others. Don't be enslaved by digital devices. Consider God's "Top 10," which is to love Him with all our heart, soul, and spirit. Start right and be led by God. Just ask, and you will receive!"
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: Quais são os obstáculos para um período de silêncio regular com Deus? Como posso lidar com isso?",
+            "es": "Reflexión: ¿Cuáles son los obstáculos para un período de silencio regular con Dios? ¿Cómo puedo lidiar con ellos?",
+            "en": "Reflection: What are the obstacles to a regular quiet time with God? How can I overcome them?"
+          }
+        },
+        {
+          "title": {
+            "pt": "Visão",
+            "es": "Visión",
+            "en": "Vision"
+          },
+          "scripture_reference": {
+            "pt": "Neemias 1:11",
+            "es": "Nehemías 1:11",
+            "en": "Nehemiah 1:11"
+          },
+          "scripture_text": {
+            "pt": "...Faze que hoje este teu servo seja bem-sucedido...",
+            "es": "...Te ruego que concedas hoy buen éxito a tu siervo...",
+            "en": "...grant that your servant may have success today..."
+          },
+          "devotional_text": {
+            "pt": "O livro de Neemias apresenta a vida de um líder com qualidades extraordinárias. Uma de suas principais características foi a sua visão. "Sem visão o povo perece." Uma visão de sucesso, como a de Neemias, tem cinco características:\n\n1. Clara e específica: Ele tinha uma imagem clara dos muros de Jerusalém que precisavam ser restaurados.\n2. Compromisso: Ele estava completamente envolvido, dizendo "Vamos reconstruir".\n3. Envolvimento de outros: Ele compartilhou sua visão e pediu ajuda.\n4. Avaliação realista das dificuldades: Ele reconheceu os obstáculos e opositores.\n5. Confiança em Deus: Ele acreditava que "O Deus dos céus fará que sejamos bem-sucedidos."\nA visão foi o motor que motivou Neemias. Devemos ter uma visão clara de Deus para realizar Seus projetos através de nossas vidas.",
+            "es": "El libro de Nehemías presenta la vida de un líder con cualidades extraordinarias. Una de sus principales características fue su visión. "Sin visión, el pueblo perece." Una visión de éxito, como la de Nehemías, tiene cinco características:\nClara y específica: Tenía una imagen clara de los muros de Jerusalén que necesitaban ser restaurados.\nCompromiso: Estaba completamente involucrado, diciendo "Vamos a reconstruir".\nParticipación de otros: Compartió su visión y pidió ayuda.\nEvaluación realista de las dificultades: Reconoció los obstáculos y opositores.\nConfianza en Dios: Creía que "El Dios de los cielos, él nos prosperará."\nLa visión fue el motor que motivó a Nehemías. Debemos tener una visión clara de Dios para realizar Sus proyectos a través de nuestras vidas.",
+            "en": "The book of Nehemiah presents the life of a leader with extraordinary qualities. One of his main characteristics was his vision. "Where there is no vision, the people perish." A successful vision, like Nehemiah's, has five characteristics:\nClear and specific: He had a clear image of the walls of Jerusalem that needed to be restored.\nCommitment: He was completely involved, saying, "Let us start rebuilding."\nInvolvement of others: He shared his vision and asked for help.\nRealistic assessment of difficulties: He recognized the obstacles and opponents.\nTrust in God: He believed that "The God of heaven will give us success."\nThe vision was the driving force that motivated Nehemiah. We must have a clear vision from God to carry out His projects through our lives."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "A corrida assinalada para você",
+            "es": "La carrera que nos está propuesta",
+            "en": "The Race Marked Out for You"
+          },
+          "scripture_reference": {
+            "pt": "Hebreus 12:1-2",
+            "es": "Hebreos 12:1-2",
+            "en": "Hebrews 12:1-2"
+          },
+          "scripture_text": {
+            "pt": "“Portanto, também nós, uma vez que estamos rodeados por tão grande nuvem de testemunhas, livremo-nos de tudo o que nos atrapalha e do pecado que nos envolve e corramos com perseverança a corrida que nos é proposta, tendo os olhos fitos em Jesus, autor e consumador da nossa fé.”",
+            "es": "“Por tanto, nosotros también, teniendo en derredor nuestro tan grande nube de testigos, despojémonos de todo peso y del pecado que nos asedia, y corramos con paciencia la carrera que tenemos por delante, puestos los ojos en Jesús, el autor y consumador de la fe.”",
+            "en": "“Therefore, since we are surrounded by such a great cloud of witnesses, let us throw off everything that hinders and the sin that so easily entangles. And let us run with perseverance the race marked out for us, fixing our eyes on Jesus, the pioneer and perfecter of faith.”"
+          },
+          "devotional_text": {
+            "pt": "A vida como jovem médico oferece inúmeras oportunidades para demonstrar amor, agir com integridade e trabalhar com generosidade. No entanto, também está repleta de distrações. O cansaço pode diminuir nossa resistência, e pode ser fácil se desviar com más companhias ou usar nossos recursos de forma egoísta. O apóstolo Paulo usa a analogia de um atleta para descrever a disciplina de um filho de Deus. Somos lembrados que existe uma corrida assinalada para cada um de nós. Deus não espera que sejamos super-homens, mas nos dá tarefas, responsabilidades e os recursos para fazermos o que Ele nos pede.",
+            "es": "La vida como joven médico ofrece innumerables oportunidades para demostrar amor, actuar con integridad y trabajar con generosidad. Sin embargo, también está llena de distracciones. El cansancio puede disminuir nuestra resistencia, y puede ser fácil desviarse con malas compañías o usar nuestros recursos de forma egoísta. El apóstol Pablo usa la analogía de un atleta para describir la disciplina de un hijo de Dios. Se nos recuerda que hay una carrera señalada para cada uno de nosotros. Dios no espera que seamos superhombres, pero Él nos da tareas, responsabilidades y los recursos para hacer lo que Él nos pide.",
+            "en": "Life as a young doctor offers numerous opportunities to show love, act with integrity, and work with generosity. However, it is also full of distractions. Fatigue can lower our resistance, and it can be easy to stray with bad company or use our resources selfishly. The apostle Paul uses the analogy of an athlete to describe the discipline of a child of God. We are reminded that there is a race marked out for each of us. God does not expect us to be supermen, but He gives us tasks, responsibilities, and the resources to do what He asks of us."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Oração: Senhor Jesus, ajuda-me a lembrar que és o Deus 'capaz de me abençoar abundantemente, para que em todas as coisas e em todo o tempo, tendo tudo o que é necessário, transborde em toda boa obra, em nome de Jesus', amém.",
+            "es": "Oración: Señor Jesús, ayúdame a recordar que eres el Dios 'capaz de bendecirme abundantemente, para que en todas las cosas y en todo tiempo, teniendo todo lo que necesito, abunde para toda buena obra, en el nombre de Jesús', amén.",
+            "en": "Prayer: Lord Jesus, help me to remember that you are the God 'who is able to bless me abundantly, so that in all things at all times, having all that I need, I will abound in every good work, in Jesus' name,' amen."
+          }
+        },
+        {
+          "title": {
+            "pt": "Graça para Perseverar",
+            "es": "Gracia para Perseverar",
+            "en": "Grace to Persevere"
+          },
+          "scripture_reference": {
+            "pt": "2 Coríntios 4:1",
+            "es": "2 Corintios 4:1",
+            "en": "2 Corinthians 4:1"
+          },
+          "scripture_text": {
+            "pt": "... não desanimamos.",
+            "es": "...no desmayamos.",
+            "en": "...we do not lose heart."
+          },
+          "devotional_text": {
+            "pt": "Conheci um médico que repetiu suas provas superiores dezessete vezes e finalmente se tornou um especialista. Ele também escalou o Everest. Ambas as atividades exigiam perseverança. Na parábola do semeador, Jesus descreveu como a perseguição e as preocupações do mundo podem nos impedir de dar frutos. Nós também podemos nos distrair com a carga de trabalho, pressões familiares ou a sedução de uma vida mais fácil. Qual é o segredo para sobreviver sob pressão? Olhar para Jesus, autor e consumador da fé. Ele suportou a cruz por nós. Devemos resistir ao inimigo, vestir a armadura de Deus e perseverar em oração. Ele é especialista em conceder o dom da perseverança.",
+            "es": "Conocí a un médico que repitió sus exámenes superiores diecisiete veces y finalmente se convirtió en especialista. También escaló el Everest. Ambas actividades requerían perseverancia. En la parábola del sembrador, Jesús describió cómo la persecución y las preocupaciones del mundo pueden impedirnos dar fruto. También nosotros podemos distraernos con la carga de trabajo, las presiones familiares o la seducción de una vida más fácil. ¿Cuál es el secreto para sobrevivir bajo presión? Poner los ojos en Jesús, autor y consumador de la fe. Él soportó la cruz por nosotros. Debemos resistir al enemigo, vestir la armadura de Dios y perseverar en la oración. Él es especialista en conceder el don de la perseverancia.",
+            "en": "I once knew a doctor who retook his advanced exams seventeen times and finally became a specialist. He also climbed Mount Everest. Both activities required perseverance. In the parable of the sower, Jesus described how persecution and the worries of the world can prevent us from bearing fruit. We can also be distracted by workloads, family pressures, or the seduction of an easier life. What is the secret to surviving under pressure? To look to Jesus, the author and finisher of our faith. He endured the cross for us. We must resist the enemy, put on the armor of God, and persevere in prayer. He is an expert at granting the gift of perseverance."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "Senhor, Dá-me Paciência",
+            "es": "Señor, Dame Paciencia",
+            "en": "Lord, Give Me Patience"
+          },
+          "scripture_reference": {
+            "pt": "Efésios 5:19-20",
+            "es": "Efesios 5:19-20",
+            "en": "Ephesians 5:19-20"
+          },
+          "scripture_text": {
+            "pt": "“Falando entre vocês com salmos, hinos e cânticos espirituais, cantando e louvando de coração ao Senhor, dando graças constantemente a Deus Pai por todas as coisas, em nome de nosso Senhor Jesus Cristo.”",
+            "es": "“Hablando entre vosotros con salmos, con himnos y cánticos espirituales, cantando y alabando al Señor en vuestros corazones; dando siempre gracias por todo al Dios y Padre, en el nombre de nuestro Señor Jesucristo.”",
+            "en": "“Speak to one another with psalms, hymns, and songs from the Spirit. Sing and make music from your heart to the Lord, always giving thanks to God the Father for everything, in the name of our Lord Jesus Christ.”"
+          },
+          "devotional_text": {
+            "pt": "Nós aspiramos a um modo de vida santo, com atitude de humildade e gratidão, mas um pequeno inconveniente, como preencher um formulário complicado, pode pôr nossa paciência à prova. A instrução bíblica é clara: "Em tudo dai graças, porque esta é a vontade de Deus em Cristo Jesus para convosco" (1 Tessalonicenses 5:18). Mesmo em situações difíceis, podemos encontrar algo para louvar a Deus. Este é o nosso "sacrifício de louvor" que agrada a Deus. Em vez de murmurar sobre as irritações diárias, podemos meditar em Deus, cultivar um coração grato e cantar cânticos de louvor.",
+            "es": "Aspiramos a un modo de vida santo, con una actitud de humildad y gratitud, pero una pequeña inconveniencia, como llenar un formulario complicado, puede poner a prueba nuestra paciencia. La instrucción bíblica es clara: "Dad gracias en todo, porque esta es la voluntad de Dios para con vosotros en Cristo Jesús" (1 Tesalonicenses 5:18). Incluso en situaciones difíciles, podemos encontrar algo por lo cual alabar a Dios. Este es nuestro "sacrificio de alabanza" que agrada a Dios. En lugar de murmurar sobre las irritaciones diarias, podemos meditar en Dios, cultivar un corazón agradecido y cantar cánticos de alabanza.",
+            "en": "We aspire to a holy life, with an attitude of humility and gratitude, but a small inconvenience, like filling out a complicated form, can test our patience. The biblical instruction is clear: "give thanks in all circumstances; for this is God's will for you in Christ Jesus" (1 Thessalonians 5:18). Even in difficult situations, we can find something to praise God for. This is our "sacrifice of praise" that pleases God. Instead of murmuring about daily irritations, we can meditate on God, cultivate a grateful heart, and sing songs of praise."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "Não Desanime",
+            "es": "No Desanimes",
+            "en": "Do Not Be Discouraged"
+          },
+          "scripture_reference": {
+            "pt": "2 Coríntios 4:8",
+            "es": "2 Corintios 4:8",
+            "en": "2 Corinthians 4:8"
+          },
+          "scripture_text": {
+            "pt": "“Em tudo somos atribulados, mas não angustiados; perplexos, mas não desanimados.”",
+            "es": "“Estamos atribulados en todo, mas no angustiados; en apuros, mas no desesperados.”",
+            "en": "“We are hard pressed on every side, but not crushed; perplexed, but not in despair.”"
+          },
+          "devotional_text": {
+            "pt": "O que você faz quando tudo desmorona? A maioria de nós fica tentada a se desesperar. Quando olhamos para a revelação de Deus, encontramos uma mensagem espetacular para Abraão: "Não temas, Abrão, eu sou o teu escudo, o teu grandíssimo galardão." (Gênesis 15:1b). Estas são palavras para nós hoje. "Não temas". Deus está nos confortando e comandando. Ele promete proteção, mas não uma vida fácil. Ele promete a Si mesmo como nossa recompensa. No final do dia, mesmo que sejamos afastados de nosso trabalho por forças fora de nosso controle, o Senhor nunca nos deixará. Ele mesmo será o nosso tesouro.",
+            "es": ""¿Qué haces cuando todo se derrumba? La mayoría de nosotros nos sentimos tentados a desesperar. Cuando miramos la revelación de Dios, encontramos un mensaje espectacular para Abraham: "No temas, Abram; yo soy tu escudo, y tu galardón será sobremanera grande." (Génesis 15:1b). Estas son palabras para nosotros hoy. "No temas". Dios nos está consolando y ordenando. Él promete protección, pero no una vida fácil. Él se promete a Sí mismo como nuestra recompensa. Al final del día, incluso si somos apartados de nuestro trabajo por fuerzas fuera de nuestro control, el Señor nunca nos dejará. Él mismo será nuestro tesoro.",
+            "en": "What do you do when everything falls apart? Most of us are tempted to despair. When we look at God's revelation, we find a spectacular message for Abraham: "Do not be afraid, Abram. I am your shield, your very great reward." (Genesis 15:1b). These are words for us today. "Do not be afraid." God is comforting and commanding us. He promises protection, but not an easy life. He promises Himself as our reward. At the end of the day, even if we are pushed away from our work by forces beyond our control, the Lord will never leave us. He Himself will be our treasure."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "Nosso quebrantamento",
+            "es": "Nuestro quebrantamiento",
+            "en": "Our Brokenness"
+          },
+          "scripture_reference": {
+            "pt": "Mateus 5:3",
+            "es": "Mateo 5:3",
+            "en": "Matthew 5:3"
+          },
+          "scripture_text": {
+            "pt": "“Bem-aventurados os pobres em espírito, pois deles é o Reino dos céus.”",
+            "es": "“Bienaventurados los pobres en espíritu, porque de ellos es el reino de los cielos.”",
+            "en": "“Blessed are the poor in spirit, for theirs is the kingdom of heaven.”"
+          },
+          "devotional_text": {
+            "pt": "Vivemos em um mundo caído. A realização do nosso quebrantamento é o primeiro passo no nosso processo de cura. É quando, em total humildade diante de Deus, reconhecemos nossa falência de espírito e sentimos a necessidade d'Ele. Precisamos nomear nossos pecados e nos arrependermos. Sim, um coração quebrado e contrito, Deus não desprezará. Ele nos vestirá com a túnica da justiça e nos colocará no caminho da cura. Nós, como pródigos, precisamos temer o Senhor, lembrar do Seu amor e voltar a Ele. Então, nos moveremos de trapos para roupas, da ruína à restauração, da ruptura à cura.",
+            "es": "Vivimos en un mundo caído. Reconocer nuestro quebrantamiento es el primer paso en nuestro proceso de sanación. Es cuando, en total humildad ante Dios, reconocemos nuestra bancarrota espiritual y sentimos la necesidad de Él. Necesitamos nombrar nuestros pecados y arrepentirnos. Sí, un corazón quebrantado y contrito, Dios no lo despreciará. Él nos vestirá con la túnica de justicia y nos pondrá en el camino de la sanación. Nosotros, como pródigos, necesitamos temer al Señor, recordar Su amor y volver a Él. Entonces, pasaremos de harapos a vestiduras, de la ruina a la restauración, de la ruptura a la sanación.",
+            "en": "We live in a fallen world. Realizing our brokenness is the first step in our healing process. It is when, in total humility before God, we recognize our spiritual bankruptcy and feel our need for Him. We need to name our sins and repent. Yes, a broken and contrite heart, God will not despise. He will clothe us in the robe of righteousness and set us on the path of healing. We, as prodigals, need to fear the Lord, remember His love, and return to Him. Then we will move from rags to robes, from ruin to restoration, from brokenness to healing."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: Nos caminhos, nos afastamos de Deus em nossas vidas. Como podemos iniciar o processo de cura em todas estas áreas?",
+            "es": "Reflexión: En nuestros caminos, nos alejamos de Dios. ¿Cómo podemos iniciar el proceso de sanación en todas estas áreas?",
+            "en": "Reflection: In our ways, we drift away from God in our lives. How can we begin the healing process in all these areas?"
+          }
+        },
+        {
+          "title": {
+            "pt": "Ministrando através da dor",
+            "es": "Ministrando a través del dolor",
+            "en": "Ministering Through Pain"
+          },
+          "scripture_reference": {
+            "pt": "João 19:26",
+            "es": "Juan 19:26",
+            "en": "John 19:26"
+          },
+          "scripture_text": {
+            "pt": "“Aí está o seu filho”",
+            "es": "“He ahí tu hijo”",
+            "en": "“Here is your son.”"
+          },
+          "devotional_text": {
+            "pt": "Muitas vezes carregamos tristezas que compreendem nossos próprios sonhos quebrados. Jesus, o "homem de dores", conhece nossa dor e lágrimas. Na cruz, no meio de sua maior agonia e total isolamento, Ele ainda alcançou e ministrou aos outros, confiando sua mãe a João e oferecendo salvação ao ladrão. À medida que vivemos com experiências dolorosas, podemos ser tentados a nos separar dos outros. Mas Deus nos chama a compartilhar os fardos uns dos outros. Que possamos, como Jesus, estar preparados para ministrar aos outros, mesmo no meio de nossa própria dor.",
+            "es": "A menudo cargamos tristezas que comprenden nuestros propios sueños rotos. Jesús, el "varón de dolores", conoce nuestro dolor y nuestras lágrimas. En la cruz, en medio de su mayor agonía y total aislamiento, aún se acercó y ministró a otros, confiando a su madre a Juan y ofreciendo salvación al ladrón. A medida que vivimos experiencias dolorosas, podemos sentirnos tentados a apartarnos de los demás. Pero Dios nos llama a compartir las cargas los unos de los otros. Que podamos, como Jesús, estar preparados para ministrar a otros, incluso en medio de nuestro propio dolor.",
+            "en": "We often carry sorrows that encompass our own broken dreams. Jesus, the "man of sorrows," knows our pain and tears. On the cross, in the midst of His greatest agony and total isolation, He still reached out and ministered to others, entrusting His mother to John and offering salvation to the thief. As we live with painful experiences, we may be tempted to separate ourselves from others. But God calls us to share one another's burdens. May we, like Jesus, be prepared to minister to others, even in the midst of our own pain."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Oração: Senhor, se eu O desagradei de alguma forma, gentilmente me perdoe. Eu sei que você é cheio de amor e compaixão. Você é o Senhor da cura e tudo é possível contigo. Obrigado por responder minhas orações, em nome de Jesus, Amém.",
+            "es": "Oración: Señor, si te he desagradado de alguna manera, perdóname amablemente. Sé que estás lleno de amor y compasión. Tú eres el Señor de la sanación y todo es posible contigo. Gracias por responder mis oraciones, en el nombre de Jesús, Amén.",
+            "en": "Prayer: Lord, if I have displeased You in any way, gently forgive me. I know you are full of love and compassion. You are the Lord of healing, and all things are possible with You. Thank you for answering my prayers, in Jesus' name, Amen."
+          }
+        },
+        {
+          "title": {
+            "pt": "Vidas breves, influências duradouras",
+            "es": "Vidas breves, influencias duraderas",
+            "en": "Brief Lives, Lasting Influences"
+          },
+          "scripture_reference": {
+            "pt": "Salmos 27:14",
+            "es": "Salmos 27:14",
+            "en": "Psalm 27:14"
+          },
+          "scripture_text": {
+            "pt": "“Espere no Senhor. Seja forte! Coragem! Espere no Senhor.”",
+            "es": "“Espera en el Señor; esfuérzate, y aliéntese tu corazón; sí, espera en el Señor.”",
+            "en": "“Wait for the Lord; be strong and take heart and wait for the Lord.”"
+          },
+          "devotional_text": {
+            "pt": "A história de uma mãe que perdeu seu bebê de 3 semanas, Felipe, e transformou sua dor em um ministério, nos ensina uma lição poderosa. A experiência a marcou tão profundamente que ela passou a escrever para outros pais enlutados, oferecendo compreensão e suporte. Mesmo breves vidas podem dar frutos. O doloroso grão que entra no tecido macio de uma ostra é aliviado quando coberto por madrepérola, formando algo valioso. Da mesma forma, nosso sofrimento, quando tocado pela graça de Deus, pode nos tornar extremamente compassivos, trazendo alento a outros que sofrem do mesmo mal. A resposta do nosso "Por quê?" pode ser "Aguarde".",
+            "es": "La historia de una madre que perdió a su bebé de 3 semanas, Felipe, y transformó su dolor en un ministerio, nos enseña una lección poderosa. La experiencia la marcó tan profundamente que comenzó a escribir a otros padres en duelo, ofreciendo comprensión y apoyo. Incluso las vidas breves pueden dar frutos. El grano doloroso que entra en el tejido blando de una ostra se alivia cuando se cubre con nácar, formando algo valioso. De la misma manera, nuestro sufrimiento, cuando es tocado por la gracia de Dios, puede hacernos extremadamente compasivos, llevando consuelo a otros que sufren el mismo mal. La respuesta a nuestro "¿Por qué?" puede ser "Espera".",
+            "en": "The story of a mother who lost her 3-week-old baby, Philip, and turned her pain into a ministry, teaches us a powerful lesson. The experience marked her so deeply that she began writing to other bereaved parents, offering understanding and support. Even brief lives can bear fruit. The painful grain that enters the soft tissue of an oyster is soothed when covered with mother-of-pearl, forming something valuable. Likewise, our suffering, when touched by the grace of God, can make us extremely compassionate, bringing comfort to others who suffer the same evil. The answer to our "Why?" may be "Wait.""
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "Paz",
+            "es": "Paz",
+            "en": "Peace"
+          },
+          "scripture_reference": {
+            "pt": "Filipenses 4:7",
+            "es": "Filipenses 4:7",
+            "en": "Philippians 4:7"
+          },
+          "scripture_text": {
+            "pt": "“E a paz de Deus, que excede todo o entendimento, guardará os seus corações e as suas mentes em Cristo Jesus.”",
+            "es": "“Y la paz de Dios, que sobrepasa todo entendimiento, guardará vuestros corazones y vuestros pensamientos en Cristo Jesús.”",
+            "en": "“And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.”"
+          },
+          "devotional_text": {
+            "pt": "Coração e mente inquietos são comuns em nós e em nossos pacientes. Paulo, mesmo na prisão, expressou confiança e paz. É a paz de um homem de oração, que conhece seu Deus e sabe que Ele está trabalhando Seus propósitos em meio à adversidade. Esta não é qualquer paz, mas a paz de Deus, uma paz sobrenatural que acalma corações inquietos e tranquiliza pensamentos acelerados. Como diz Isaías 26:3: "Tu guardarás em perfeita paz aquele cujo propósito está firme, porque em ti confia." Confie em Deus, Ele está acima de nossas circunstâncias e nossos corações podem descansar nEle.",
+            "es": "Un corazón y una mente inquietos son comunes en nosotros y en nuestros pacientes. Pablo, incluso en prisión, expresó confianza y paz. Es la paz de un hombre de oración, que conoce a su Dios y sabe que Él está obrando Sus propósitos en medio de la adversidad. Esta no es cualquier paz, sino la paz de Dios, una paz sobrenatural que calma los corazones inquietos y tranquiliza los pensamientos acelerados. Como dice Isaías 26:3: "Tú guardarás en completa paz a aquel cuyo pensamiento en ti persevera; porque en ti ha confiado." Confía en Dios, Él está por encima de nuestras circunstancias y nuestros corazones pueden descansar en Él.",
+            "en": "Restless hearts and minds are common in us and our patients. Paul, even in prison, expressed confidence and peace. It is the peace of a man of prayer, who knows his God and knows that He is working His purposes amid adversity. This is not just any peace, but the peace of God, a supernatural peace that calms restless hearts and quiets racing thoughts. As Isaiah 26:3 says: "You will keep in perfect peace those whose minds are steadfast, because they trust in you." Trust in God; He is above our circumstances, and our hearts can rest in Him."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Oração: Senhor Jesus, pedimos que nos dê paz em nossa mente, corpo, alma e espírito, em nome de Jesus, amém.",
+            "es": "Oración: Señor Jesús, te pedimos que nos des paz en nuestra mente, cuerpo, alma y espíritu, en el nombre de Jesús, amén.",
+            "en": "Prayer: Lord Jesus, we ask that you give us peace in our mind, body, soul, and spirit, in the name of Jesus, amen."
+          }
+        },
+        {
+          "title": {
+            "pt": "Páscoa",
+            "es": "Pascua",
+            "en": "Easter"
+          },
+          "scripture_reference": {
+            "pt": "João 20:15-17",
+            "es": "Juan 20:15-17",
+            "en": "John 20:15-17"
+          },
+          "scripture_text": {
+            "pt": "Disse ele: "Mulher, por que está chorando? Quem você está procurando? ... Jesus lhe disse: "Maria!" ..." (resumido)",
+            "es": ""Y le dijo: Mujer, ¿por qué lloras? ¿A quién buscas? ... Jesús le dijo: ¡María! ..." (resumido)",
+            "en": "He asked her, 'Woman, why are you crying? Who is it you are looking for?' ... Jesus said to her, 'Mary.' ..." (abridged)"
+          },
+          "devotional_text": {
+            "pt": "Em uma sociedade que despersonaliza, a história da Páscoa age como um poderoso lembrete do poder de um "nome". Maria Madalena viu Jesus, mas não O "viu" de verdade até que Ele a chamou pelo nome. O poder de ser chamado pelo próprio nome! Jesus também dá a seus discípulos um forte sentimento de pertencimento: "Diga aos meus 'irmãos'... Meu pai e seu pai, Meu Deus e seu Deus". Esta também é nossa identidade: irmãos de Cristo tendo o mesmo Pai. Que encorajador! Em um mundo de solidão, devemos conhecer as pessoas e chamá-las por seus nomes, pois temos uma identidade muito segura.",
+            "es": "En una sociedad que despersonaliza, la historia de la Pascua actúa como un poderoso recordatorio del poder de un "nombre". María Magdalena vio a Jesús, pero no lo "vio" realmente hasta que Él la llamó por su nombre. ¡El poder de ser llamado por el propio nombre! Jesús también da a sus discípulos un fuerte sentido de pertenencia: "Di a mis 'hermanos'... Mi Padre y vuestro Padre, mi Dios y vuestro Dios". Esta también es nuestra identidad: hermanos de Cristo teniendo el mismo Padre. ¡Qué alentador! En un mundo de soledad, debemos conocer a las personas y llamarlas por sus nombres, pues tenemos una identidad muy segura.",
+            "en": "In a society that depersonalizes, the story of Easter acts as a powerful reminder of the power of a "name." Mary Magdalene saw Jesus, but did not truly "see" Him until He called her by name. The power of being called by one's own name! Jesus also gives His disciples a strong sense of belonging: "Go and tell my 'brothers'... My Father and your Father, my God and your God." This is also our identity: brothers and sisters of Christ, having the same Father. How encouraging! In a world of loneliness, we must know people and call them by their names, for we have a very secure identity."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Oração: Pai celestial, obrigado por enviar seu Filho à Terra. Obrigado porque Ele pagou o castigo pelos meus pecados. Guie-me através dos tempos obscuros da minha vida e me dê coragem de viver para Ti, em nome de Jesus, amém.",
+            "es": "Oración: Padre celestial, gracias por enviar a tu Hijo a la Tierra. Gracias porque Él pagó el castigo por mis pecados. Guíame a través de los tiempos oscuros de mi vida y dame el valor para vivir para Ti, en el nombre de Jesús, amén.",
+            "en": "Prayer: Heavenly Father, thank you for sending your Son to Earth. Thank you because He paid the price for my sins. Guide me through the dark times of my life and give me the courage to live for You, in Jesus' name, amen."
+          }
+        },
+        {
+          "title": {
+            "pt": "Ouvir, a habilidade mais necessária",
+            "es": "Escuchar, la habilidad más necesaria",
+            "en": "Listening, the Most Necessary Skill"
+          },
+          "scripture_reference": {
+            "pt": "João 10:27-30",
+            "es": "Juan 10:27-30",
+            "en": "John 10:27-30"
+          },
+          "scripture_text": {
+            "pt": "“As minhas ovelhas ouvem a minha voz; eu as conheço, e elas me seguem.”",
+            "es": "“Mis ovejas oyen mi voz, y yo las conozco, y me siguen.”",
+            "en": "“My sheep listen to my voice; I know them, and they follow me.”"
+          },
+          "devotional_text": {
+            "pt": "O Senhor Jesus ensinou: "aquele que tem ouvidos para ouvir, ouça". É nossa obrigação desenvolver uma escuta aguçada do que é a mente do Senhor. Em nossa prática, também descobrimos que as pessoas querem ser ouvidas. A primeira impressão de um médico atencioso é quando ele escuta a história do paciente. Como filhos de Deus, mesmo com agendas cheias, podemos aprender a ouvir a vontade de Deus para cada um de nossos pacientes. Ao fazê-lo, podemos mostrar-lhes o verdadeiro amor de Cristo.",
+            "es": "El Señor Jesús enseñó: "el que tiene oídos para oír, let him hear". Es nuestra obligación desarrollar una escucha aguda de lo que está en la mente del Señor. En nuestra práctica, también descubrimos que la gente quiere ser escuchada. La primera impresión de un médico atento es cuando escucha la historia del paciente. Como hijos de Dios, incluso con agendas ocupadas, podemos aprender a escuchar la voluntad de Dios para cada uno de nuestros pacientes. Al hacerlo, podemos mostrarles el verdadero amor de Cristo.",
+            "en": "The Lord Jesus taught: "he who has ears to hear, let him hear." It is our obligation to develop a keen listening for what is on the Lord's mind. In our practice, we also find that people want to be heard. The first impression of a caring doctor is when they listen to the patient's story. As children of God, even with busy schedules, we can learn to listen to God's will for each of our patients. In doing so, we can show them the true love of Christ."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "Conte suas bênçãos",
+            "es": "Cuenta tus bendiciones",
+            "en": "Count Your Blessings"
+          },
+          "scripture_reference": {
+            "pt": "1 Tessalonicenses 5:18",
+            "es": "1 Tesalonicenses 5:18",
+            "en": "1 Thessalonians 5:18"
+          },
+          "scripture_text": {
+            "pt": "“Deem graças em todas as circunstâncias.”",
+            "es": "“Dad gracias en todo.”",
+            "en": "“Give thanks in all circumstances.”"
+          },
+          "devotional_text": {
+            "pt": "Em um cenário de pobreza e sofrimento, uma oração comum pela manhã é: "Obrigado Deus, pois ainda estamos vivos". Isso reflete que o significado de estar vivo é ainda maior quando o risco de morte aumenta. Muitos de nós, em situações melhores, gastamos mais tempo pedindo ajuda do que agradecendo. No entanto, o conselho de Paulo é agradecer em todas as circunstâncias. Agradecer não é um truque para se sentir melhor, mas a melhor maneira de viver. O antigo hino de Johnson Oatman nos encoraja a contar nossas bênçãos. Uma a uma, e veremos surpresos quanto Deus já fez.",
+            "es": "En un escenario de pobreza y sufrimiento, una oración común por la mañana es: "Gracias Dios, porque todavía estamos vivos". Esto refleja que el significado de estar vivo es aún mayor cuando el riesgo de muerte aumenta. Muchos de nosotros, en mejores situaciones, pasamos más tiempo pidiendo ayuda que agradeciendo. Sin embargo, el consejo de Pablo es agradecer en todas las circunstancias. Agradecer no es un truco para sentirse mejor, sino la mejor manera de vivir. El antiguo himno de Johnson Oatman nos anima a contar nuestras bendiciones. Una por una, y veremos con sorpresa cuánto ha hecho Dios.",
+            "en": "In a setting of poverty and suffering, a common morning prayer is: "Thank you, God, for we are still alive." This reflects that the meaning of being alive is even greater when the risk of death increases. Many of us, in better situations, spend more time asking for help than giving thanks. However, Paul's advice is to give thanks in all circumstances. Being thankful is not a trick to feel better, but the best way to live. The old hymn by Johnson Oatman encourages us to count our blessings. One by one, and we will be surprised at how much God has already done."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Oração: Aba Pai, eu conto minhas bênçãos cada dia, te agradeço e acredito de todo o meu coração que toda a bondade que recebo só pode vir por causa do trabalho feito de Jesus na Cruz. Amém.",
+            "es": "Oración: Abba Padre, cuento mis bendiciones cada día, te agradezco y creo con todo mi corazón que toda la bondad que recibo solo puede venir por la obra de Jesús en la Cruz. Amén.",
+            "en": "Prayer: Abba Father, I count my blessings every day, I thank you and believe with all my heart that all the goodness I receive can only come from the work Jesus did on the Cross. Amen."
+          }
+        },
+        {
+          "title": {
+            "pt": "Pacificando",
+            "es": "Pacificando",
+            "en": "Peacemaking"
+          },
+          "scripture_reference": {
+            "pt": "Mateus 5:9",
+            "es": "Mateo 5:9",
+            "en": "Matthew 5:9"
+          },
+          "scripture_text": {
+            "pt": "“Bem-aventurados os pacificadores, pois serão chamados filhos de Deus.”",
+            "es": "“Bienaventurados los pacificadores, porque ellos serán llamados hijos de Dios.”",
+            "en": "“Blessed are the peacemakers, for they will be called children of God.”"
+          },
+          "devotional_text": {
+            "pt": "A paz nunca pode ser imposta através da força. O termo bíblico para paz é "Shalom", que significa um estado de completude, solidez e harmonia. A paz tem duas dimensões. A vertical é com Deus, que tomou a iniciativa de reparar nosso relacionamento através de Cristo. A horizontal é com os seres humanos. Deus nos instrui: "Façam todo o possível para viver em paz com todos". Humanamente, isso é impossível, mas Deus pode nos ajudar, pois Ele é a nossa paz. A verdadeira paz que perdura só pode ser alcançada por meio de Cristo.",
+            "es": "La paz nunca puede ser impuesta por la fuerza. El término bíblico para paz es "Shalom", que significa un estado de plenitud, solidez y armonía. La paz tiene dos dimensiones. La vertical es con Dios, quien tomó la iniciativa de reparar nuestra relación a través de Cristo. La horizontal es con los seres humanos. Dios nos instruye: "Si es posible, en cuanto dependa de vosotros, estad en paz con todos los hombres". Humanamente, esto es imposible, pero Dios puede ayudarnos, pues Él es nuestra paz. La verdadera paz que perdura solo puede alcanzarse por medio de Cristo.",
+            "en": "Peace can never be imposed by force. The biblical term for peace is "Shalom," which means a state of completeness, soundness, and harmony. Peace has two dimensions. The vertical is with God, who took the initiative to repair our relationship through Christ. The horizontal is with human beings. God instructs us: "If it is possible, as far as it depends on you, live at peace with everyone." Humanly, this is impossible, but God can help us, for He is our peace. The true peace that endures can only be achieved through Christ."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: O que nós podemos fazer para sermos pacificadores, especialmente em nossos nossos locais de trabalho?",
+            "es": "Reflexión: ¿Qué podemos hacer para ser pacificadores, especialmente en nuestros lugares de trabajo?",
+            "en": "Reflection: What can we do to be peacemakers, especially in our workplaces?"
+          }
+        },
+        {
+          "title": {
+            "pt": "Conflitos: Causa e Prevenção",
+            "es": "Conflictos: Causa y Prevención",
+            "en": "Conflicts: Cause and Prevention"
+          },
+          "scripture_reference": {
+            "pt": "Tiago 4:2",
+            "es": "Santiago 4:2",
+            "en": "James 4:2"
+          },
+          "scripture_text": {
+            "pt": "“Vocês cobiçam coisas, e não as têm;”",
+            "es": "“Codiciáis, y no tenéis;”",
+            "en": "“You desire but do not have,”"
+          },
+          "devotional_text": {
+            "pt": "Quando brigamos com alguém, geralmente nos concentramos no que está errado com o outro. Tiago, porém, deixa claro que a raiz do problema está dentro de nós mesmos: desejos não satisfeitos. Não devemos considerar o que pode estar errado com a outra pessoa até que tenhamos examinado nossos próprios desejos e motivações. Tiago nos dá a solução: devemos levar nossos desejos a Deus, mas com o motivo certo. A solução envolve submissão a Deus, resistir ao diabo e perseverar em santidade. O conceito de submissão é a chave não apenas para resolver, mas também para prevenir o conflito.",
+            "es": "Cuando peleamos con alguien, generalmente nos enfocamos en lo que está mal con el otro. Santiago, sin embargo, deja en claro que la raíz del problema está dentro de nosotros mismos: deseos insatisfechos. No debemos considerar lo que puede estar mal con la otra persona hasta que hayamos examinado nuestros propios deseos y motivaciones. Santiago nos da la solución: debemos llevar nuestros deseos a Dios, pero con el motivo correcto. La solución implica sumisión a Dios, resistir al diablo y perseverar en la santidad. El concepto de sumisión es la clave no solo para resolver, sino también para prevenir el conflicto.",
+            "en": "When we argue with someone, we usually focus on what is wrong with the other person. James, however, makes it clear that the root of the problem lies within ourselves: unsatisfied desires. We should not consider what might be wrong with the other person until we have examined our own desires and motivations. James gives us the solution: we must bring our desires to God, but with the right motive. The solution involves submission to God, resisting the devil, and persevering in holiness. The concept of submission is the key not only to resolving conflict but also to preventing it."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "A Fidelidade supera os Resultados",
+            "es": "La Fidelidad supera los Resultados",
+            "en": "Faithfulness Over Results"
+          },
+          "scripture_reference": {
+            "pt": "1 Samuel 15:22",
+            "es": "1 Samuel 15:22",
+            "en": "1 Samuel 15:22"
+          },
+          "scripture_text": {
+            "pt": "“Acaso tem o Senhor tanto prazer em holocaustos e em sacrifícios quanto em que se obedeça à sua palavra? A obediência é melhor do que o sacrifício...”",
+            "es": "“¿Se complace Jehová tanto en los holocaustos y víctimas, como en que se obedezca a las palabras de Jehová? Ciertamente el obedecer es mejor que los sacrificios...”",
+            "en": "“Does the Lord delight in burnt offerings and sacrifices as much as in obeying the Lord? To obey is better than sacrifice...”"
+          },
+          "devotional_text": {
+            "pt": "No meu segundo ano no hospital missionário, eu estava frustrado e deprimido, sentindo que não estava alcançando nada. Então, Deus falou comigo: "Eu não te chamei para ser bem-sucedido, eu te chamei para ser obediente." Os resultados são "problema meu". Pensei no ministério de Jesus. Se alguém foi bem-sucedido, foi o Filho de Deus! E mesmo assim, como o mundo vê, ele terminou como um fracassado. Mas o aparente fracasso de Jesus na verdade era seu sucesso total. Deus quer minha obediência e fidelidade; os resultados são da Sua conta.",
+            "es": "En mi segundo año en el hospital misionero, estaba frustrado y deprimido, sintiendo que no estaba logrando nada. Entonces, Dios me habló: "No te llamé para tener éxito, te llamé para ser obediente". Los resultados son "problema mío". Pensé en el ministerio de Jesús. Si alguien tuvo éxito, ¡fue el Hijo de Dios! Y aun así, como lo ve el mundo, él terminó como un fracasado. Pero el aparente fracaso de Jesús fue en realidad su éxito total. Dios quiere mi obediencia y fidelidad; los resultados son de Su cuenta.",
+            "en": "In my second year at the mission hospital, I was frustrated and depressed, feeling I was achieving nothing. Then God spoke to me: "I did not call you to be successful, I called you to be obedient." The results are "my problem." I thought about Jesus' ministry. If anyone was successful, it was the Son of God! And yet, as the world sees it, he ended as a failure. But the apparent failure of Jesus was actually his total success. God wants my obedience and faithfulness; the results are His concern."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Oração: Senhor, que o meu desejo seja ouvir de Ti: "muito bem, servo bom e fiel"; que nada mais tome prioridade e altere o foco para além do Teu reino, em nome de Jesus. Amém.",
+            "es": "Oración: Señor, que mi deseo sea oír de Ti: "bien, buen siervo y fiel"; que nada más tome prioridad y altere el enfoque más allá de Tu reino, en el nombre de Jesús. Amén.",
+            "en": "Prayer: Lord, may my desire be to hear from You: "well done, good and faithful servant"; may nothing else take priority and alter the focus beyond Your kingdom, in the name of Jesus. Amen."
+          }
+        },
+        {
+          "title": {
+            "pt": "O que nos define?",
+            "es": "¿Qué nos define?",
+            "en": "What Defines Us?"
+          },
+          "scripture_reference": {
+            "pt": "1 Pedro 2:9–10",
+            "es": "1 Pedro 2:9–10",
+            "en": "1 Peter 2:9–10"
+          },
+          "scripture_text": {
+            "pt": "“Vocês, porém, são geração eleita, sacerdócio real, nação santa, povo exclusivo de Deus... não haviam recebido misericórdia, mas agora a receberam.”",
+            "es": "“Mas vosotros sois linaje escogido, real sacerdocio, nación santa, pueblo adquirido por Dios... vosotros que en otro tiempo no habíais alcanzado misericordia, pero ahora habéis alcanzado misericordia.”",
+            "en": "“But you are a chosen people, a royal priesthood, a holy nation, God's special possession... Once you had not received mercy, but now you have received mercy.”"
+          },
+          "devotional_text": {
+            "pt": "Uma médica cristã em licença maternidade sentiu que perdeu sua identidade ao ser apresentada como "a mãe do Lucas". Ela sentiu-se destituída de seu status. Mas, na realidade, nossa identidade não vem de nosso título de trabalho, família ou posses. A Bíblia diz que somos "dispersos no mundo", "peregrinos e estrangeiros". Somos residentes temporários. Nossa verdadeira identidade, se estamos em Cristo, é: somos escolhidos, um sacerdócio real, um membro de uma nação santa, uma pessoa pertencente a Deus. Recebemos misericórdia e luz, e temos um propósito: declarar adoração a Deus. Aleluia!",
+            "es": "Una doctora cristiana en licencia por maternidad sintió que perdió su identidad al ser presentada como "la madre de Lucas". Se sintió despojada de su estatus. Pero, en realidad, nuestra identidad no proviene de nuestro título profesional, familia o posesiones. La Biblia dice que somos "expatriados de la dispersión", "extranjeros y peregrinos". Somos residentes temporales. Nuestra verdadera identidad, si estamos en Cristo, es: somos elegidos, un real sacerdocio, un miembro de una nación santa, un pueblo que pertenece a Dios. Recibimos misericordia y luz, y tenemos un propósito: declarar la adoración a Dios. ¡Aleluya!",
+            "en": "A Christian doctor on maternity leave felt she had lost her identity when introduced as "Luke's mother." She felt stripped of her status. But in reality, our identity does not come from our job title, family, or possessions. The Bible says we are "strangers in the world," "foreigners and exiles." We are temporary residents. Our true identity, if we are in Christ, is: we are chosen, a royal priesthood, a member of a holy nation, a person belonging to God. We have received mercy and light, and we have a purpose: to declare worship to God. Hallelujah!"
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "Deus planejou tudo para um propósito maior",
+            "es": "Dios planeó todo para un propósito mayor",
+            "en": "God Planned Everything for a Greater Purpose"
+          },
+          "scripture_reference": {
+            "pt": "Gênesis 50:20",
+            "es": "Génesis 50:20",
+            "en": "Genesis 50:20"
+          },
+          "scripture_text": {
+            "pt": "“Vocês planejaram o mal contra mim, mas Deus o tornou em bem, para que hoje fosse preservada a vida de muitos.”",
+            "es": "“Vosotros pensasteis mal contra mí, mas Dios lo encaminó a bien, para hacer lo que vemos hoy, para mantener en vida a mucho pueblo.”",
+            "en": "“You intended to harm me, but God intended it for good to accomplish what is now being done, the saving of many lives.”"
+          },
+          "devotional_text": {
+            "pt": "José enfrentou imensa injustiça, vendido como escravo por seus irmãos. Seria justificável guardar ódio e raiva. No entanto, ele escolheu esquecer, perdoar e gozar de fecundidade no meio de seu sofrimento. Ele reconheceu que Deus tinha a intenção de, por meio de seus sofrimentos, guiá-lo para um propósito maior de preservar vidas. Nós também podemos enfrentar injustiça em nosso trabalho. Podemos nos sentir frustrados e deprimidos. Nossa fé, amor e esperança devem ser reconstruídos em oração, buscando uma compreensão mais profunda da intenção de Deus para um bom propósito maior em meio ao nosso sofrimento.",
+            "es": "José enfrentó una inmensa injusticia, vendido como esclavo por sus hermanos. Sería justificable guardar odio y rencor. Sin embargo, eligió olvidar, perdonar y disfrutar de la fecundidad en medio de su sufrimiento. Reconoció que Dios tenía la intención de, a través de sus sufrimientos, guiarlo hacia un propósito mayor de preservar vidas. Nosotros también podemos enfrentar injusticias en nuestro trabajo. Podemos sentirnos frustrados y deprimidos. Nuestra fe, amor y esperanza deben ser reconstruidos en oración, buscando una comprensión más profunda de la intención de Dios para un buen propósito mayor en medio de nuestro sufrimiento.",
+            "en": "Joseph faced immense injustice, sold into slavery by his brothers. It would be justifiable to hold hatred and anger. However, he chose to forget, forgive, and enjoy fruitfulness in the midst of his suffering. He recognized that God intended, through his suffering, to guide him toward a greater purpose of preserving lives. We too can face injustice in our work. We can feel frustrated and depressed. Our faith, love, and hope must be rebuilt in prayer, seeking a deeper understanding of God's intention for a good purpose in the midst of our suffering."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Oração: Senhor, assim como os Teus caminhos são mais altos que os meus, ajuda-me a perceber que tudo que trazes em minha vida é para o meu bem. Amém.",
+            "es": "Oración: Señor, así como Tus caminos son más altos que los míos, ayúdame a percibir que todo lo que traes a mi vida es para mi bien. Amén.",
+            "en": "Prayer: Lord, just as Your ways are higher than mine, help me to see that everything you bring into my life is for my good. Amen."
+          }
+        },
+        {
+          "title": {
+            "pt": "Vivendo nestes tempos",
+            "es": "Viviendo en estos tiempos",
+            "en": "Living in These Times"
+          },
+          "scripture_reference": {
+            "pt": "Romanos 13:11-12",
+            "es": "Romanos 13:11-12",
+            "en": "Romans 13:11-12"
+          },
+          "scripture_text": {
+            "pt": "“Façam isso, compreendendo o tempo em que vivemos. Chegou a hora de vocês despertarem do sono... A noite está quase acabando; o dia logo vem. Portanto, deixemos de lado as obras das trevas e revistamo-nos da armadura da luz.”",
+            "es": "“Y esto, conociendo el tiempo, que es ya hora de levantarnos del sueño... La noche está avanzada, y se acerca el día. Desechemos, pues, las obras de las tinieblas, y vistámonos las armas de la luz.”",
+            "en": "“And do this, understanding the present time: The hour has already come for you to wake up from your slumber... The night is nearly over; the day is almost here. So let us put aside the deeds of darkness and put on the armor of light.”"
+          },
+          "devotional_text": {
+            "pt": "À luz do retorno de Cristo, como devemos viver? Paulo nos dá três respostas. Primeiro, entendemos que o tempo é curto, a salvação está próxima. Segundo, devemos lançar fora as obras das trevas. Terceiro, devemos nos vestir do Senhor Jesus Cristo. O que os cristãos bem vestidos vestem? O Senhor Jesus. Ele é apropriado para todas as ocasiões. Vista sua santidade, sua beleza, sua humildade, sua compaixão. Vistamo-nos com Jesus no início da manhã e ficaremos bem vestidos durante todo o dia. Cristo deve viver em nossos corações para que possamos levá-lo conosco para o trabalho.",
+            "es": "A la luz del regreso de Cristo, ¿cómo debemos vivir? Pablo nos da tres respuestas. Primero, entendemos que el tiempo es corto, la salvación está cerca. Segundo, debemos desechar las obras de las tinieblas. Tercero, debemos vestirnos del Señor Jesucristo. ¿Qué visten los cristianos bien vestidos? Al Señor Jesús. Es apropiado para todas las ocasiones. Viste su santidad, su belleza, su humildad, su compasión. Vistámonos con Jesús por la mañana y estaremos bien vestidos durante todo el día. Cristo debe vivir en nuestros corazones para que podamos llevarlo con nosotros al trabajo.",
+            "en": "In light of Christ's return, how should we live? Paul gives us three answers. First, we understand that time is short, salvation is near. Second, we must cast off the works of darkness. Third, we must put on the Lord Jesus Christ. What do well-dressed Christians wear? The Lord Jesus. He is appropriate for all occasions. Put on His holiness, His beauty, His humility, His compassion. Let us put on Jesus in the morning, and we will be well-dressed all day. Christ must live in our hearts so we can take Him with us to work."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "Senhor, mostra-me Tua glória",
+            "es": "Señor, muéstrame Tu gloria",
+            "en": "Lord, Show Me Your Glory"
+          },
+          "scripture_reference": {
+            "pt": "Êxodo 33:18",
+            "es": "Éxodo 33:18",
+            "en": "Exodus 33:18"
+          },
+          "scripture_text": {
+            "pt": "“Então disse Moisés: 'Peço-Te que me mostres a Tua glória.'”",
+            "es": "“Él entonces dijo: Te ruego que me muestres tu gloria.”",
+            "en": "“Then Moses said, 'Now show me your glory.'”"
+          },
+          "devotional_text": {
+            "pt": "Moisés orou, "mostra-me a Tua glória", em um momento de crise, após o povo de Israel ter adorado o bezerro de ouro. A resposta de Deus foi um "sim" condicional. Ele mostraria Sua bondade, mas não Sua face, pois ninguém pode ver a face de Deus e viver. Deus o escondeu na fenda da rocha. Às vezes, pedimos coisas que não podemos suportar. Queremos a bênção, mas não temos ideia do custo. Não há ganho sem dor. Devemos ver nossa própria fraqueza antes de poder contemplar a glória de Deus. Nossas provações não são para nos destruir, mas para nos aproximar Dele. Os fracos estão escondidos na fenda da rocha – e são eles que realmente veem Deus.",
+            "es": "Moisés oró, "muéstrame tu gloria", en un momento de crisis, después de que el pueblo de Israel adorara el becerro de oro. La respuesta de Dios fue un "sí" condicional. Le mostraría Su bondad, pero no Su rostro, porque nadie puede ver el rostro de Dios y vivir. Dios lo escondió en la hendidura de la peña. A veces, pedimos cosas que no podemos soportar. Queremos la bendición, pero no tenemos idea del costo. No hay ganancia sin dolor. Debemos ver nuestra propia debilidad antes de poder contemplar la gloria de Dios. Nuestras pruebas no son para destruirnos, sino para acercarnos a Él. Los débiles están escondidos en la hendidura de la peña, y son ellos quienes realmente ven a Dios.",
+            "en": "Moses prayed, "show me your glory," in a moment of crisis, after the people of Israel had worshipped the golden calf. God's answer was a conditional "yes." He would show His goodness, but not His face, for no one can see the face of God and live. God hid him in the cleft of the rock. Sometimes, we ask for things we cannot bear. We want the blessing, but have no idea of the cost. There is no gain without pain. We must see our own weakness before we can behold the glory of God. Our trials are not to destroy us, but to draw us closer to Him. The weak are hidden in the cleft of the rock—and they are the ones who truly see God."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "Abraão lutou em oração",
+            "es": "Abraham luchó en oración",
+            "en": "Abraham Wrestled in Prayer"
+          },
+          "scripture_reference": {
+            "pt": "Gênesis 18:31-32",
+            "es": "Génesis 18:31-32",
+            "en": "Genesis 18:31-32"
+          },
+          "scripture_text": {
+            "pt": "“Prosseguiu Abraão: "Agora que já fui tão ousado falando ao Senhor, pergunto: E se apenas vinte forem encontrados ali? ... E se apenas dez forem encontrados?" (resumido)",
+            "es": ""Y volvió a decir Abraham: 'He aquí ahora que he comenzado a hablar a mi Señor: quizá se hallarán allí veinte'... Y volvió a decir: ...quizá se hallarán allí diez.” (resumido)",
+            "en": ""Then Abraham spoke up again: 'Now that I have been so bold as to speak to the Lord, what if only twenty can be found there?' ... Then he said... 'What if only ten can be found there?'” (abridged)"
+          },
+          "devotional_text": {
+            "pt": "A oração intercessória é estranha para muitos de nós. Achamos difícil ver como Deus pode estar ativo neste mundo. Nesta história, Abraão de fato negocia com Deus e parece mudar a mente de Deus por sua persistência, tornando-se parte das intenções divinas ao interceder por Sodoma. O resultado da oração é essencialmente barganhado. Do ponto de vista humano, Deus reconsidera, e a oração de Abraão é a responsável. Dentro da história, Deus ouve, e Deus responde.",
+            "es": "La oración intercesora es extraña para muchos de nosotros. Nos resulta difícil ver cómo Dios puede estar activo en este mundo. En esta historia, Abraham de hecho negocia con Dios y parece cambiar la mente de Dios con su persistencia, convirtiéndose en parte de las intenciones divinas al interceder por Sodoma. El resultado de la oración es esencialmente una negociación. Desde una perspectiva humana, Dios reconsidera, y la oración de Abraham es la responsable. Dentro de la historia, Dios escucha y Dios responde.",
+            "en": "Intercessory prayer is strange to many of us. We find it hard to see how God can be active in this world. In this story, Abraham actually negotiates with God and seems to change God's mind through his persistence, becoming part of the divine intentions by interceding for Sodom. The result of the prayer is essentially a bargain. From a human perspective, God reconsiders, and Abraham's prayer is responsible. Within the story, God listens, and God responds."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: Quão seriamente nós levamos a oração intercessória? Ou é apenas uma opção extra em nossa vida ocupada?",
+            "es": "Reflexión: ¿Con qué seriedad tomamos la oración intercesora? ¿O es solo una opción extra en nuestra ajetreada vida?",
+            "en": "Reflection: How seriously do we take intercessory prayer? Or is it just an extra option in our busy lives?"
+          }
+        },
+        {
+          "title": {
+            "pt": "Além do burnout",
+            "es": "Más allá del agotamiento (burnout)",
+            "en": "Beyond Burnout"
+          },
+          "scripture_reference": {
+            "pt": "Marcos 6:31",
+            "es": "Marcos 6:31",
+            "en": "Mark 6:31"
+          },
+          "scripture_text": {
+            "pt": "...Venham comigo para um lugar deserto e descansem um pouco...",
+            "es": "...Venid vosotros aparte a un lugar desierto, y descansad un poco...",
+            "en": "...'Come with me by yourselves to a quiet place and get some rest.'"
+          },
+          "devotional_text": {
+            "pt": ""Se as pessoas imaginassem quem eu realmente sou..." - essa insegurança é a base de muitas depressões. A necessidade de afirmação, e a falta dela, leva à auto-rejeição. Burnout é uma experiência que muitos enfrentam, resultando em um coração endurecido que não permite a renovação do Senhor. Os discípulos de Jesus também a encararam, e Jesus os chamou para apenas descansar - com Ele e sozinhos. É um convite para se retirar do ruído da vida diária e estar silencioso perante o Senhor. Dentro do coração, você reconhecerá a voz gentil do Senhor, chamando-o para perto. Bendito é aquele que responde.",
+            "es": ""Si la gente se imaginara quién soy realmente..." - esta inseguridad es la base de muchas depresiones. La necesidad de afirmación, y la falta de ella, lleva al auto-rechazo. El agotamiento es una experiencia que muchos enfrentan, resultando en un corazón endurecido que no permite la renovación del Señor. Los discípulos de Jesús también lo enfrentaron, y Jesús los llamó simplemente a descansar, con Él y a solas. Es una invitación a retirarse del ruido de la vida diaria y estar en silencio ante el Señor. Dentro del corazón, reconocerás la voz suave del Señor, llamándote a acercarte. Bendito el que responde.",
+            "en": ""If people only knew who I really am..." - this insecurity is the basis of many depressions. The need for affirmation, and the lack of it, leads to self-rejection. Burnout is an experience that many face, resulting in a hardened heart that does not allow for renewal from the Lord. The disciples of Jesus also faced it, and Jesus called them to simply rest—with Him and alone. It is an invitation to withdraw from the noise of daily life and be silent before the Lord. In your heart, you will recognize the gentle voice of the Lord, calling you to come near. Blessed is the one who responds."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Prática: Mantenha dias designados no seu calendário para se acalmar com o Senhor e descansar.",
+            "es": "Práctica: Designa días en tu calendario para calmarte con el Señor y descansar.",
+            "en": "Practice: Set aside designated days in your calendar to quiet yourself with the Lord and rest."
+          }
+        },
+        {
+          "title": {
+            "pt": "Cristo, nosso intercessor",
+            "es": "Cristo, nuestro intercesor",
+            "en": "Christ, Our Intercessor"
+          },
+          "scripture_reference": {
+            "pt": "Romanos 8:34",
+            "es": "Romanos 8:34",
+            "en": "Romans 8:34"
+          },
+          "scripture_text": {
+            "pt": "“Quem os condenará? Foi Cristo Jesus que morreu; e mais, que ressuscitou e está à direita de Deus, e também intercede por nós.”",
+            "es": "“¿Quién es el que condenará? Cristo es el que murió; más aun, el que también resucitó, el que además está a la diestra de Dios, el que también intercede por nosotros.”",
+            "en": "“Who then is the one who condemns? No one. Christ Jesus who died—more than that, who was raised to life—is at the right hand of God and is also interceding for us.”"
+          },
+          "devotional_text": {
+            "pt": "Nós, humanos, precisamos de toda ajuda que pudermos conseguir. A tristeza e a alegria se alternam em nossa jornada. Os meios da graça – oração, leitura da Bíblia, comunhão – nos ajudam, mas não são suficientes. Não precisamos nos desesperar, pois temos um poderoso intercessor: o Senhor Jesus. Ele está presente à direita do Pai, intercedendo por nós. Ele conhece nossos problemas, foi tentado como nós, e tem o ouvido do Pai. Sendo perfeito, Sua intercessão é perfeita. Sendo onisciente, Sua intercessão é incisiva. Como o amado Filho do Pai, Suas orações são sempre respondidas.",
+            "es": "Nosotros, los humanos, necesitamos toda la ayuda que podamos conseguir. La tristeza y la alegría se alternan en nuestro viaje. Los medios de gracia –oración, lectura de la Biblia, comunión– nos ayudan, pero no son suficientes. No necesitamos desesperar, pues tenemos un poderoso intercesor: el Señor Jesús. Él está presente a la diestra del Padre, intercediendo por nosotros. Él conoce nuestros problemas, fue tentado como nosotros, y tiene el oído del Padre. Siendo perfecto, Su intercesión es perfecta. Siendo omnisciente, Su intercesión es incisiva. Como el amado Hijo del Padre, Sus oraciones siempre son respondidas.",
+            "en": "We humans need all the help we can get. Sadness and joy alternate on our journey. The means of grace—prayer, Bible reading, fellowship—help us, but they are not enough. We do not need to despair, for we have a powerful intercessor: the Lord Jesus. He is present at the right hand of the Father, interceding for us. He knows our problems, was tempted as we are, and has the Father's ear. Being perfect, His intercession is perfect. Being omniscient, His intercession is incisive. As the beloved Son of the Father, His prayers are always answered."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: Leia João 17. Como o fato da intercessão de Cristo por você afeta sua vida diária?",
+            "es": "Reflexión: Lee Juan 17. ¿Cómo afecta tu vida diaria el hecho de que Cristo intercede por ti?",
+            "en": "Reflection: Read John 17. How does the fact that Christ intercedes for you affect your daily life?"
+          }
+        },
+        {
+          "title": {
+            "pt": "Glória, reino e vontade de Deus",
+            "es": "Gloria, reino y voluntad de Dios",
+            "en": "Glory, Kingdom, and Will of God"
+          },
+          "scripture_reference": {
+            "pt": "Mateus 6:33",
+            "es": "Mateo 6:33",
+            "en": "Matthew 6:33"
+          },
+          "scripture_text": {
+            "pt": "“Busquem, pois, em primeiro lugar o Reino de Deus e a sua justiça...”",
+            "es": "“Mas buscad primeramente el reino de Dios y su justicia...”",
+            "en": "“But seek first his kingdom and his righteousness...”"
+          },
+          "devotional_text": {
+            "pt": "Quando os discípulos pediram a Jesus que os ensinasse a orar, eles provavelmente esperavam instruções sobre como fazer petições. A resposta de Jesus, no entanto, deu-lhes uma compreensão diferente. Nossas orações tendem a ser arrastadas, enquanto a Oração do Pai Nosso se eleva aos lugares celestiais. As primeiras três frases nos convidam a participar do glorioso ofício do céu, para que o nome de Deus seja santificado, Seu reino estabelecido e Sua vontade realizada na terra. Somente depois disso, as petições sobre nossas necessidades são apresentadas. Deus primeiro, outros em segundo, eu em último.",
+            "es": "Cuando los discípulos le pidieron a Jesús que les enseñara a orar, ellos probablemente esperaban instrucciones sobre cómo hacer peticiones. La respuesta de Jesús, sin embargo, les dio una comprensión diferente. Nuestras oraciones tienden a ser terrenales, mientras que la Oración del Padre Nuestro se eleva a los lugares celestiales. Las primeras tres frases nos invitan a participar del glorioso oficio del cielo, para que el nombre de Dios sea santificado, Su reino establecido y Su voluntad realizada en la tierra. Solo después de eso, se presentan las peticiones sobre nuestras necesidades. Dios primero, los demás segundo, yo al último.",
+            "en": "When the disciples asked Jesus to teach them to pray, they probably expected instructions on how to make petitions. Jesus' answer, however, gave them a different understanding. Our prayers tend to be earthbound, while the Lord's Prayer soars to the heavenly places. The first three phrases invite us to participate in the glorious office of heaven, so that God's name may be hallowed, His kingdom established, and His will done on earth. Only after this are the petitions for our needs presented. God first, others second, I last."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: Quais são suas prioridades na oração? Você antes de tudo busca a agenda dEle?",
+            "es": "Reflexión: ¿Cuáles son tus prioridades en la oración? ¿Buscas primero la agenda de Él?",
+            "en": "Reflection: What are your priorities in prayer? Do you seek His agenda first of all?"
+          }
+        },
+        {
+          "title": {
+            "pt": "Gratidão que gera contentamento",
+            "es": "La gratitud genera contentamiento",
+            "en": "Gratitude Breeds Contentment"
+          },
+          "scripture_reference": {
+            "pt": "Isaías 42:8",
+            "es": "Isaías 42:8",
+            "en": "Isaiah 42:8"
+          },
+          "scripture_text": {
+            "pt": "“Eu sou o Senhor; esse é o meu nome! Não darei a outro a minha glória nem a imagens o meu louvor.”",
+            "es": "“Yo soy el Señor; este es mi nombre; y a otro no daré mi gloria, ni mi alabanza a esculturas.”",
+            "en": "“I am the Lord; that is my name! I will not yield my glory to another or my praise to idols.”"
+          },
+          "devotional_text": {
+            "pt": "Por que deveríamos frequentar a Igreja regularmente? Lá, podemos ouvir a palavra de Deus, demonstrar solidariedade, compartilhar notícias e encorajamento. Mas há uma parte que parece estranha para os de fora: o louvor. Por que Deus quer que cantemos sobre quão maravilhoso Ele é? Deus não necessita da nossa gratidão. O louvor é um presente d'Ele para nos abençoar. A gratidão gera contentamento, fé, resistência e menores níveis de estresse. Nós deveríamos louvar a Ele juntos e regularmente.",
+            "es": ""¿Por qué deberíamos asistir a la Iglesia regularmente? Allí, podemos escuchar la palabra de Dios, demostrar solidaridad, compartir noticias y aliento. Pero hay una parte que parece extraña para los de afuera: la alabanza. ¿Por qué Dios quiere que cantemos sobre lo maravilloso que es Él? Dios no necesita nuestra gratitud. La alabanza es un regalo de Él para bendecirnos. La gratitud genera contentamiento, fe, resistencia y menores niveles de estrés. Deberíamos alabarlo juntos y regularmente.",
+            "en": "Why should we attend church regularly? There, we can hear the word of God, demonstrate solidarity, share news, and find encouragement. But there is a part that seems strange to outsiders: praise. Why does God want us to sing about how wonderful He is? God does not need our gratitude. Praise is His gift to bless us. Gratitude breeds contentment, faith, resistance, and lower levels of stress. We should praise Him together and regularly."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "",
+            "es": "",
+            "en": ""
+          }
+        },
+        {
+          "title": {
+            "pt": "Sucesso instantâneo X Esperar no Senhor",
+            "es": "Éxito instantáneo vs. Esperar en el Señor",
+            "en": "Instant Success vs. Waiting on the Lord"
+          },
+          "scripture_reference": {
+            "pt": "João 15:5",
+            "es": "Juan 15:5",
+            "en": "John 15:5"
+          },
+          "scripture_text": {
+            "pt": "“Eu sou a videira; vocês são os ramos. Se alguém permanecer em mim e eu nele, esse dá muito fruto; pois sem mim vocês não podem fazer coisa alguma”",
+            "es": "“Yo soy la vid, vosotros los pámpanos; el que permanece en mí, y yo en él, éste lleva mucho fruto; porque separados de mí nada podéis hacer”",
+            "en": "“I am the vine; you are the branches. If you remain in me and I in you, you will bear much fruit; apart from me you can do nothing.”"
+          },
+          "devotional_text": {
+            "pt": "Em nosso mundo em constante movimento, esperamos resultados imediatos. Somos tentados a pensar que o sucesso instantâneo é tudo o que importa. Como cristãos, porém, não somos chamados a ser bem-sucedidos, mas a ser fiéis. Sentir o ônus do sucesso leva à frustração e ao desespero. A reflexão sóbria nos ajuda a concluir que devemos ser totalmente dependentes do Deus Todo-Poderoso. Isso não é uma desculpa para a preguiça. Deus nos chama para fazer coisas importantes, mas devemos fazê-las em obediência e fidelidade, confiando Nele e no Espírito Santo para os resultados.",
+            "es": "En nuestro mundo en constante movimiento, esperamos resultados inmediatos. Nos vemos tentados a pensar que el éxito instantáneo es todo lo que importa. Como cristianos, sin embargo, no somos llamados a tener éxito, sino a ser fieles. Sentir la carga del éxito lleva a la frustración y la desesperación. La reflexión sobria nos ayuda a concluir que debemos ser totalmente dependientes del Dios Todopoderoso. Esto no es una excusa para la pereza. Dios nos llama a hacer cosas importantes, pero debemos hacerlas en obediencia y fidelidad, confiando en Él y en el Espíritu Santo para los resultados.",
+            "en": "In our constantly moving world, we expect immediate results. We are tempted to think that instant success is all that matters. As Christians, however, we are not called to be successful, but to be faithful. Feeling the burden of success leads to frustration and despair. Sober reflection helps us conclude that we must be totally dependent on the Almighty God. This is not an excuse for laziness. God calls us to do important things, but we must do them in obedience and faithfulness, trusting Him and the Holy Spirit for the results."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: Você se envolve no trabalho de Deus de forma autônoma ou em submissão à vontade Dele?",
+            "es": "Reflexión: ¿Te involucras en la obra de Dios de forma autónoma o en sumisión a Su voluntad?",
+            "en": "Reflection: Do you engage in God's work autonomously or in submission to His will?"
+          }
+        },
+        {
+          "title": {
+            "pt": "Oração é mais do que pedidos",
+            "es": "La oración es más que peticiones",
+            "en": "Prayer is More than Petitions"
+          },
+          "scripture_reference": {
+            "pt": "Mateus 6:9",
+            "es": "Mateo 6:9",
+            "en": "Matthew 6:9"
+          },
+          "scripture_text": {
+            "pt": "...Santificado seja o teu nome. Venha o teu Reino; seja feita a tua vontade... ...Dá-nos hoje...",
+            "es": "...Santificado sea tu nombre. Venga tu reino. Hágase tu voluntad... ...El pan nuestro de cada día, dánoslo hoy...",
+            "en": "...hallowed be your name, your kingdom come, your will be done... Give us today our daily bread..."
+          },
+          "devotional_text": {
+            "pt": "Na mente popular, a oração é igual a fazer pedidos. Tratamos Deus como o gênio da lâmpada. Embora Deus deseje que Lhe façamos pedidos, a oração é muito mais do que isso. O objetivo principal de nossas vidas deve ser buscar a glória de Deus. Na Oração do Pai Nosso, começamos buscando a glória, o reino e a vontade de Deus. Só então, neste contexto, solicitamos nossas necessidades. As petições não são um fim em si mesmas. Recebemos meios materiais, consciência limpa e vitória sobre o mal com a finalidade exclusiva de que a missão de Deus seja cumprida.",
+            "es": "En la mente popular, la oración es igual a hacer peticiones. Tratamos a Dios como el genio de la lámpara. Aunque Dios desea que le hagamos peticiones, la oración es mucho más que eso. El objetivo principal de nuestras vidas debe ser buscar la gloria de Dios. En la Oración del Padre Nuestro, comenzamos buscando la gloria, el reino y la voluntad de Dios. Solo entonces, en este contexto, solicitamos nuestras necesidades. Las peticiones no son un fin en sí mismas. Recibimos medios materiales, una conciencia limpia y victoria sobre el mal con el propósito exclusivo de que la misión de Dios sea cumplida.",
+            "en": "In the popular mind, prayer is equivalent to making requests. We treat God like a genie in a lamp. Although God desires that we make requests to Him, prayer is much more than that. The main objective of our lives should be to seek the glory of God. In the Lord's Prayer, we begin by seeking God's glory, kingdom, and will. Only then, in this context, do we request our needs. Petitions are not an end in themselves. We receive material means, a clear conscience, and victory over evil for the exclusive purpose of fulfilling God's mission."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: As três primeiras petições do Pai Nosso são prioridades em sua vida?",
+            "es": "Reflexión: ¿Son las tres primeras peticiones del Padre Nuestro prioridades en tu vida?",
+            "en": "Reflection: Are the first three petitions of the Lord's Prayer priorities in your life?"
+          }
+        },
+        {
+          "title": {
+            "pt": "Líderes servos",
+            "es": "Líderes siervos",
+            "en": "Servant Leaders"
+          },
+          "scripture_reference": {
+            "pt": "João 13:3-5",
+            "es": "Juan 13:3-5",
+            "en": "John 13:3-5"
+          },
+          "scripture_text": {
+            "pt": "“Jesus... levantou-se da mesa, tirou sua capa e colocou uma toalha em volta da cintura. Depois disso, derramou água numa bacia e começou a lavar os pés dos seus discípulos...”",
+            "es": "“Jesús... se levantó de la cena, y se quitó su manto, y tomando una toalla, se la ciñó. Luego puso agua en un lebrillo, y comenzó a lavar los pies de los discípulos...”",
+            "en": "“Jesus... got up from the meal, took off his outer clothing, and wrapped a towel around his waist. After that, he poured water into a basin and began to wash his disciples' feet...”"
+          },
+          "devotional_text": {
+            "pt": "O termo "liderança do servo" descreve perfeitamente o estilo de liderança de Jesus. Ele, a cabeça suprema, deixou sua glória e se tornou um servo. Ele veio "não para ser servido, mas para servir". Isso contrasta com os pontos de vista convencionais de liderança, onde poder e ambição são promovidos. O líder servo não busca vantagem pessoal; ele busca o bem dos outros e está disposto a se sacrificar. Ele é maduro, humilde, sábio e gentil. Qualquer outro tipo de liderança está aquém do padrão estabelecido por Jesus.",
+            "es": "El término "liderazgo de siervo" describe perfectamente el estilo de liderazgo de Jesús. Él, la cabeza suprema, dejó su gloria y se convirtió en siervo. Vino "no para ser servido, sino para servir". Esto contrasta con las visiones convencionales de liderazgo, donde el poder y la ambición son promovidos. El líder siervo no busca ventaja personal; busca el bien de los demás y está dispuesto a sacrificarse. Es maduro, humilde, sabio y gentil. Cualquier otro tipo de liderazgo está por debajo del estándar establecido por Jesús.",
+            "en": "The term "servant leadership" perfectly describes Jesus' style of leadership. He, the supreme head, left His glory and became a servant. He came "not to be served, but to serve." This contrasts with conventional views of leadership, where power and ambition are promoted. The servant leader does not seek personal advantage; he seeks the good of others and is willing to sacrifice. He is mature, humble, wise, and kind. Any other type of leadership falls short of the standard set by Jesus."
+          },
+          "closing_prayer_or_reflection": {
+            "pt": "Reflexão: Leia Filipenses 2:1-11. A liderança servil é praticável?",
+            "es": "Reflexión: Lee Filipenses 2:1-11. ¿Es practicable el liderazgo de siervo?",
+            "en": "Reflection: Read Philippians 2:1-11. Is servant leadership practicable?"
+          }
+        }
+      ]
+    };
+
+    // Função para exibir mensagens de notificação na UI
+    function showMessage(message, type = 'info', duration = 3000) {
+        appMessage.textContent = message;
+        appMessage.className = `fixed top-0 left-0 right-0 p-4 text-center text-white font-bold z-1000 transition-transform ease-out duration-300 transform translate-y-0 opacity-100 ${type}`;
+        appMessage.style.display = 'block';
+
+        setTimeout(() => {
+            appMessage.className = `fixed top-0 left-0 right-0 p-4 text-center text-white font-bold z-1000 transition-transform ease-out duration-300 transform -translate-y-full opacity-0 ${type}`;
+            setTimeout(() => {
+                appMessage.style.display = 'none';
+            }, 300);
+        }, duration);
+    }
+
+    // Função para traduzir elementos estáticos da UI
+    function setLanguage(lang) {
+        currentLanguage = lang;
+        localStorage.setItem('appLanguage', lang);
+
+        document.querySelectorAll('[data-lang]').forEach(element => {
+            const key = element.getAttribute('data-lang');
+            if (translations[lang] && translations[lang][key]) {
+                element.textContent = translations[lang][key];
+            }
+        });
+        // A tradução do conteúdo devocional (título, texto, oração) é feita ao exibir o devocional.
+        displayDevotional(currentDevotional); // Re-exibe o devocional atual para garantir que o título e outros elementos estáticos sejam atualizados.
+    }
+
+    // Variável para guardar o devocional atualmente exibido
+    let currentDevotional = null;
+
+    // Função para exibir o conteúdo do devocional
+    function displayDevotional(devotional) {
+        if (!devotional) {
+            // Fallback se não houver devocional para exibir
+            devotionalTitle.textContent = translations[currentLanguage]['fallback.title'] || 'Devocional não encontrado.';
+            scriptureText.textContent = translations[currentLanguage]['fallback.scripture_text'] || 'Por favor, tente novamente.';
+            scriptureReference.textContent = '';
+            devotionalText.textContent = '';
+            closingPrayerReflection.textContent = '';
+            
+            // Usa imagem offline como fallback
+            devotionalCard.classList.add('offline-image');
+            return;
+        }
+
+        devotionalTitle.textContent = devotional.title[currentLanguage];
+        scriptureText.textContent = devotional.scripture_text[currentLanguage];
+        scriptureReference.textContent = devotional.scripture_reference[currentLanguage];
+        // Substituir quebras de linha por parágrafos para melhor formatação
+        devotionalText.innerHTML = devotional.devotional_text[currentLanguage].replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        closingPrayerReflection.textContent = devotional.closing_prayer_or_reflection[currentLanguage];
+
+        // Se estiver online, tenta carregar imagem dinâmica
+        if (isOnline) {
+            // Gera uma nova imagem aleatória de fundo
+            const imageUrl = `https://picsum.photos/800/600?random=${new Date().getTime()}`;
+            devotionalCard.style.backgroundImage = `linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%), url('${imageUrl}')`;
+            devotionalCard.classList.remove('offline-image');
+            
+            // Guarda a última imagem usada
+            localStorage.setItem('lastImageUrl', imageUrl);
+        } else {
+            // Usa imagem estática ou a última imagem salva
+            const lastImageUrl = localStorage.getItem('lastImageUrl');
+            if (lastImageUrl) {
+                devotionalCard.style.backgroundImage = `linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%), url('${lastImageUrl}')`;
+            } else {
+                devotionalCard.classList.add('offline-image');
+            }
+        }
+
+        // Guarda o último devocional exibido no localStorage
+        localStorage.setItem('lastDevotional', JSON.stringify(devotional));
+
+        loadingState.style.display = 'none';
+        contentState.style.display = 'block';
+    }
+
+    // Função para sincronizar dados quando voltar a ficar online
+    async function syncOfflineData() {
+        try {
+            // Se houver dados offline que precisam ser sincronizados
+            showMessage(translations[currentLanguage]['sync.success'], 'success');
+        } catch (error) {
+            console.error("Erro ao sincronizar dados:", error);
+            showMessage(translations[currentLanguage]['sync.error'], 'error');
+        }
+    }
+
+    // Função principal para carregar e exibir um devocional aleatório
+    async function loadRandomDevotional() {
+        loadingState.style.display = 'block';
+        contentState.style.display = 'none';
+
+        try {
+            if (!devotionalsData || !devotionalsData.devocionais || devotionalsData.devocionais.length === 0) {
+                throw new Error("Dados de devocionais não encontrados ou vazios.");
+            }
+
+            const randomIndex = Math.floor(Math.random() * devotionalsData.devocionais.length);
+            currentDevotional = devotionalsData.devocionais[randomIndex];
+            displayDevotional(currentDevotional);
+
+        } catch (error) {
+            console.error("Erro ao carregar devocional:", error);
+            // Tenta carregar do localStorage em caso de erro
+            const lastDevotionalString = localStorage.getItem('lastDevotional');
+
+            if (lastDevotionalString) {
+                currentDevotional = JSON.parse(lastDevotionalString);
+                displayDevotional(currentDevotional);
+                showMessage(translations[currentLanguage]['error.load_fail'], 'error');
+            } else {
+                // Fallback para um devocional padrão se não houver nada no localStorage
+                displayDevotional({
+                    title: {
+                        pt: translations.pt['fallback.title'],
+                        es: translations.es['fallback.title'],
+                        en: translations.en['fallback.title']
+                    },
+                    scripture_reference: {
+                        pt: translations.pt['fallback.scripture_reference'],
+                        es: translations.es['fallback.scripture_reference'],
+                        en: translations.en['fallback.scripture_reference']
+                    },
+                    scripture_text: {
+                        pt: translations.pt['fallback.scripture_text'],
+                        es: translations.es['fallback.scripture_text'],
+                        en: translations.en['fallback.scripture_text']
+                    },
+                    devotional_text: {
+                        pt: translations.pt['fallback.devotional_text'],
+                        es: translations.es['fallback.devotional_text'],
+                        en: translations.en['fallback.devotional_text']
+                    },
+                    closing_prayer_or_reflection: {
+                        pt: translations.pt['fallback.closing_prayer_reflection'],
+                        es: translations.es['fallback.closing_prayer_reflection'],
+                        en: translations.en['fallback.closing_prayer_reflection']
+                    }
+                });
+                showMessage(translations[currentLanguage]['error.load_fail'], 'error');
+            }
+        }
+    }
+
+    // Adiciona fallbacks para o objeto de traduções
+    translations.pt['fallback.title'] = 'Devocional Padrão';
+    translations.pt['fallback.scripture_reference'] = 'Salmos 119:105 (NVI)';
+    translations.pt['fallback.scripture_text'] = 'A tua palavra é lâmpada para os meus pés e luz para o meu caminho.';
+    translations.pt['fallback.devotional_text'] = 'Mesmo sem conexão, a Palavra de Deus continua a nos guiar e iluminar o nosso caminho. Confie na Sua direção diária.';
+    translations.pt['fallback.closing_prayer_reflection'] = 'Oração: Que a Tua Palavra seja sempre a minha luz. Amém.';
+
+    translations.es['fallback.title'] = 'Devocional Predeterminado';
+    translations.es['fallback.scripture_reference'] = 'Salmos 119:105 (NVI)';
+    translations.es['fallback.scripture_text'] = 'Lámpara es a mis pies tu palabra, y lumbrera a mi camino.';
+    translations.es['fallback.devotional_text'] = 'Incluso sin conexión, la Palabra de Dios continúa guiándonos e iluminando nuestro camino. Confíe en Su dirección diaria.';
+    translations.es['fallback.closing_prayer_reflection'] = 'Oración: Que tu Palabra sea siempre mi luz. Amén.';
+
+    translations.en['fallback.title'] = 'Default Devotional';
+    translations.en['fallback.scripture_reference'] = 'Psalm 119:105 (NIV)';
+    translations.en['fallback.scripture_text'] = 'Your word is a lamp for my feet, a light on my path.';
+    translations.en['fallback.devotional_text'] = 'Even without a connection, God\'s Word continues to guide us and light our way. Trust in His daily direction.';
+    translations.en['fallback.closing_prayer_reflection'] = 'Prayer: May Your Word always be my light. Amen.';
+
+    translations.pt['error.load_fail'] = 'Não foi possível carregar o devocional. A exibir o último guardado ou um padrão.';
+    translations.es['error.load_fail'] = 'No se pudo cargar el devocional. Mostrando el último guardado o uno predeterminado.';
+    translations.en['error.load_fail'] = 'Could not load devotional. Displaying last saved or a default one.';
+
+    // Inicializa o status de conexão
+    updateOnlineStatus();
+
+    // Event Listeners
+    newDevotionalBtn.addEventListener('click', loadRandomDevotional);
+    shareDevotionalBtn.addEventListener('click', async () => {
+        // Garante que o devocional atual está disponível e no idioma correto para partilha
+        const currentDev = currentDevotional;
+        if (!currentDev) {
+            showMessage(translations[currentLanguage]['share.error'], 'error');
+            return;
+        }
+        const textToShare = `${currentDev.title[currentLanguage]}\n${currentDev.scripture_text[currentLanguage]} ${currentDev.scripture_reference[currentLanguage]}\n\n${currentDev.devotional_text[currentLanguage].replace(/<p>|<\/p>|<br>/g, '')}\n\n${currentDev.closing_prayer_or_reflection[currentLanguage]}\n\n#MissionCarePlus #RenovacaoDiaria`;
+        try {
+            await navigator.clipboard.writeText(textToShare);
+            showMessage(translations[currentLanguage]['share.success'], 'success');
+        } catch (err) {
+            console.error('Erro ao copiar texto: ', err);
+            showMessage(translations[currentLanguage]['share.error'], 'error');
+        }
+    });
+    langPtBtn.addEventListener('click', () => setLanguage('pt'));
+    langEsBtn.addEventListener('click', () => setLanguage('es'));
+    langEnBtn.addEventListener('click', () => setLanguage('en'));
+
+    // Carrega o conteúdo inicial (do localStorage ou um novo)
+    loadRandomDevotional();
+});
+</script>
+
+</body>
+</html>
