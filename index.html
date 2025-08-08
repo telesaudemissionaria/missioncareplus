@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MissionCare Plus - Cuidado Integral para Missionários</title>
+    
+    <!-- PWA Manifest e Configurações de Tema -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/3b82f6/FFFFFF?text=MC+">
+    
+    <!-- Importação de Fontes e Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f9fafb;
+            --dark: #1f2937;
+        }
+        
+        body {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: var(--light);
+            color: var(--dark);
+            padding-bottom: 80px; /* Espaço para a barra inferior fixa */
+        }
+        
+        /* Estilos para os botões de idioma */
+        .lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .lang-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .lang-btn.inactive {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        .lang-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Estilos para os cards de ação */
+        .action-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-color: white;
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.1), 0 2px 8px -2px rgba(0, 0, 0, 0.05);
+            padding: 1.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .action-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .action-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Card de emergência com destaque */
+        .emergency-card {
+            background: linear-gradient(135deg, var(--danger), #b91c1c);
+            color: white;
+        }
+        
+        .emergency-card:hover {
+            background: linear-gradient(135deg, #b91c1c, #991b1b);
+        }
+        
+        /* Barra de navegação inferior */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 -4px 15px -5px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            padding: 0.75rem 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+            color: #6b7280;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Seção de recursos destacados */
+        .feature-card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid #f3f4f6;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        /* Melhorias de acessibilidade */
+        .action-card:focus,
+        .nav-item:focus {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+        
+        /* Modo de alto contraste */
+        @media (prefers-contrast: high) {
+            .action-card {
+                border: 2px solid var(--dark);
+            }
+            
+            .bg-blue-600 {
+                background-color: #1e40af;
+            }
+        }
+        
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 1.5rem;
+            }
+            
+            .action-card {
+                min-height: 160px;
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ======================================================================= -->
+    <!-- MODAIS DE ALERTA E DISCLAIMER                                          -->
+    <!-- ======================================================================= -->
+    <div id="emergency-alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[60]">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 size-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-7 h-7 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                </div>
+                <div class="flex-grow">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2" data-i18n="emergencyAlertTitle">Aviso Importante</h2>
+                    <p class="text-gray-600" data-i18n="emergencyAlertText">Se você estiver apresentando <a href="sintomas-graves.html" class="font-bold text-red-600 underline hover:text-red-700" data-i18n="emergencyAlertLinkText">SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.</p>
+                </div>
+            </div>
+            <button id="close-emergency-alert" class="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-lg font-bold text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" data-i18n="emergencyAlertButton">Entendi</button>
+        </div>
+    </div>
+    
+    <div id="disclaimer-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold text-red-700 mb-4 flex items-center" data-i18n="disclaimerTitle">
+                <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                AVISO DE RESPONSABILIDADE
+            </h2>
+            <div class="text-sm text-gray-600 space-y-3">
+                <p data-i18n="disclaimerP1">O MissionCare Plus é uma ferramenta de apoio educacional. As informações aqui contidas <strong>não substituem</strong> uma consulta médica ou avaliação clínica por um profissional habilitado.</p>
+                <p data-i18n="disclaimerP2">Em caso de emergência, procure ajuda médica imediatamente. O uso das informações deste aplicativo é de sua exclusiva responsabilidade.</p>
+            </div>
+            <button id="accept-disclaimer" class="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" data-i18n="acceptButton">Entendi e Aceito</button>
+        </div>
+    </div>
+    
+    <!-- Container da Aplicação -->
+    <div id="app-container" class="max-w-4xl mx-auto">
+        <!-- Header com Hero Section -->
+        <header class="hero-section p-4 md:p-6 relative">
+            <div id="language-selector" class="absolute top-4 right-4 flex space-x-1 bg-white/80 backdrop-blur-sm p-1 rounded-full z-10 shadow-md">
+                <button id="lang-pt" class="lang-btn" aria-label="Português">🇧🇷</button>
+                <button id="lang-es" class="lang-btn" aria-label="Español">🇪🇸</button>
+                <button id="lang-en" class="lang-btn" aria-label="English">🇬🇧</button>
+            </div>
+            
+            <div class="mt-12 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-3xl shadow-xl p-6 md:p-8 flex flex-col md:flex-row items-center text-white relative overflow-hidden">
+                <div class="z-10 md:w-2/3">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-2" data-i18n="mainTitle">MissionCare Plus</h1>
+                    <p class="text-blue-100 text-lg" data-i18n="subtitle">"Levando cura e esperança aos confins da Terra"</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <div class="bg-white/20 rounded-full px-3 py-1 text-sm flex items-center">
+                            <i class="fas fa-wifi-slash mr-2"></i>
+                            <span>Funciona offline</span>
+                        </div>
+                        <div class="bg-white/20 rounded-full px-3 py-1 text-sm flex items-center">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            <span>Informações seguras</span>
+                        </div>
+                        <div class="bg-white/20 rounded-full px-3 py-1 text-sm flex items-center">
+                            <i class="fas fa-heart mr-2"></i>
+                            <span>Cuidado integral</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block md:w-1/3 relative mt-6 md:mt-0">
+                    <img src="https://placehold.co/300x300/ffffff/3b82f6?text=Cuidado+Missionário" alt="Cuidado missionário" class="w-full h-auto rounded-xl">
+                </div>
+            </div>
+        </header>
+        
+        <main class="px-4 md:px-6">
+            <!-- Seção de Ações Críticas -->
+            <section class="mt-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="criticalActions">Ações Críticas</h2>
+                <div class="grid grid-cols-1 gap-5">
+                    <a href="4-emergencias.html" class="action-card emergency-card">
+                        <div class="mb-3">
+                            <svg class="w-12 h-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold uppercase" data-i18n="emergenciesTitle">Guia de Emergências</h3>
+                        <p class="text-sm text-red-100 mt-1" data-i18n="emergenciesDesc">Primeiros socorros e orientação rápida.</p>
+                    </a>
+                </div>
+            </section>
+            
+            <!-- Seção de Recursos Destacados -->
+            <section class="mt-10">
+                <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="featuredResources">Recursos Destacados</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="feature-card fade-in">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-blue-100 p-3 rounded-lg mr-3">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="font-semibold text-gray-800">Segurança em Primeiro Lugar</h3>
+                        </div>
+                        <p class="text-sm text-gray-600">Protocolos validados por profissionais de saúde para situações de emergência.</p>
+                    </div>
+                    
+                    <div class="feature-card fade-in" style="animation-delay: 0.1s">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-green-100 p-3 rounded-lg mr-3">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="font-semibold text-gray-800">Acesso Rápido</h3>
+                        </div>
+                        <p class="text-sm text-gray-600">Informações críticas disponíveis mesmo sem conexão com a internet.</p>
+                    </div>
+                    
+                    <div class="feature-card fade-in" style="animation-delay: 0.2s">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-purple-100 p-3 rounded-lg mr-3">
+                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="font-semibold text-gray-800">Rede de Apoio</h3>
+                        </div>
+                        <p class="text-sm text-gray-600">Conecte-se com outros missionários e profissionais de saúde voluntários.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Seção de Atenção Principal -->
+            <section class="mt-10">
+                <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="mainAttention">Atenção Principal</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <a href="3- triagem adulto.html" class="action-card">
+                        <div class="mb-4 p-4 bg-blue-100 rounded-full">
+                           <svg class="w-10 h-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800" data-i18n="adultsTitle">ATENÇÃO ADULTOS</h3>
+                        <p class="text-sm text-gray-500 mt-1" data-i18n="adultsDesc">Avalie sintomas e receba orientação.</p>
+                    </a>
+                    
+                    <a href="3b-triagem pediatria.html" class="action-card">
+                        <div class="mb-4 p-4 bg-pink-100 rounded-full">
+                           <svg class="w-10 h-10 text-pink-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.5-2.28a4.5 4.5 0 00-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 001.13-1.897M16.5 7.5V12m0 0v-4.5m0 4.5h-4.5m4.5 0h4.5M3 18.75h4.5m-4.5 0a3 3 0 013-3h1.5a3 3 0 013 3m-7.5 0v-4.5A3.375 3.375 0 016.375 7.5h1.5c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125h-1.5a3.375 3.375 0 01-3.375-3.375V9.75" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800" data-i18n="pediatricsTitle">ATENÇÃO PEDIATRIA</h3>
+                        <p class="text-sm text-gray-500 mt-1" data-i18n="pediatricsDesc">Cuidado especializado para crianças.</p>
+                    </a>
+                </div>
+            </section>
+            
+            <!-- Seção de Ferramentas e Suporte -->
+            <section class="mt-10">
+                <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="toolsSupport">Ferramentas e Suporte</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-5">
+                    <a href="5. assistenteIA.html" class="action-card">
+                        <div class="mb-4 p-3 bg-green-100 rounded-full">
+                            <svg class="w-8 h-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.572L16.5 21.75l-.398-1.178a3.375 3.375 0 00-2.31-2.31L12.602 18l1.178-.398a3.375 3.375 0 002.31 2.31L16.5 14.25l.398 1.178a3.375 3.375 0 002.31 2.31l1.178.398-1.178.398a3.375 3.375 0 00-2.31 2.31z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800" data-i18n="aiAssistant">ASSISTENTE IA</h3>
+                    </a>
+                    
+                    <a href="8- medicamentos.html" class="action-card">
+                        <div class="mb-4 p-3 bg-orange-100 rounded-full">
+                            <svg class="w-8 h-8 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.354 1.093A3.75 3.75 0 0112 1.5h.003c.365 0 .717.056 1.06.163l.164.055a.75.75 0 00.675-.281l.055-.164a3.75 3.75 0 015.694 5.694l-.163.055a.75.75 0 00-.281.675l.055.164A3.75 3.75 0 0118.5 12h-1.5a.75.75 0 00-.75.75v3a.75.75 0 00.75.75h1.5c.365 0 .717-.056 1.06-.163l.164-.055a.75.75 0 00.675.281l.055.164a3.75 3.75 0 01-5.694 5.694l-.163-.055a.75.75 0 00-.675.281l-.055.164a3.75 3.75 0 01-6.756-3.033l.055-.164a.75.75 0 00.281-.675l-.164-.055A3.75 3.75 0 014.5 12h1.5a.75.75 0 00.75-.75v-3a.75.75 0 00-.75-.75h-1.5a3.75 3.75 0 01-2.907-5.857l.164-.055a.75.75 0 00.281-.675l-.055-.164a3.75 3.75 0 013.033-6.756l.164.055a.75.75 0 00.675.281l.055.164z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800" data-i18n="meds">MEDICAMENTOS</h3>
+                    </a>
+                    
+                    <a href="6-textos biblico.html" class="action-card">
+                        <div class="mb-4 p-3 bg-purple-100 rounded-full">
+                            <svg class="w-8 h-8 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800" data-i18n="dailyRenewal">RENOVAÇÃO DIÁRIA</h3>
+                    </a>
+                    
+                    <a href="9-contatos.html" class="action-card">
+                         <div class="mb-4 p-3 bg-indigo-100 rounded-full">
+                            <svg class="w-8 h-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800" data-i18n="contacts">CONTACTOS</h3>
+                    </a>
+                    
+                    <a href="sintomas-graves.html" class="action-card">
+                        <div class="mb-4 p-3 bg-red-100 rounded-full">
+                            <svg class="w-8 h-8 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-800">SINTOMAS GRAVES</h3>
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Barra de Navegação Inferior Fixa -->
+    <nav class="bottom-nav">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="grid grid-cols-5 gap-1">
+                <a href="index.html" class="nav-item active">
+                    <i class="fas fa-home text-xl mb-1"></i>
+                    <span class="text-xs">Início</span>
+                </a>
+                <a href="3- triagem adulto.html" class="nav-item">
+                    <i class="fas fa-user-injured text-xl mb-1"></i>
+                    <span class="text-xs">Triagem</span>
+                </a>
+                <a href="5. assistenteIA.html" class="nav-item">
+                    <i class="fas fa-robot text-xl mb-1"></i>
+                    <span class="text-xs">Assistente</span>
+                </a>
+                <a href="8- medicamentos.html" class="nav-item">
+                    <i class="fas fa-pills text-xl mb-1"></i>
+                    <span class="text-xs">Medicamentos</span>
+                </a>
+                <a href="9-contatos.html" class="nav-item">
+                    <i class="fas fa-address-book text-xl mb-1"></i>
+                    <span class="text-xs">Contatos</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <script>
+        // CORREÇÃO: Objeto de traduções preenchido para todos os idiomas.
+        const translations = {
+            pt: {
+                emergencyAlertTitle: "Aviso Importante",
+                emergencyAlertText: "Se você estiver apresentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.",
+                emergencyAlertLinkText: "SINTOMAS GRAVES",
+                emergencyAlertButton: "Entendi",
+                disclaimerTitle: "AVISO DE RESPONSABILIDADE",
+                disclaimerP1: "O MissionCare Plus é uma ferramenta de apoio educacional. As informações aqui contidas <strong>não substituem</strong> uma consulta médica ou avaliação clínica por um profissional habilitado.",
+                disclaimerP2: "Em caso de emergência, procure ajuda médica imediatamente. O uso das informações deste aplicativo é de sua exclusiva responsabilidade.",
+                acceptButton: "Entendi e Aceito",
+                mainTitle: "MissionCare Plus",
+                subtitle: "\"Levando cura e esperança aos confins da Terra\"",
+                criticalActions: "Ações Críticas",
+                emergenciesTitle: "Guia de Emergências",
+                emergenciesDesc: "Primeiros socorros e orientação rápida.",
+                mainAttention: "Atenção Principal",
+                adultsTitle: "ATENÇÃO ADULTOS",
+                adultsDesc: "Avalie sintomas e receba orientação.",
+                pediatricsTitle: "ATENÇÃO PEDIATRIA",
+                pediatricsDesc: "Cuidado especializado para crianças.",
+                toolsSupport: "Ferramentas e Suporte",
+                aiAssistant: "ASSISTENTE IA",
+                meds: "MEDICAMENTOS",
+                dailyRenewal: "RENOVAÇÃO DIÁRIA",
+                contacts: "CONTACTOS",
+                featuredResources: "Recursos Destacados"
+            },
+            es: {
+                emergencyAlertTitle: "Aviso Importante",
+                emergencyAlertText: "Si está presentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SÍNTOMAS GRAVES</a>, no use MissionCare Plus. En su lugar, contacte a los servicios de emergencia.",
+                emergencyAlertLinkText: "SÍNTOMAS GRAVES",
+                emergencyAlertButton: "Entendido",
+                disclaimerTitle: "AVISO DE RESPONSABILIDAD",
+                disclaimerP1: "MissionCare Plus es una herramienta de apoyo educativo. La información aquí contenida <strong>no reemplaza</strong> una consulta médica o evaluación clínica por un profesional calificado.",
+                disclaimerP2: "En caso de emergencia, busque ayuda médica de inmediato. El uso de la información de esta aplicación es su exclusiva responsabilidad.",
+                acceptButton: "Entendido y Acepto",
+                mainTitle: "MissionCare Plus",
+                subtitle: "\"Llevando sanación y esperanza hasta los confines de la Tierra\"",
+                criticalActions: "Acciones Críticas",
+                emergenciesTitle: "Guía de Emergencias",
+                emergenciesDesc: "Primeros auxilios y orientación rápida.",
+                mainAttention: "Atención Principal",
+                adultsTitle: "ATENCIÓN ADULTOS",
+                adultsDesc: "Evalúe síntomas y reciba orientación.",
+                pediatricsTitle: "ATENCIÓN PEDIATRÍA",
+                pediatricsDesc: "Cuidado especializado para niños.",
+                toolsSupport: "Herramientas y Soporte",
+                aiAssistant: "ASISTENTE IA",
+                meds: "MEDICAMENTOS",
+                dailyRenewal: "RENOVACIÓN DIARIA",
+                contacts: "CONTACTOS",
+                featuredResources: "Recursos Destacados"
+            },
+            en: {
+                emergencyAlertTitle: "Important Notice",
+                emergencyAlertText: "If you are experiencing <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SEVERE SYMPTOMS</a>, do not use MissionCare Plus. Instead, contact emergency services.",
+                emergencyAlertLinkText: "SEVERE SYMPTOMS",
+                emergencyAlertButton: "Understood",
+                disclaimerTitle: "DISCLAIMER",
+                disclaimerP1: "MissionCare Plus is an educational support tool. The information contained herein <strong>does not replace</strong> a medical consultation or clinical evaluation by a qualified professional.",
+                disclaimerP2: "In case of emergency, seek medical help immediately. The use of information from this application is your sole responsibility.",
+                acceptButton: "Understood and Accepted",
+                mainTitle: "MissionCare Plus",
+                subtitle: "\"Bringing healing and hope to the ends of the Earth\"",
+                criticalActions: "Critical Actions",
+                emergenciesTitle: "Emergency Guide",
+                emergenciesDesc: "First aid and quick guidance.",
+                mainAttention: "Main Care",
+                adultsTitle: "ADULT CARE",
+                adultsDesc: "Evaluate symptoms and receive guidance.",
+                pediatricsTitle: "PEDIATRIC CARE",
+                pediatricsDesc: "Specialized care for children.",
+                toolsSupport: "Tools and Support",
+                aiAssistant: "AI ASSISTANT",
+                meds: "MEDICATIONS",
+                dailyRenewal: "DAILY RENEWAL",
+                contacts: "CONTACTS",
+                featuredResources: "Featured Resources"
+            }
+        };
+        
+        let currentLang = localStorage.getItem('lang') || 'pt';
+        
+        // Função para atualizar o conteúdo com base no idioma selecionado
+        function updateContent() {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[currentLang] && translations[currentLang][key]) {
+                    element.innerHTML = translations[currentLang][key];
+                }
+            });
+            
+            // Atualizar botões de idioma
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.id === `lang-${currentLang}`);
+                btn.classList.toggle('inactive', btn.id !== `lang-${currentLang}`);
+            });
+        }
+        
+        // Função para carregar traduções de forma assíncrona
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`assets/i18n/${lang}.json`);
+                if (!response.ok) throw new Error('Failed to load translations');
+                return await response.json();
+            } catch (error) {
+                console.error('Error loading translations:', error);
+                return translations[lang]; // Fallback para o objeto embutido
+            }
+        }
+        
+        // Função debounce para evitar múltiplas chamadas rápidas
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const emergencyModal = document.getElementById('emergency-alert-modal');
+            const closeEmergencyBtn = document.getElementById('close-emergency-alert');
+            const disclaimerModal = document.getElementById('disclaimer-modal');
+            const acceptDisclaimerBtn = document.getElementById('accept-disclaimer');
+            
+            // Função para mostrar o disclaimer se necessário
+            const showDisclaimerIfNeeded = () => {
+                const disclaimerAccepted = localStorage.getItem('disclaimerAccepted');
+                if (!disclaimerAccepted) {
+                    disclaimerModal?.classList.remove('hidden');
+                }
+            };
+            
+            // Função para mostrar o alerta de emergência se necessário
+            const showEmergencyIfNeeded = () => {
+                 const emergencyDismissed = sessionStorage.getItem('emergencyDismissed');
+                 if(!emergencyDismissed) {
+                    emergencyModal?.classList.remove('hidden');
+                 } else {
+                    showDisclaimerIfNeeded();
+                 }
+            }
+            
+            // Mostrar modais apropriados
+            showEmergencyIfNeeded();
+            
+            // Event listeners para fechar modais
+            closeEmergencyBtn?.addEventListener('click', () => {
+                emergencyModal?.classList.add('hidden');
+                sessionStorage.setItem('emergencyDismissed', 'true');
+                showDisclaimerIfNeeded();
+            });
+            
+            acceptDisclaimerBtn?.addEventListener('click', () => {
+                disclaimerModal?.classList.add('hidden');
+                localStorage.setItem('disclaimerAccepted', 'true');
+            });
+            
+            // Fechar modais ao clicar fora
+            [emergencyModal, disclaimerModal].forEach(modal => {
+                modal?.addEventListener('click', (event) => {
+                    if (event.target === modal) {
+                        if (modal.id === 'emergency-alert-modal') {
+                            modal.classList.add('hidden');
+                            sessionStorage.setItem('emergencyDismissed', 'true');
+                            showDisclaimerIfNeeded();
+                        }
+                    }
+                });
+            });
+            
+            // Event listeners para seleção de idioma
+            const languageButtons = document.querySelectorAll('.lang-btn');
+            languageButtons.forEach(button => {
+                button.addEventListener('click', debounce(async function() {
+                    const lang = this.id.split('-')[1];
+                    currentLang = lang;
+                    localStorage.setItem('lang', lang);
+                    
+                    const translationsData = await loadTranslations(lang);
+                    updateContent(translationsData);
+                }, 300));
+            });
+            
+            // Atualizar conteúdo inicial
+            updateContent();
+            
+            // Adicionar animações de fade-in aos elementos
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.feature-card, .action-card').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
