@@ -1,33 +1,37 @@
 // service-worker.js
 const CACHE = 'missioncare-v1';
 
-// Liste TUDO que precisa abrir offline (HTML, CSS/JS local, páginas, e os CDNs críticos)
+// Liste aqui TUDO que precisa abrir offline
 const PRECACHE = [
+  './',
   './index.html',
+  './manifest.json',
+
+  // Páginas (use os nomes RENOMEADOS)
   './3-triagem-adulto.html',
   './3b-triagem-pediatria.html',
+  './4-emergencias.html',
   './5-assistente-ia.html',
   './6-textos-biblicos.html',
   './8-medicamentos.html',
   './9-contatos.html',
   './sintomas-graves.html',
-  './manifest.json',
 
-  // CSS/JS locais (se houver)
-  // './styles.css', './app.js',
+  // Ícones PWA (ajuste se mudar os nomes/locais)
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 
-  // CDNs críticos (serão responses opacas, mas funcionam offline se pré-carregados)
+  // CDNs críticos (respostas opacas, mas funcionam offline se pré-cacheadas)
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900',
-  'https://fonts.gstatic.com/',
-  // Imagem do hero (troque placehold.co por um arquivo local para garantir offline)
-  // './assets/hero.png'
+  'https://fonts.gstatic.com/'
 ];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(PRECACHE))
+    caches.open(CACHE)
+      .then(cache => cache.addAll(PRECACHE))
       .then(() => self.skipWaiting())
   );
 });
@@ -40,44 +44,39 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Estratégia:
-// - Navegações (HTML): NetworkFirst com fallback para cache e, por fim, index.html (app shell)
-// - Demais requests: CacheFirst, caindo para rede se não tiver cache
 self.addEventListener('fetch', (e) => {
-  const { request } = e;
+  const req = e.request;
 
-  // Trata navegações
-  if (request.mode === 'navigate' || (request.method === 'GET' && request.headers.get('accept')?.includes('text/html'))) {
+  // Navegações (HTML): NetworkFirst com fallback pra cache e, por fim, index (app shell)
+  if (req.mode === 'navigate' || (req.method === 'GET' && req.headers.get('accept')?.includes('text/html'))) {
     e.respondWith((async () => {
       try {
-        const fresh = await fetch(request);
+        const fresh = await fetch(req);
         const cache = await caches.open(CACHE);
-        cache.put(request, fresh.clone());
+        cache.put(req, fresh.clone());
         return fresh;
       } catch (err) {
         const cache = await caches.open(CACHE);
-        const cached = await cache.match(request);
+        const cached = await cache.match(req);
         return cached || cache.match('./index.html');
       }
     })());
     return;
   }
 
-  // Outros (CSS/JS/Fontes/Imagens): CacheFirst
+  // Demais (CSS/JS/Fontes/Imagens): CacheFirst
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    const cached = await cache.match(request, { ignoreVary: true });
+    const cached = await cache.match(req, { ignoreVary: true });
     if (cached) return cached;
     try {
-      const fresh = await fetch(request);
-      // Evita cachear respostas POST/dinâmicas
-      if (request.method === 'GET' && fresh && fresh.status === 200) {
-        cache.put(request, fresh.clone());
+      const fresh = await fetch(req);
+      if (req.method === 'GET' && fresh && fresh.status === 200) {
+        cache.put(req, fresh.clone());
       }
       return fresh;
     } catch (err) {
-      // Sem rede e sem cache → falha silenciosa
-      return cached;
+      return cached; // se não tiver, falha silenciosa
     }
   })());
 });
