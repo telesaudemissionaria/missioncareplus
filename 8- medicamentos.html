@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang="medicamentos.titulo">Guia de Medicamentos - MissionCare Plus</title>
+    <!-- Importação de Fontes e Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <!-- <link rel="stylesheet" href="style.css"> --> <!-- Comentado pois o CSS está inline para demonstração -->
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
+            --primary-color: #0d9488; /* Tailwind teal-600 */
+            --text-color-dark: #374151; /* gray-700 */
+            --text-color-light: #6b7280; /* gray-500 */
+            --background-color-light: #f9fafb; /* gray-50 */
+        }
+        .form-input:focus {
+            --tw-ring-color: rgba(13, 148, 136, 0.4);
+            box-shadow: 0 0 0 1px var(--primary-color), 0 0 0 3px var(--tw-ring-color);
+            border-color: var(--primary-color);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-content.open {
+            max-height: 2000px; /* Altura suficiente para o conteúdo */
+        }
+        .category-header svg {
+            transition: transform 0.3s ease-out;
+        }
+        .category-header.open svg {
+            transform: rotate(90deg);
+        }
+        /* Estilos para as bandeiras */
+        .lang-switcher {
+            display: flex;
+            gap: 10px;
+            margin-left: auto; /* Empurra para a direita */
+        }
+        .lang-switcher button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .lang-switcher button:hover {
+            background-color: #f0f0f0;
+        }
+        .lang-switcher img {
+            width: 28px; /* Tamanho um pouco maior para as bandeiras */
+            height: 28px;
+            display: block;
+            border-radius: 50%; /* Para que as bandeiras fiquem redondas */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        /* Estilos para a mensagem de notificação */
+        #app-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        #app-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        #app-message.error {
+            background-color: #dc2626; /* red-600 */
+        }
+        #app-message.success {
+            background-color: #0d9488; /* teal-600 */
+        }
+        #app-message.info {
+            background-color: #2563eb; /* blue-600 */
+        }
+        /* Estilos para o indicador de modo offline */
+        .offline-indicator {
+            position: fixed;
+            bottom: 70px;
+            right: 10px;
+            background-color: #f59e0b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+        }
+        .offline-indicator.show {
+            display: block;
+        }
+        /* Estilos para o botão de atualização */
+        .update-button {
+            position: fixed;
+            bottom: 70px;
+            left: 10px;
+            background-color: #10b981;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .update-button.show {
+            display: block;
+        }
+        .update-button:hover {
+            background-color: #059669;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- MODAL DE DISCLAIMER -->
+    <div id="disclaimer-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold text-red-700 mb-4" data-lang="disclaimer.title">⚠️ AVISO IMPORTANTE SOBRE O USO DE MEDICAMENTOS</h2>
+            <h3 class="text-lg font-semibold text-text-color-dark mb-3" data-lang="disclaimer.subtitle">DECLARAÇÃO DE ISENÇÃO DE RESPONSABILIDADE</h3>
+            <div class="text-sm text-text-color-light space-y-3">
+                <p data-lang="disclaimer.p1">As informações contidas nesta página destinam-se exclusivamente a profissionais de saúde devidamente capacitados e atuantes em missões médicas e contextos clínicos supervisionados.</p>
+                <p data-lang="disclaimer.p2">O uso inadequado de medicamentos pode resultar em efeitos adversos graves, intoxicações, falhas terapêuticas, agravamento de quadros clínicos ou até óbito.</p>
+                <p class="font-bold" data-lang="disclaimer.prohibited">É expressamente proibido:</p>
+                <ul class="list-disc list-inside pl-4">
+                    <li data-lang="disclaimer.list1">A automedicação ou uso por leigos sem orientação profissional;</li>
+                    <li data-lang="disclaimer.list2">A modificação não autorizada de dosagens ou protocolos;</li>
+                    <li data-lang="disclaimer.list3">O uso de medicamentos fora de indicações reconhecidas;</li>
+                    <li data-lang="disclaimer.list4">A distribuição de medicamentos sem supervisão técnica.</li>
+                </ul>
+                <p data-lang="disclaimer.p3">Ao acessar este conteúdo, você declara compreender que estas informações não substituem uma avaliação clínica e que o uso delas é de sua exclusiva responsabilidade.</p>
+                <p class="font-bold text-center mt-4 text-text-color-dark" data-lang="disclaimer.security_message">🔒 SEGURANÇA E RESPONSABILIDADE SALVAM VIDAS.</p>
+            </div>
+            <button id="accept-disclaimer" class="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-lg font-bold text-white bg-teal-600 hover:bg-teal-700" data-lang="disclaimer.accept_button">
+                Concordo e Continuar
+            </button>
+        </div>
+    </div>
+    <!-- Container da Aplicação -->
+    <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-white justify-between">
+        <!-- Mensagem de Notificação -->
+        <div id="app-message" class="hidden"></div>
+        
+        <!-- Indicador de Modo Offline -->
+        <div id="offline-indicator" class="offline-indicator">Modo Offline</div>
+        
+        <!-- Botão de Atualização -->
+        <div id="update-button" class="update-button">Atualizar Dados</div>
+        
+        <!-- Conteúdo Principal -->
+        <div>
+            <header class="sticky top-0 z-10 flex items-center bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                <a href="#" class="text-gray-600 hover:text-gray-900 p-2 -ml-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+                </a>
+                <h1 data-lang="medicamentos.titulo" class="text-gray-800 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-8">Guia de Medicamentos</h1>
+                <!-- Language Switcher -->
+                <div class="lang-switcher">
+                    <button id="lang-pt" title="Português (Brasil)" aria-label="Mudar para Português (Brasil)">
+                        <img src="https://flagcdn.com/br.svg" alt="Bandeira do Brasil">
+                    </button>
+                    <button id="lang-es" title="Español (España)" aria-label="Mudar para Español (España)">
+                        <img src="https://flagcdn.com/es.svg" alt="Bandeira da Espanha">
+                    </button>
+                    <button id="lang-en" title="English" aria-label="Switch to English">
+                        <img src="https://flagcdn.com/us.svg" alt="Flag of United States">
+                    </button>
+                </div>
+            </header>
+            <main class="flex-grow pb-20">
+                <div class="p-4">
+                    <h2 class="text-text-color-dark text-xl font-bold mb-1" data-lang="main.title">Medicamentos Essenciais em Campo</h2>
+                    <p class="text-text-color-light mb-4" data-lang="main.subtitle">Guia de referência para adultos.</p>
+                    
+                    <!-- Lista de Categorias de Medicamentos (Acordeão) -->
+                    <div id="medication-categories" class="space-y-3">
+                        <!-- Conteúdo gerado dinamicamente -->
+                    </div>
+                </div>
+                <!-- NOTA DE SEGURANÇA -->
+                <div class="m-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-lg">
+                    <h3 class="font-bold text-yellow-900" data-lang="safety.note.title">⚠️ Nota de Segurança: Populações Especiais e Interações</h3>
+                    <div class="text-sm mt-2 space-y-2">
+                        <p data-lang="safety.note.p1"><strong>Interações Medicamentosas:</strong> Combinações inadequadas podem causar efeitos adversos graves. Atenção a interações entre AINEs e anti-hipertensivos; antibióticos e antiácidos; corticoides e hipoglicemiantes.</p>
+                        <p data-lang="safety.note.p2"><strong>Gestantes e Lactantes:</strong> Muitos medicamentos (ex: Doxiciclina, Primaquina, Ciprofloxacino, AINEs) são contraindicados ou requerem extrema precaução. Avalie sempre os riscos versus benefícios.</p>
+                        <p data-lang="safety.note.p3"><strong>Crianças:</strong> Exigem ajuste rigoroso de dose por peso e idade. É obrigatório consultar um profissional habilitado para garantir a segurança.</p>
+                        <p data-lang="safety.note.p4"><strong>Idosos:</strong> População suscetível a efeitos adversos. Atenção especial com sedativos (Diazepam) e diuréticos (Furosemida). Monitoramento clínico é essencial.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <!-- BARRA DE NAVEGAÇÃO GLOBAL -->
+        <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
+            <div class="mx-auto flex h-16 max-w-4xl items-center justify-around">
+                <button onclick="goBack()" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+                    <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                    <span data-lang="nav_voltar" class="mt-1 text-xs font-bold uppercase tracking-wider">Voltar</span>
+                </button>
+                <div class="h-8 w-px bg-gray-200"></div>
+                <a href="index.html" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+                    <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                    <span data-lang="nav_inicio" class="mt-1 text-xs font-bold uppercase tracking-wider">Início</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Função para voltar na história do navegador
+    window.goBack = function() {
+        window.history.back();
+    };
+    
+    // Elementos do DOM
+    const medicationCategoriesContainer = document.getElementById('medication-categories');
+    const disclaimerModal = document.getElementById('disclaimer-modal');
+    const acceptDisclaimerBtn = document.getElementById('accept-disclaimer');
+    const langPtBtn = document.getElementById('lang-pt');
+    const langEsBtn = document.getElementById('lang-es');
+    const langEnBtn = document.getElementById('lang-en');
+    const appMessage = document.getElementById('app-message');
+    const offlineIndicator = document.getElementById('offline-indicator');
+    const updateButton = document.getElementById('update-button');
+    
+    let currentLanguage = localStorage.getItem('appLanguage') || 'pt';
+    let isOnline = navigator.onLine;
+    
+    // Verificar status de conexão
+    function updateOnlineStatus() {
+        isOnline = navigator.onLine;
+        if (!isOnline) {
+            offlineIndicator.classList.add('show');
+            showMessage(translations[currentLanguage]['offline.mode'], 'info', 5000);
+        } else {
+            offlineIndicator.classList.remove('show');
+            // Se voltou a ficar online, verifica se há atualizações disponíveis
+            checkForUpdates();
+        }
+    }
+    
+    // Adicionar event listeners para mudança de status de conexão
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    // Função para verificar se há atualizações disponíveis
+    function checkForUpdates() {
+        // Simulação de verificação de atualizações
+        // Em uma implementação real, isso faria uma requisição ao servidor
+        const lastUpdate = localStorage.getItem('lastMedicationUpdate');
+        const now = new Date().getTime();
+        
+        // Se não houver atualização nos últimos 7 dias, mostrar botão de atualização
+        if (!lastUpdate || (now - parseInt(lastUpdate)) > 7 * 24 * 60 * 60 * 1000) {
+            updateButton.classList.add('show');
+        }
+    }
+    
+    // Função para atualizar os dados de medicamentos
+    async function updateMedicationData() {
+        if (!isOnline) {
+            showMessage(translations[currentLanguage]['update.offline'], 'error');
+            return;
+        }
+        
+        try {
+            showMessage(translations[currentLanguage]['update.checking'], 'info');
+            
+            // Simulação de uma requisição para atualizar dados
+            // Em uma implementação real, isso faria uma requisição fetch a um endpoint
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Simular que novos dados foram recebidos
+            localStorage.setItem('lastMedicationUpdate', new Date().getTime().toString());
+            updateButton.classList.remove('show');
+            
+            showMessage(translations[currentLanguage]['update.success'], 'success');
+        } catch (error) {
+            console.error("Erro ao atualizar dados:", error);
+            showMessage(translations[currentLanguage]['update.error'], 'error');
+        }
+    }
+    
+    // Adicionar event listener para o botão de atualização
+    updateButton.addEventListener('click', updateMedicationData);
+    
+    // Função para exibir mensagens de notificação na UI
+    function showMessage(message, type = 'info', duration = 3000) {
+        appMessage.textContent = message;
+        appMessage.className = `fixed top-0 left-0 right-0 p-4 text-center text-white font-bold z-1000 transition-transform ease-out duration-300 transform translate-y-0 opacity-100 ${type}`;
+        appMessage.style.display = 'block';
+
+        setTimeout(() => {
+            appMessage.className = `fixed top-0 left-0 right-0 p-4 text-center text-white font-bold z-1000 transition-transform ease-out duration-300 transform -translate-y-full opacity-0 ${type}`;
+            setTimeout(() => {
+                appMessage.style.display = 'none';
+            }, 300);
+        }, duration);
+    }
+    
+    // Objeto de traduções para textos estáticos
+    const translations = {
+        'pt': {
+            'medicamentos.titulo': 'Guia de Medicamentos',
+            'main.title': 'Medicamentos Essenciais em Campo',
+            'main.subtitle': 'Guia de referência para adultos.',
+            'safety.note.title': '⚠️ Nota de Segurança: Populações Especiais e Interações',
+            'safety.note.p1': 'Interações Medicamentosas: Combinações inadequadas podem causar efeitos adversos graves. Atenção a interações entre AINEs e anti-hipertensivos; antibióticos e antiácidos; corticoides e hipoglicemiantes.',
+            'safety.note.p2': 'Gestantes e Lactantes: Muitos medicamentos (ex: Doxiciclina, Primaquina, Ciprofloxacino, AINEs) são contraindicados ou requerem extrema precaução. Avalie sempre os riscos versus benefícios.',
+            'safety.note.p3': 'Crianças: Exigem ajuste rigoroso de dose por peso e idade. É obrigatório consultar um profissional habilitado para garantir a segurança.',
+            'safety.note.p4': 'Idosos: População suscetível a efeitos adversos. Atenção especial com sedativos (Diazepam) e diuréticos (Furosemida). Monitoramento clínico é essencial.',
+            'nav_voltar': 'Voltar',
+            'nav_inicio': 'Início',
+            'disclaimer.title': '⚠️ AVISO IMPORTANTE SOBRE O USO DE MEDICAMENTOS',
+            'disclaimer.subtitle': 'DECLARAÇÃO DE ISENÇÃO DE RESPONSABILIDADE',
+            'disclaimer.p1': 'As informações contidas nesta página destinam-se exclusivamente a profissionais de saúde devidamente capacitados e atuantes em missões médicas e contextos clínicos supervisionados.',
+            'disclaimer.p2': 'O uso inadequado de medicamentos pode resultar em efeitos adversos graves, intoxicações, falhas terapêuticas, agravamento de quadros clínicos ou até óbito.',
+            'disclaimer.prohibited': 'É expressamente proibido:',
+            'disclaimer.list1': 'A automedicação ou uso por leigos sem orientação profissional;',
+            'disclaimer.list2': 'A modificação não autorizada de dosagens ou protocolos;',
+            'disclaimer.list3': 'O uso de medicamentos fora de indicações reconhecidas;',
+            'disclaimer.list4': 'A distribuição de medicamentos sem supervisão técnica.',
+            'disclaimer.p3': 'Ao acessar este conteúdo, você declara compreender que estas informações não substituem uma avaliação clínica e que o uso delas é de sua exclusiva responsabilidade.',
+            'disclaimer.security_message': '🔒 SEGURANÇA E RESPONSABILIDADE SALVAM VIDAS.',
+            'disclaimer.accept_button': 'Concordo e Continuar',
+            'offline.mode': 'Modo Offline ativado. Usando dados armazenados localmente.',
+            'update.checking': 'Verificando atualizações...',
+            'update.success': 'Dados atualizados com sucesso!',
+            'update.error': 'Erro ao atualizar dados. Tente novamente mais tarde.',
+            'update.offline': 'Você está offline. Conecte-se à internet para atualizar.'
+        },
+        'es': {
+            'medicamentos.titulo': 'Guía de Medicamentos',
+            'main.title': 'Medicamentos Esenciales en Campo',
+            'main.subtitle': 'Guía de referencia para adultos.',
+            'safety.note.title': '⚠️ Nota de Seguridad: Poblaciones Especiales e Interacciones',
+            'safety.note.p1': 'Interacciones Medicamentosas: Las combinaciones inadecuadas pueden causar efectos adversos graves. Preste atención a las interacciones entre AINE y antihipertensivos; antibióticos y antiácidos; corticosteroides e hipoglucemiantes.',
+            'safety.note.p2': 'Embarazadas y Lactantes: Muchos medicamentos (ej: Doxiciclina, Primaquina, Ciprofloxacino, AINE) están contraindicados o requieren extrema precaución. Evalúe siempre los riesgos versus beneficios.',
+            'safety.note.p3': 'Niños: Requieren un ajuste estricto de la dosis por peso y edad. Es obligatorio consultar a un profesional cualificado para garantizar la seguridad.',
+            'safety.note.p4': 'Ancianos: Población susceptible a efectos adversos. Preste especial atención a los sedantes (Diazepam) y diuréticos (Furosemida). El monitoreo clínico es esencial.',
+            'nav_voltar': 'Volver',
+            'nav_inicio': 'Inicio',
+            'disclaimer.title': '⚠️ AVISO IMPORTANTE SOBRE EL USO DE MEDICAMENTOS',
+            'disclaimer.subtitle': 'DECLARACIÓN DE EXENCIÓN DE RESPONSABILIDAD',
+            'disclaimer.p1': 'La información contenida en esta página está destinada exclusivamente a profesionales de la salud debidamente capacitados y que actúan en misiones médicas y contextos clínicos supervisados.',
+            'disclaimer.p2': 'El uso inadecuado de medicamentos puede resultar en efectos adversos graves, intoxicaciones, fallas terapéuticas, agravamiento de cuadros clínicos o incluso la muerte.',
+            'disclaimer.prohibited': 'Está expresamente prohibido:',
+            'disclaimer.list1': 'La automedicación o el uso por parte de laicos sin orientación profesional;',
+            'disclaimer.list2': 'La modificación no autorizada de dosis o protocolos;',
+            'disclaimer.list3': 'El uso de medicamentos fuera de indicaciones reconocidas;',
+            'disclaimer.list4': 'La distribución de medicamentos sin supervisión técnica.',
+            'disclaimer.p3': 'Al acceder a este contenido, usted declara comprender que esta información no sustituye una evaluación clínica y que su uso es de su exclusiva responsabilidad.',
+            'disclaimer.security_message': '🔒 SEGURIDAD Y RESPONSABILIDAD SALVAN VIDAS.',
+            'disclaimer.accept_button': 'Acepto y Continuar',
+            'offline.mode': 'Modo Offline activado. Usando datos almacenados localmente.',
+            'update.checking': 'Verificando actualizaciones...',
+            'update.success': '¡Datos actualizados con éxito!',
+            'update.error': 'Error al actualizar datos. Inténtelo de nuevo más tarde.',
+            'update.offline': 'Estás offline. Conéctese a internet para actualizar.'
+        },
+        'en': {
+            'medicamentos.titulo': 'Medication Guide',
+            'main.title': 'Essential Field Medications',
+            'main.subtitle': 'Reference guide for adults.',
+            'safety.note.title': '⚠️ Safety Note: Special Populations and Interactions',
+            'safety.note.p1': 'Drug Interactions: Inadequate combinations can cause severe adverse effects. Pay attention to interactions between NSAIDs and antihypertensives; antibiotics and antacids; corticosteroids and hypoglycemic agents.',
+            'safety.note.p2': 'Pregnant and Lactating Women: Many medications (e.g., Doxycycline, Primaquine, Ciprofloxacin, NSAIDs) are contraindicated or require extreme caution. Always weigh risks versus benefits.',
+            'safety.note.p3': 'Children: Require strict dose adjustment by weight and age. It is mandatory to consult a qualified professional to ensure safety.',
+            'safety.note.p4': 'Elderly: Population susceptible to adverse effects. Pay special attention to sedatives (Diazepam) and diuretics (Furosemide). Clinical monitoring is essential.',
+            'nav_voltar': 'Back',
+            'nav_inicio': 'Home',
+            'disclaimer.title': '⚠️ IMPORTANT DISCLAIMER REGARDING MEDICATION USE',
+            'disclaimer.subtitle': 'DISCLAIMER STATEMENT',
+            'disclaimer.p1': 'The information contained on this page is intended exclusively for duly qualified healthcare professionals working in medical missions and supervised clinical contexts.',
+            'disclaimer.p2': 'Improper use of medications can result in severe adverse effects, intoxications, therapeutic failures, worsening clinical conditions, or even death.',
+            'disclaimer.prohibited': 'It is expressly prohibited:',
+            'disclaimer.list1': 'Self-medication or use by laypersons without professional guidance;',
+            'disclaimer.list2': 'Unauthorized modification of dosages or protocols;',
+            'disclaimer.list3': 'Use of medications outside recognized indications;',
+            'disclaimer.list4': 'Distribution of medications without technical supervision.',
+            'disclaimer.p3': 'By accessing this content, you declare that you understand that this information does not replace a clinical evaluation and that its use is your sole responsibility.',
+            'disclaimer.security_message': '🔒 SAFETY AND RESPONSIBILITY SAVE LIVES.',
+            'disclaimer.accept_button': 'Agree and Continue',
+            'offline.mode': 'Offline mode activated. Using locally stored data.',
+            'update.checking': 'Checking for updates...',
+            'update.success': 'Data updated successfully!',
+            'update.error': 'Error updating data. Please try again later.',
+            'update.offline': 'You are offline. Connect to the internet to update.'
+        }
+    };
+    
+    // Mensagem de disclaimer pediátrico traduzida
+    const pediatricDoseDisclaimer = {
+        pt: 'PARA DOSE PEDIÁTRICA FAVOR CONSULTAR A UM PROFISSIONAL DE SAÚDE',
+        es: 'PARA DOSIS PEDIÁTRICA POR FAVOR CONSULTE A UN PROFESIONAL DE LA SALUD',
+        en: 'FOR PEDIATRIC DOSE PLEASE CONSULT A HEALTHCARE PROFESSIONAL'
+    };
+    
+    // Dados dos medicamentos com traduções
+    const medicationData = [
+        { categoria: { pt: 'Analgésicos e Cuidados Paliativos', es: 'Analgésicos y Cuidados Paliativos', en: 'Analgesics and Palliative Care' }, nome: { pt: 'Paracetamol (Acetaminofeno)', es: 'Paracetamol (Acetaminofén)', en: 'Paracetamol (Acetaminophen)' }, apresentacao: { pt: 'Comprimido 500 mg; Suspensão oral 120mg/5mL', es: 'Comprimido 500 mg; Suspensión oral 120mg/5mL', en: 'Tablet 500 mg; Oral suspension 120mg/5mL' }, justificativa: { pt: 'Essencial e insubstituível. Primeira linha para dor e febre. Perfil de segurança elevado, crucial no manejo de síndromes febris endêmicas como Dengue, onde AINEs são contraindicados.', es: 'Esencial e insustituible. Primera línea para el dolor y la fiebre. Perfil de seguridad elevado, crucial en el manejo de síndromes febriles endémicos como el Dengue, donde los AINE están contraindicados.', en: 'Essential and irreplaceable. First-line for pain and fever. High safety profile, crucial in managing endemic febrile syndromes like Dengue, where NSAIDs are contraindicated.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Analgésicos e Cuidados Paliativos', es: 'Analgésicos y Cuidados Paliativos', en: 'Analgesics and Palliative Care' }, nome: { pt: 'Ibuprofeno', es: 'Ibuprofeno', en: 'Ibuprofen' }, apresentacao: { pt: 'Comprimido 400 mg', es: 'Comprimido 400 mg', en: 'Tablet 400 mg' }, justificativa: { pt: 'Ótima opção para dor de origem inflamatória (musculoesquelética, cólica menstrual) quando não há suspeita de dengue. Útil como segunda linha para febre.', es: 'Excelente opción para el dolor de origen inflamatorio (musculoesquelético, cólico menstrual) cuando no hay sospecha de dengue. Útil como segunda línea para la fiebre.', en: 'Great option for inflammatory pain (musculoskeletal, menstrual cramps) when dengue is not suspected. Useful as a second-line for fever.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Analgésicos e Cuidados Paliativos', es: 'Analgésicos y Cuidados Paliativos', en: 'Analgesics and Palliative Care' }, nome: { pt: 'Codeína', es: 'Codeína', en: 'Codeine' }, apresentacao: { pt: 'Comprimido 30 mg', es: 'Comprimido 30 mg', en: 'Tablet 30 mg' }, justificativa: { pt: 'Para dor moderada que não responde a analgésicos simples. Requer controle rigoroso.', es: 'Para dolor moderado que no responde a analgésicos simples. Requiere control riguroso.', en: 'For moderate pain unresponsive to simple analgesics. Requires strict control.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Analgésicos e Cuidados Paliativos', es: 'Analgésicos y Cuidados Paliativos', en: 'Analgesics and Palliative Care' }, nome: { pt: 'Morfina', es: 'Morfina', en: 'Morphine' }, apresentacao: { pt: 'Injetável 10 mg/mL; Comprimido de liberação imediata 10 mg', es: 'Inyectable 10 mg/mL; Comprimido de liberación inmediata 10 mg', en: 'Injectable 10 mg/mL; Immediate-release tablet 10 mg' }, justificativa: { pt: 'Crítico para dor severa (trauma, infarto agudo do miocárdio, cuidados paliativos). Seu uso exige protocolo claro e equipe treinada.', es: 'Crítico para el dolor severo (trauma, infarto agudo de miocardio, cuidados paliativos). Su uso exige un protocolo claro y equipo entrenado.', en: 'Critical for severe pain (trauma, acute myocardial infarction, palliative care). Its use requires clear protocol and trained staff.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Antialérgicos e Anafilaxia', es: 'Antialérgicos y Anafilaxia', en: 'Antiallergics and Anaphylaxis' }, nome: { pt: 'Epinefrina (Adrenalina)', es: 'Epinefrina (Adrenalina)', en: 'Epinephrine (Adrenaline)' }, apresentacao: { pt: 'Injetável 1 mg/mL', es: 'Inyectable 1 mg/mL', en: 'Injectable 1 mg/mL' }, justificativa: { pt: 'Salvadora de vidas. Absolutamente essencial para o tratamento de anafilaxia.', es: 'Salvadora de vidas. Absolutamente esencial para el tratamiento de la anafilaxia.', en: 'Lifesaving. Absolutely essential for the treatment of anaphylaxis.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Antialérgicos e Anafilaxia', es: 'Antialérgicos y Anafilaxia', en: 'Antiallergics and Anaphylaxis' }, nome: { pt: 'Hidrocortisona ou Dexametasona', es: 'Hidrocortisona o Dexametasona', en: 'Hydrocortisone or Dexamethasone' }, apresentacao: { pt: 'Hidrocortisona em pó para injeção 100 mg; Dexametasona injetável 4 mg/mL', es: 'Hidrocortisona en polvo para inyección 100 mg; Dexametasona inyectable 4 mg/mL', en: 'Hydrocortisone powder for injection 100 mg; Dexamethasone injectable 4 mg/mL' }, justificativa: { pt: 'Corticoide de ação rápida para reações alérgicas graves, anafilaxia (após epinefrina) e crises de asma.', es: 'Corticoide de acción rápida para reacciones alérgicas graves, anafilaxia (después de epinefrina) y crisis de asma.', en: 'Fast-acting corticosteroid for severe allergic reactions, anaphylaxis (after epinephrine), and asthma attacks.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Antialérgicos e Anafilaxia', es: 'Antialérgicos y Anafilaxia', en: 'Antiallergics and Anaphylaxis' }, nome: { pt: 'Loratadina', es: 'Loratadina', en: 'Loratadine' }, apresentacao: { pt: 'Comprimido 10 mg', es: 'Comprimido 10 mg', en: 'Tablet 10 mg' }, justificativa: { pt: 'Para manejo de reações alérgicas cutâneas (urticária) e rinite alérgica. Baixo custo e bom perfil de segurança.', es: 'Para el manejo de reacciones alérgicas cutáneas (urticaria) y rinitis alérgica. Bajo costo y buen perfil de seguridad.', en: 'For managing cutaneous allergic reactions (urticaria) and allergic rhinitis. Low cost and good safety profile.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anticonvulsivantes/Antiepilépticos', es: 'Anticonvulsivantes/Antiepilépticos', en: 'Anticonvulsants/Antiepileptics' }, nome: { pt: 'Diazepam', es: 'Diazepam', en: 'Diazepam' }, apresentacao: { pt: 'Injetável 5 mg/mL; Solução retal', es: 'Inyectable 5 mg/mL; Solución rectal', en: 'Injectable 5 mg/mL; Rectal solution' }, justificativa: { pt: 'Essencial para o manejo de emergência do estado de mal epiléptico. A via retal é uma alternativa valiosa quando o acesso venoso é difícil.', es: 'Esencial para el manejo de emergencia del estado epiléptico. La vía rectal es una alternativa valiosa cuando el acceso venoso es difícil.', en: 'Essential for emergency management of status epilepticus. Rectal route is a valuable alternative when venous access is difficult.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Albendazol', es: 'Albendazol', en: 'Albendazole' }, apresentacao: { pt: 'Comprimido mastigável 400 mg', es: 'Comprimido masticable 400 mg', en: 'Chewable tablet 400 mg' }, justificativa: { pt: 'Tratamento de amplo espectro para a maioria das parasitoses intestinais prevalentes em campo.', es: 'Tratamiento de amplio espectro para la mayoría de las parasitoses intestinales prevalentes en campo.', en: 'Broad-spectrum treatment for most prevalent intestinal parasitoses in the field.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Ivermectina', es: 'Ivermectina', en: 'Ivermectin' }, apresentacao: { pt: 'Comprimido 3 mg', es: 'Comprimido 3 mg', en: 'Tablet 3 mg' }, justificativa: { pt: 'Tratamento de escolha para escabiose (sarna) e outras ectoparasitoses, além de filarioses.', es: 'Tratamiento de elección para la escabiosis (sarna) y otras ectoparasitosis, además de filariasis.', en: 'Drug of choice for scabies and other ectoparasitoses, as well as filariasis.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Amoxicilina', es: 'Amoxicilina', en: 'Amoxicillin' }, apresentacao: { pt: 'Comprimido 500 mg; Suspensão oral 250 mg/5 mL', es: 'Comprimido 500 mg; Suspensión oral 250 mg/5 mL', en: 'Tablet 500 mg; Oral suspension 250 mg/5 mL' }, justificativa: { pt: 'Primeira linha para infecções respiratórias comunitárias (PAC leve, otite, sinusite) e faringite bacteriana.', es: 'Primera línea para infecciones respiratorias comunitarias (NAC leve, otitis, sinusitis) y faringitis bacteriana.', en: 'First-line for community-acquired respiratory infections (mild CAP, otitis, sinusitis) and bacterial pharyngitis.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Amoxicilina + Ácido Clavulânico', es: 'Amoxicilina + Ácido Clavulánico', en: 'Amoxicillin + Clavulanic Acid' }, apresentacao: { pt: 'Comprimido 500 mg/125 mg', es: 'Comprimido 500 mg/125 mg', en: 'Tablet 500 mg/125 mg' }, justificativa: { pt: 'Para mordeduras, infecções de pele e tecidos moles e infecções respiratórias com suspeita de resistência.', es: 'Para mordeduras, infecciones de piel y tejidos blandos e infecciones respiratorias con sospecha de resistencia.', en: 'For bites, skin and soft tissue infections, and respiratory infections with suspected resistance.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Doxiciclina', es: 'Doxiciclina', en: 'Doxycycline' }, apresentacao: { pt: 'Comprimido 100 mg', es: 'Comprimido 100 mg', en: 'Tablet 100 mg' }, justificativa: { pt: 'Extremamente versátil. Cobre patógenos atípicos (pneumonia), doenças transmitidas por carrapatos, cólera e pode ser uma alternativa para malária e infecções de pele.', es: 'Extremadamente versátil. Cubre patógenos atípicos (neumonía), enfermedades transmitidas por garrapatas, cólera y puede ser una alternativa para malaria e infecciones de piel.', en: 'Extremely versatile. Covers atypical pathogens (pneumonia), tick-borne diseases, cholera, and can be an alternative for malaria and skin infections.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Metronidazol', es: 'Metronidazol', en: 'Metronidazole' }, apresentacao: { pt: 'Comprimido 250 mg ou 500 mg', es: 'Comprimido 250 mg o 500 mg', en: 'Tablet 250 mg or 500 mg' }, justificativa: { pt: 'Essencial para tratar giardíase, amebíase e infecções por anaeróbios (abscessos dentários, infecções intra-abdominais).', es: 'Esencial para tratar giardiasis, amebiasis e infecciones por anaerobios (abscesos dentales, infecciones intraabdominales).', en: 'Essential for treating giardiasis, amebiasis, and anaerobic infections (dental abscesses, intra-abdominal infections).' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Sulfametoxazol + Trimetoprima', es: 'Sulfametoxazol + Trimetoprima', en: 'Sulfamethoxazole + Trimethoprim' }, apresentacao: { pt: 'Comprimido 800 mg/160 mg', es: 'Comprimido 800 mg/160 mg', en: 'Tablet 800 mg/160 mg' }, justificativa: { pt: 'Tratamento de escolha para infecções do trato urinário não complicadas e profilaxia/tratamento de pneumocistose em pacientes com HIV.', es: 'Tratamiento de elección para infecciones del tracto urinario no complicadas y profilaxis/tratamiento de neumocistosis en pacientes con VIH.', en: 'Drug of choice for uncomplicated urinary tract infections and prophylaxis/treatment of pneumocystis in HIV patients.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Nitrofurantoína', es: 'Nitrofurantoína', en: 'Nitrofurantoin' }, apresentacao: { pt: 'Comprimido 100 mg', es: 'Comprimido 100 mg', en: 'Tablet 100 mg' }, justificativa: { pt: 'Excelente opção para cistite (infecção urinária baixa) devido à baixa resistência e concentração no trato urinário.', es: 'Excelente opción para la cistitis (infección urinaria baja) debido a la baja resistencia y concentración en el trato urinario.', en: 'Excellent option for cystitis (lower urinary tract infection) due to low resistance and concentration in the urinary tract.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Ceftriaxona', es: 'Ceftriaxona', en: 'Ceftriaxone' }, apresentacao: { pt: 'Pó para injeção 1 g', es: 'Polvo para inyección 1 g', en: 'Powder for injection 1 g' }, justificativa: { pt: 'Antibiótico injetável mais importante em campo. Usado para tratar infecções graves: sepse, meningite, pneumonia grave e pielonefrite.', es: 'Antibiótico inyectable más importante en campo. Usado para tratar infecciones graves: sepsis, meningitis, neumonía grave y pielonefritis.', en: 'Most important injectable antibiotic in the field. Used to treat severe infections: sepsis, meningitis, severe pneumonia, and pyelonephritis.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Azitromicina', es: 'Azitromicina', en: 'Azithromycin' }, apresentacao: { pt: 'Comprimido 500 mg', es: 'Comprimido 500 mg', en: 'Tablet 500 mg' }, justificativa: { pt: 'Tratamento para infecções sexualmente transmissíveis (clamídia), febre tifoide e pneumonias atípicas.', es: 'Tratamiento para infecciones de transmisión sexual (clamidia), fiebre tifoidea y neumonías atípicas.', en: 'Treatment for sexually transmitted infections (chlamydia), typhoid fever, and atypical pneumonias.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Ciprofloxacino', es: 'Ciprofloxacino', en: 'Ciprofloxacin' }, apresentacao: { pt: 'Comprimido 500 mg', es: 'Comprimido 500 mg', en: 'Tablet 500 mg' }, justificativa: { pt: 'Principalmente para diarreias bacterianas invasivas (disenteria) e infecções do trato urinário complicadas.', es: 'Principalmente para diarreas bacterianas invasivas (disentería) e infecciones del tracto urinario complicadas.', en: 'Mainly for invasive bacterial diarrheas (dysentery) and complicated urinary tract infections.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Clotrimazol ou Miconazol', es: 'Clotrimazol o Miconazol', en: 'Clotrimazole or Miconazole' }, apresentacao: { pt: 'Creme vaginal; Creme tópico', es: 'Crema vaginal; Crema tópica', en: 'Vaginal cream; Topical cream' }, justificativa: { pt: 'Para tratamento de candidíase vaginal e micoses cutâneas (tinhas), condições extremamente comuns.', es: 'Para el tratamiento de candidiasis vaginal y micosis cutáneas (tiñas), condiciones extremamente comunes.', en: 'For treating vaginal candidiasis and cutaneous mycoses (tineas), extremely common conditions.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Fluconazol', es: 'Fluconazol', en: 'Fluconazole' }, apresentacao: { pt: 'Comprimido 150 mg', es: 'Comprimido 150 mg', en: 'Tablet 150 mg' }, justificativa: { pt: 'Tratamento oral de dose única para candidíase vaginal e útil para outras micoses.', es: 'Tratamiento oral de dosis única para candidiasis vaginal y útil para otras micosis.', en: 'Single-dose oral treatment for vaginal candidiasis and useful for other mycoses.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Artemeter + Lumefantrina', es: 'Artemeter + Lumefantrina', en: 'Artemether + Lumefantrine' }, apresentacao: { pt: 'Comprimidos em combinação', es: 'Comprimidos en combinación', en: 'Combined tablets' }, justificativa: { pt: 'Essencial. Tratamento de primeira linha para malária não complicada por P. falciparum.', es: 'Esencial. Tratamiento de primera línea para malaria no complicada por P. falciparum.', en: 'Essential. First-line treatment for uncomplicated P. falciparum malaria.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Artesunato Injetável', es: 'Artesunato Inyectable', en: 'Injectable Artesunate' }, apresentacao: { pt: 'Pó para injeção', es: 'Polvo para inyección', en: 'Powder for injection' }, justificativa: { pt: 'Essencial. Tratamento de primeira linha para malária grave.', es: 'Esencial. Tratamiento de primera línea para malaria grave.', en: 'Essential. First-line treatment for severe malaria.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Anti-infecciosos', es: 'Antiinfecciosos', en: 'Anti-infectives' }, nome: { pt: 'Primaquina', es: 'Primaquina', en: 'Primaquine' }, apresentacao: { pt: 'Comprimido 15 mg', es: 'Comprimido 15 mg', en: 'Tablet 15 mg' }, justificativa: { pt: 'Para a cura radical da malária por P. vivax/ovale, prevenindo recaídas. Requer teste de G6PD, se possível.', es: 'Para la cura radical de la malaria por P. vivax/ovale, previniendo recaídas. Requiere prueba de G6PD, si es posible.', en: 'For radical cure of P. vivax/ovale malaria, preventing relapses. Requires G6PD test, if possible.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Cardiovasculares', es: 'Cardiovasculares', en: 'Cardiovascular' }, nome: { pt: 'Ácido Acetilsalicílico (AAS)', es: 'Ácido Acetilsalicílico (AAS)', en: 'Acetylsalicylic Acid (ASA)' }, apresentacao: { pt: 'Comprimido 100 mg', es: 'Comprimido 100 mg', en: 'Tablet 100 mg' }, justificativa: { pt: 'Antiagregação plaquetária para prevenção secundária e manejo inicial da síndrome coronariana aguda.', es: 'Antiagregación plaquetaria para prevención secundaria y manejo inicial del síndrome coronario agudo.', en: 'Platelet antiaggregation for secondary prevention and initial management of acute coronary syndrome.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Cardiovasculares', es: 'Cardiovasculares', en: 'Cardiovascular' }, nome: { pt: 'Hidroclorotiazida', es: 'Hidroclorotiazida', en: 'Hydrochlorothiazide' }, apresentacao: { pt: 'Comprimido 25 mg', es: 'Comprimido 25 mg', en: 'Tablet 25 mg' }, justificativa: { pt: 'Diurético de primeira linha para hipertensão arterial.', es: 'Diurético de primera línea para la hipertensión arterial.', en: 'First-line diuretic for arterial hypertension.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Cardiovasculares', es: 'Cardiovasculares', en: 'Cardiovascular' }, nome: { pt: 'Enalapril', es: 'Enalapril', en: 'Enalapril' }, apresentacao: { pt: 'Comprimido 5 mg, 20 mg', es: 'Comprimido 5 mg, 20 mg', en: 'Tablet 5 mg, 20 mg' }, justificativa: { pt: 'Medicamento chave para hipertensão, insuficiência cardíaca e proteção renal em diabéticos.', es: 'Medicamento clave para la hipertensión, insuficiencia cardíaca y protección renal en diabéticos.', en: 'Key medication for hypertension, heart failure, and renal protection in diabetics.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Cardiovasculares', es: 'Cardiovasculares', en: 'Cardiovascular' }, nome: { pt: 'Amlodipina', es: 'Amlodipino', en: 'Amlodipine' }, apresentacao: { pt: 'Comprimido 5 mg', es: 'Comprimido 5 mg', en: 'Tablet 5 mg' }, justificativa: { pt: 'Anti-hipertensivo potente e eficaz, de longa duração.', es: 'Antihipertensivo potente y eficaz, de larga duración.', en: 'Potent and effective, long-acting antihypertensive.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Cardiovasculares', es: 'Cardiovasculares', en: 'Cardiovascular' }, nome: { pt: 'Furosemida', es: 'Furosemida', en: 'Furosemide' }, apresentacao: { pt: 'Comprimido 40 mg; Injetável 10 mg/mL', es: 'Comprimido 40 mg; Inyectable 10 mg/mL', en: 'Tablet 40 mg; Injectable 10 mg/mL' }, justificativa: { pt: 'Essencial para emergências. Manejo de edema agudo de pulmão, crises hipertensivas e insuficiência cardíaca.', es: 'Esencial para emergencias. Manejo de edema agudo de pulmón, crisis hipertensivas e insuficiencia cardíaca.', en: 'Essential for emergencies. Management of acute pulmonary edema, hypertensive crises, and heart failure.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Cardiovasculares', es: 'Cardiovasculares', en: 'Cardiovascular' }, nome: { pt: 'Sinvastatina', es: 'Sinvastatina', en: 'Simvastatin' }, apresentacao: { pt: 'Comprimido 20 mg', es: 'Comprimido 20 mg', en: 'Tablet 20 mg' }, justificativa: { pt: 'Para prevenção secundária de doenças cardiovasculares em pacientes de alto risco.', es: 'Para prevención secundaria de enfermedades cardiovasculares en pacientes de alto riesgo.', en: 'For secondary prevention of cardiovascular diseases in high-risk patients.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Gastrointestinais', es: 'Gastrointestinales', en: 'Gastrointestinal' }, nome: { pt: 'Sais de Reidratação Oral (SRO)', es: 'Sales de Rehidratación Oral (SRO)', en: 'Oral Rehydration Salts (ORS)' }, apresentacao: { pt: 'Pó para diluição', es: 'Polvo para dilución', en: 'Powder for dilution' }, justificativa: { pt: 'Insubstituível e salvador de vidas. Base do tratamento para diarreia e desidratação.', es: 'Insubstituible y salvador de vidas. Base del tratamiento para diarrea y deshidratación.', en: 'Irreplaceable and lifesaving. Basis of treatment for diarrhea and dehydration.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Gastrointestinais', es: 'Gastrointestinales', en: 'Gastrointestinal' }, nome: { pt: 'Omeprazol', es: 'Omeprazol', en: 'Omeprazole' }, apresentacao: { pt: 'Comprimido 20 mg', es: 'Comprimido 20 mg', en: 'Tablet 20 mg' }, justificativa: { pt: 'Para manejo de doença ulcerosa péptica e dispepsia.', es: 'Para el manejo de la enfermedad ulcerosa péptica y la dispepsia.', en: 'For managing peptic ulcer disease and dyspepsia.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Gastrointestinais', es: 'Gastrointestinales', en: 'Gastrointestinal' }, nome: { pt: 'Metoclopramida', es: 'Metoclopramida', en: 'Metoclopramide' }, apresentacao: { pt: 'Comprimido 10 mg; Injetável', es: 'Comprimido 10 mg; Inyectable', en: 'Tablet 10 mg; Injectable' }, justificativa: { pt: 'Antiemético para controle de náuseas e vômitos.', es: 'Antiemético para el control de náuseas y vómitos.', en: 'Antiemetic for controlling nausea and vomiting.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Trato Respiratório', es: 'Tracto Respiratorio', en: 'Respiratory Tract' }, nome: { pt: 'Salbutamol Inalador', es: 'Salbutamol Inhalador', en: 'Salbutamol Inhaler' }, apresentacao: { pt: 'Inalador de dose medida ("bombinha")', es: 'Inhalador de dosis medida ("bombita")', en: 'Metered dose inhaler ("puffer")' }, justificativa: { pt: 'Essencial para emergências. Medicamento de resgate para crises de asma e DPOC.', es: 'Esencial para emergencias. Medicamento de rescate para crisis de asma y EPOC.', en: 'Essential for emergencies. Rescue medication for asthma and COPD exacerbations.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Trato Respiratório', es: 'Tracto Respiratorio', en: 'Respiratory Tract' }, nome: { pt: 'Beclometasona ou Budesonida Inalador', es: 'Beclometasona o Budesonida Inhalador', en: 'Beclomethasone or Budesonide Inhaler' }, apresentacao: { pt: 'Inalador de dose medida', es: 'Inhalador de dosis medida', en: 'Metered dose inhaler' }, justificativa: { pt: 'Corticoide inalatório para controle e manutenção da asma persistente.', es: 'Corticoide inhalado para el control y mantenimiento del asma persistente.', en: 'Inhaled corticosteroid for control and maintenance of persistent asthma.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Soluções Hidroeletrolíticas', es: 'Soluciones Hidroelectrolíticas', en: 'Fluid and Electrolyte Solutions' }, nome: { pt: 'Soro Fisiológico (Cloreto de Sódio 0,9%)', es: 'Suero Fisiológico (Cloruro de Sodio 0,9%)', en: 'Saline Solution (Sodium Chloride 0.9%)' }, apresentacao: { pt: 'Bolsas de 500 mL ou 1000 mL', es: 'Bolsas de 500 mL o 1000 mL', en: 'Bags of 500 mL or 1000 mL' }, justificativa: { pt: 'Fundamental para acesso venoso, reidratação parenteral e diluição de medicamentos.', es: 'Fundamental para acceso venoso, rehidratación parenteral y dilución de medicamentos.', en: 'Fundamental for venous access, parenteral rehydration, and medication dilution.' }, dose_pediatrica: pediatricDoseDisclaimer },
+        { categoria: { pt: 'Soluções Hidroeletrolíticas', es: 'Soluciones Hidroelectrolíticas', en: 'Fluid and Electrolyte Solutions' }, nome: { pt: 'Glicose 50%', es: 'Glucosa 50%', en: 'Glucose 50%' }, apresentacao: { pt: 'Ampolas', es: 'Ampollas', en: 'Ampoules' }, justificativa: { pt: 'Essencial para emergências. Tratamento de hipoglicemia grave.', es: 'Esencial para emergencias. Tratamiento de hipoglucemia grave.', en: 'Essential for emergencies. Treatment of severe hypoglycemia.' }, dose_pediatrica: pediatricDoseDisclaimer },
+    ];
+    
+    // Função para traduzir elementos HTML
+    function setLanguage(lang) {
+        currentLanguage = lang;
+        localStorage.setItem('appLanguage', lang); // Salva a preferência no localStorage
+        
+        // Traduzir elementos com data-lang
+        document.querySelectorAll('[data-lang]').forEach(element => {
+            const key = element.getAttribute('data-lang');
+            if (translations[lang] && translations[lang][key]) {
+                element.textContent = translations[lang][key];
+            }
+        });
+        
+        // Re-renderizar a lista de medicamentos para aplicar as traduções
+        renderMedicationList();
+    }
+    
+    // Renderiza a lista de medicamentos com o idioma atual
+    function renderMedicationList() {
+        medicationCategoriesContainer.innerHTML = '';
+        const categories = [...new Set(medicationData.map(item => item.categoria[currentLanguage]))];
+        
+        categories.forEach(category => {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'bg-background-color-light rounded-xl border border-gray-200';
+            
+            const categoryHeader = document.createElement('div');
+            categoryHeader.className = 'category-header flex items-center p-4 cursor-pointer';
+            categoryHeader.innerHTML = `
+                <p class="flex-grow text-text-color-dark text-lg font-bold">${category}</p>
+                <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>
+            `;
+            
+            const categoryContent = document.createElement('div');
+            categoryContent.className = 'accordion-content px-4 pb-2 space-y-3';
+            
+            medicationData.filter(med => med.categoria[currentLanguage] === category).forEach(med => {
+                const medDiv = document.createElement('div');
+                medDiv.className = 'pt-3 border-t border-gray-200';
+                
+                medDiv.innerHTML = `
+                    <p class="text-text-color-dark text-base font-bold">${med.nome[currentLanguage]}</p>
+                    <p class="text-text-color-light text-sm">${med.apresentacao[currentLanguage]}</p>
+                    <div class="text-sm text-text-color-light mt-2 space-y-1">
+                        <p><strong>${translations[currentLanguage]['justificativa.label'] || 'Justificativa:'}</strong> ${med.justificativa[currentLanguage]}</p>
+                        <p class="font-semibold text-teal-700 mt-2"><strong>${translations[currentLanguage]['dose_pediatrica.label'] || 'Dosis Pediátrica:'}</strong> ${med.dose_pediatrica[currentLanguage]}</p>
+                    </div>
+                `;
+                categoryContent.appendChild(medDiv);
+            });
+            
+            categoryDiv.appendChild(categoryHeader);
+            categoryDiv.appendChild(categoryContent);
+            medicationCategoriesContainer.appendChild(categoryDiv);
+            
+            categoryHeader.addEventListener('click', () => {
+                categoryContent.classList.toggle('open');
+                categoryHeader.classList.toggle('open');
+            });
+        });
+    }
+    
+    // Adiciona labels para Justificativa e Dose Pediátrica no objeto de traduções
+    // para que possam ser traduzidos corretamente no renderMedicationList
+    translations.pt['justificativa.label'] = 'Justificativa:';
+    translations.es['justificativa.label'] = 'Justificación:';
+    translations.en['justificativa.label'] = 'Justification:';
+    translations.pt['dose_pediatrica.label'] = 'Dose Pediátrica:';
+    translations.es['dose_pediatrica.label'] = 'Dosis Pediátrica:';
+    translations.en['dose_pediatrica.label'] = 'Pediatric Dose:';
+
+    // Mostra o modal de disclaimer sempre que a página carregar
+    disclaimerModal.style.display = 'flex';
+    
+    acceptDisclaimerBtn.addEventListener('click', () => {
+        disclaimerModal.style.display = 'none';
+        // Salvar que o usuário aceitou o disclaimer
+        localStorage.setItem('disclaimerAccepted', 'true');
+    });
+    
+    // Verificar se o usuário já aceitou o disclaimer anteriormente
+    if (localStorage.getItem('disclaimerAccepted') === 'true') {
+        disclaimerModal.style.display = 'none';
+    }
+    
+    // Event listeners para os botões de idioma
+    langPtBtn.addEventListener('click', () => setLanguage('pt'));
+    langEsBtn.addEventListener('click', () => setLanguage('es'));
+    langEnBtn.addEventListener('click', () => setLanguage('en'));
+    
+    // Inicializa o status de conexão
+    updateOnlineStatus();
+    
+    // Define o idioma inicial ao carregar a página
+    setLanguage(currentLanguage);
+});
+</script>
+</body>
+</html>
