@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Scripts para modo offline -->
     <script src="/js/connection-manager.js"></script>
     <script src="/js/mode-switcher.js"></script>
@@ -203,7 +206,6 @@
     <div id="connection-indicator" class="connection-indicator online">
         <i class="fas fa-wifi"></i> Online
     </div>
-
     <!-- Container da Aplicação -->
     <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-white">
         <!-- MODO ONLINE -->
@@ -375,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const actionCards = document.querySelectorAll('.action-card');
     const langButtons = document.querySelectorAll('.lang-selector button');
     const faqContainer = document.getElementById('faq-container');
+    const connectionIndicator = document.getElementById('connection-indicator');
     
     // Configuração da API
     const apiKey = 'AIzaSyAz6tEar6NJokgbEch5QLtbKL7dw_v6B3U'; 
@@ -384,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let chatMode = 'general';
     let chatHistory = [];
     let currentLanguage = 'pt';
+    let isOnline = navigator.onLine;
     
     // Dados offline para FAQs
     const faqData = {
@@ -398,4 +402,587 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             {
                 question: "O que fazer em caso de diarreia?",
-                answer: "Em casos de diarreia, a prioridade é evitar a desidratação. Beba bastante água, soluções de reidratação oral ou chás. Evite alimentos gordurosos, lácteos e muito açucar. Se a diarreia persistir por mais de 2 dias, houver sangue nas fezes ou sinais de desid
+                answer: "Em casos de diarreia, a prioridade é evitar a desidratação. Beba bastante água, soluções de reidratação oral ou chás. Evite alimentos gordurosos, lácteos e muito açucar. Se a diarreia persistir por mais de 2 dias, houver sangue nas fezes ou sinais de desidratação extrema, procure ajuda médica."
+            },
+            {
+                question: "Como aliviar dor de cabeça comum?",
+                answer: "Para dor de cabeça comum, tente descansar em um ambiente tranquilo e escuro. Aplique compressas frias ou quentes na testa ou nuca. Mantenha-se hidratado. Se necessário, use analgésicos como paracetamol ou ibuprofeno. Evite luzes brilhantes e ruídos altos. Se a dor de cabeça for severa, repentina ou acompanhada de outros sintomas, procure ajuda médica."
+            }
+        ],
+        es: [
+            {
+                question: "¿Qué hacer en caso de fiebre alta?",
+                answer: "En caso de fiebre alta (por encima de 38.5°C), manténgase hidratado bebiendo mucha agua. Descanse en un ambiente fresco. Use medicamentos antipiréticos como paracetamol si están disponibles y son apropiados. Si la fiebre persiste por más de 3 días o hay otros síntomas graves, busque atención médica."
+            },
+            {
+                question: "¿Cómo tratar una herida pequeña?",
+                answer: "Lave la herida con agua limpia y jabón. Aplique un antiséptico si está disponible. Cúbrala con un vendaje limpio y seco. Cambie el vendaje diariamente y observe signos de infección como enrojecimiento, hinchazón o pus. Si aparecen estos signos, busque ayuda médica."
+            },
+            {
+                question: "¿Qué hacer en caso de diarrea?",
+                answer: "En casos de diarrea, la prioridad es evitar la deshidratación. Beba mucha agua, soluciones de rehidratación oral o tés. Evite alimentos grasos, lácteos y muy azucarados. Si la diarrea persiste por más de 2 días, hay sangre en las heces o signos de deshidratación extrema, busque ayuda médica."
+            },
+            {
+                question: "¿Cómo aliviar el dolor de cabeza común?",
+                answer: "Para el dolor de cabeza común, intente descansar en un ambiente tranquilo y oscuro. Aplique compresas frías o calientes en la frente o nuca. Manténgase hidratado. Si es necesario, use analgésicos como paracetamol o ibuprofeno. Evite luces brillantes y ruidos altos. Si el dolor de cabeza es severo, repentino o acompañado de otros síntomas, busque ayuda médica."
+            }
+        ],
+        en: [
+            {
+                question: "What to do in case of high fever?",
+                answer: "In case of high fever (above 38.5°C), stay hydrated by drinking plenty of water. Rest in a cool environment. Use antipyretic medications like paracetamol if available and appropriate. If the fever persists for more than 3 days or if there are other severe symptoms, seek medical attention."
+            },
+            {
+                question: "How to treat a small wound?",
+                answer: "Wash the wound with clean water and soap. Apply an antiseptic if available. Cover with a clean, dry dressing. Change the dressing daily and watch for signs of infection such as redness, swelling, or pus. If these signs appear, seek medical help."
+            },
+            {
+                question: "What to do in case of diarrhea?",
+                answer: "In cases of diarrhea, the priority is to prevent dehydration. Drink plenty of water, oral rehydration solutions, or teas. Avoid fatty, dairy, and sugary foods. If diarrhea persists for more than 2 days, there is blood in the stool, or signs of severe dehydration, seek medical help."
+            },
+            {
+                question: "How to relieve common headache?",
+                answer: "For common headache, try to rest in a quiet, dark environment. Apply cold or warm compresses to your forehead or neck. Stay hydrated. If necessary, use pain relievers like paracetamol or ibuprofen. Avoid bright lights and loud noises. If the headache is severe, sudden, or accompanied by other symptoms, seek medical help."
+            }
+        ]
+    };
+    
+    // Inicialização
+    function init() {
+        // Verificar status de conexão
+        updateConnectionStatus();
+        
+        // Adicionar event listeners para mudança de conexão
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Configurar interface baseada no status de conexão
+        setupInterface();
+        
+        // Carregar FAQs
+        loadFAQs();
+        
+        // Adicionar event listeners
+        setupEventListeners();
+    }
+    
+    // Atualizar status de conexão
+    function updateConnectionStatus() {
+        isOnline = navigator.onLine;
+        
+        if (isOnline) {
+            connectionIndicator.classList.remove('offline');
+            connectionIndicator.classList.add('online');
+            connectionIndicator.innerHTML = '<i class="fas fa-wifi"></i> Online';
+        } else {
+            connectionIndicator.classList.remove('online');
+            connectionIndicator.classList.add('offline');
+            connectionIndicator.innerHTML = '<i class="fas fa-wifi-slash"></i> Offline';
+        }
+        
+        setupInterface();
+    }
+    
+    // Configurar interface baseada no status de conexão
+    function setupInterface() {
+        if (isOnline) {
+            onlineMode.classList.remove('hidden');
+            offlineMode.classList.add('hidden');
+        } else {
+            onlineMode.classList.add('hidden');
+            offlineMode.classList.remove('hidden');
+        }
+    }
+    
+    // Carregar FAQs
+    function loadFAQs() {
+        faqContainer.innerHTML = '';
+        
+        const faqs = faqData[currentLanguage] || faqData.pt;
+        
+        faqs.forEach((faq, index) => {
+            const faqItem = document.createElement('div');
+            faqItem.className = 'faq-item';
+            faqItem.innerHTML = `
+                <div class="faq-question">
+                    <h3>${faq.question}</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+                <div class="faq-answer">
+                    <p>${faq.answer}</p>
+                </div>
+            `;
+            
+            faqItem.querySelector('.faq-question').addEventListener('click', () => {
+                faqItem.classList.toggle('open');
+            });
+            
+            faqContainer.appendChild(faqItem);
+        });
+    }
+    
+    // Configurar event listeners
+    function setupEventListeners() {
+        // Botões de ação (online)
+        actionCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const action = card.getAttribute('data-action');
+                handleActionClick(action);
+            });
+        });
+        
+        // Botões de ação (offline)
+        document.querySelectorAll('[data-action$="-offline"]').forEach(card => {
+            card.addEventListener('click', () => {
+                const action = card.getAttribute('data-action');
+                handleOfflineActionClick(action);
+            });
+        });
+        
+        // Botões de idioma
+        langButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const lang = button.getAttribute('data-lang');
+                changeLanguage(lang);
+            });
+        });
+        
+        // Botão de envio (online)
+        sendBtn.addEventListener('click', () => {
+            sendMessage();
+        });
+        
+        // Input de chat (online)
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Botão de envio (offline)
+        sendBtnOffline.addEventListener('click', () => {
+            sendOfflineMessage();
+        });
+        
+        // Input de chat (offline)
+        chatInputOffline.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendOfflineMessage();
+            }
+        });
+    }
+    
+    // Lidar com cliques nos botões de ação (online)
+    function handleActionClick(action) {
+        welcomeScreen.classList.add('hidden');
+        chatScreen.classList.remove('hidden');
+        
+        // Limpar histórico de chat
+        chatContainer.innerHTML = '';
+        chatHistory = [];
+        
+        // Configurar modo de chat
+        chatMode = action;
+        
+        // Adicionar mensagem inicial baseada na ação
+        let initialMessage = '';
+        let initialPrompt = '';
+        
+        switch (action) {
+            case 'symptoms':
+                initialMessage = currentLanguage === 'pt' ? 'Por favor, descreva seus sintomas para que eu possa ajudar.' :
+                                currentLanguage === 'es' ? 'Por favor, describa sus síntomas para que pueda ayudar.' :
+                                'Please describe your symptoms so I can help.';
+                initialPrompt = currentLanguage === 'pt' ? 'Você é um assistente médico virtual. O usuário vai descrever sintomas. Forneça orientações gerais, mas sempre lembre que você não substitui um médico real.' :
+                                currentLanguage === 'es' ? 'Eres un asistente médico virtual. El usuario va a describir síntomas. Proporciona orientaciones generales, pero siempre recuerda que no sustituyes a un médico real.' :
+                                'You are a virtual medical assistant. The user will describe symptoms. Provide general guidance, but always remember that you do not replace a real doctor.';
+                break;
+            case 'med_info':
+                initialMessage = currentLanguage === 'pt' ? 'Qual medicamento você gostaria de saber mais?' :
+                                currentLanguage === 'es' ? '¿Qué medicamento le gustaría saber más?' :
+                                'Which medication would you like to know more about?';
+                initialPrompt = currentLanguage === 'pt' ? 'Você é um assistente médico virtual. O usuário vai perguntar sobre medicamentos. Forneça informações gerais sobre usos, efeitos colaterais e precauções, mas sempre lembre que você não substitui um médico ou farmacêutico.' :
+                                currentLanguage === 'es' ? 'Eres un asistente médico virtual. El usuario preguntará sobre medicamentos. Proporciona información general sobre usos, efectos secundarios y precauciones, pero siempre recuerda que no sustituyes a un médico o farmacéutico.' :
+                                'You are a virtual medical assistant. The user will ask about medications. Provide general information about uses, side effects and precautions, but always remember that you do not replace a doctor or pharmacist.';
+                break;
+            case 'first_aid':
+                initialMessage = currentLanguage === 'pt' ? 'Qual situação de primeiros socorros você precisa de ajuda?' :
+                                currentLanguage === 'es' ? '¿Qué situación de primeros auxilios necesita ayuda?' :
+                                'Which first aid situation do you need help with?';
+                initialPrompt = currentLanguage === 'pt' ? 'Você é um assistente médico virtual especializado em primeiros socorros. O usuário vai perguntar sobre situações de emergência. Forneça instruções claras e passo a passo, mas sempre recomende buscar ajuda profissional quando apropriado.' :
+                                currentLanguage === 'es' ? 'Eres un asistente médico virtual especializado en primeros auxilios. El usuario preguntará sobre situaciones de emergencia. Proporciona instrucciones claras paso a paso, pero siempre recomienda buscar ayuda profesional cuando sea apropiado.' :
+                                'You are a virtual medical assistant specializing in first aid. The user will ask about emergency situations. Provide clear step-by-step instructions, but always recommend seeking professional help when appropriate.';
+                break;
+        }
+        
+        // Adicionar mensagem inicial ao chat
+        addMessage('bot', initialMessage);
+        
+        // Adicionar prompt inicial ao histórico
+        chatHistory.push({
+            role: 'user',
+            parts: [{ text: initialPrompt }]
+        });
+    }
+    
+    // Lidar com cliques nos botões de ação (offline)
+    function handleOfflineActionClick(action) {
+        welcomeScreenOffline.classList.add('hidden');
+        chatScreenOffline.classList.remove('hidden');
+        
+        // Limpar histórico de chat
+        chatContainerOffline.innerHTML = '';
+        
+        // Configurar modo de chat
+        chatMode = action;
+        
+        // Adicionar mensagem inicial baseada na ação
+        let initialMessage = '';
+        
+        switch (action) {
+            case 'symptoms-offline':
+                initialMessage = currentLanguage === 'pt' ? 'Por favor, descreva seus sintomas. Estou operando no modo offline com informações limitadas.' :
+                                currentLanguage === 'es' ? 'Por favor, describa sus síntomas. Estoy operando en modo offline con información limitada.' :
+                                'Please describe your symptoms. I am operating in offline mode with limited information.';
+                break;
+            case 'med_info-offline':
+                initialMessage = currentLanguage === 'pt' ? 'Qual medicamento você gostaria de saber? Estou operando no modo offline com informações limitadas.' :
+                                currentLanguage === 'es' ? '¿Qué medicamento le gustaría saber? Estoy operando en modo offline con información limitada.' :
+                                'Which medication would you like to know about? I am operating in offline mode with limited information.';
+                break;
+            case 'first_aid-offline':
+                initialMessage = currentLanguage === 'pt' ? 'Qual situação de primeiros socorros você precisa? Estou operando no modo offline com informações limitadas.' :
+                                currentLanguage === 'es' ? '¿Qué situación de primeros auxilios necesita? Estoy operando en modo offline con información limitada.' :
+                                'Which first aid situation do you need help with? I am operating in offline mode with limited information.';
+                break;
+        }
+        
+        // Adicionar mensagem inicial ao chat
+        addOfflineMessage('bot', initialMessage);
+    }
+    
+    // Mudar idioma
+    function changeLanguage(lang) {
+        currentLanguage = lang;
+        
+        // Atualizar botões de idioma
+        langButtons.forEach(button => {
+            if (button.getAttribute('data-lang') === lang) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+        
+        // Recarregar FAQs
+        loadFAQs();
+        
+        // Salvar preferência de idioma
+        localStorage.setItem('language', lang);
+    }
+    
+    // Enviar mensagem (online)
+    async function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+        
+        // Adicionar mensagem do usuário ao chat
+        addMessage('user', message);
+        
+        // Limpar input
+        chatInput.value = '';
+        
+        // Adicionar indicador de digitação
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'flex items-start space-x-3';
+        typingIndicator.innerHTML = `
+            <div class="flex-shrink-0">
+                <div class="inline-flex items-center justify-center size-10 bg-teal-600 rounded-full text-white font-bold text-lg">IA</div>
+            </div>
+            <div class="flex-grow">
+                <div class="bg-gray-100 rounded-2xl rounded-tl-none p-4 max-w-[80%]">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        `;
+        chatContainer.appendChild(typingIndicator);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // Adicionar mensagem ao histórico
+        chatHistory.push({
+            role: 'user',
+            parts: [{ text: message }]
+        });
+        
+        try {
+            // Enviar requisição para a API
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: chatHistory,
+                    generationConfig: {
+                        temperature: 0.2,
+                        topK: 40,
+                        topP: 0.95,
+                        maxOutputTokens: 1024,
+                    }
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Remover indicador de digitação
+            chatContainer.removeChild(typingIndicator);
+            
+            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                const botResponse = data.candidates[0].content.parts[0].text;
+                
+                // Adicionar resposta do bot ao chat
+                addMessage('bot', botResponse);
+                
+                // Adicionar resposta ao histórico
+                chatHistory.push({
+                    role: 'model',
+                    parts: [{ text: botResponse }]
+                });
+            } else {
+                // Erro na resposta
+                const errorMessage = currentLanguage === 'pt' ? 'Desculpe, ocorreu um erro ao processar sua solicitação. Tente novamente.' :
+                                    currentLanguage === 'es' ? 'Lo siento, ocurrió un error al procesar su solicitud. Inténtelo de nuevo.' :
+                                    'Sorry, an error occurred while processing your request. Please try again.';
+                
+                addMessage('bot', errorMessage);
+            }
+        } catch (error) {
+            console.error('Erro ao enviar mensagem:', error);
+            
+            // Remover indicador de digitação
+            chatContainer.removeChild(typingIndicator);
+            
+            // Mensagem de erro
+            const errorMessage = currentLanguage === 'pt' ? 'Desculpe, não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.' :
+                                currentLanguage === 'es' ? 'Lo siento, no fue posible conectar con el servidor. Verifique su conexión e intente nuevamente.' :
+                                'Sorry, it was not possible to connect to the server. Check your connection and try again.';
+            
+            addMessage('bot', errorMessage);
+        }
+    }
+    
+    // Enviar mensagem (offline)
+    function sendOfflineMessage() {
+        const message = chatInputOffline.value.trim();
+        if (!message) return;
+        
+        // Adicionar mensagem do usuário ao chat
+        addOfflineMessage('user', message);
+        
+        // Limpar input
+        chatInputOffline.value = '';
+        
+        // Simular processamento
+        setTimeout(() => {
+            // Respostas offline baseadas em palavras-chave
+            let response = '';
+            
+            if (chatMode === 'symptoms-offline') {
+                if (message.toLowerCase().includes('febre') || message.toLowerCase().includes('fiebre') || message.toLowerCase().includes('fever')) {
+                    response = currentLanguage === 'pt' ? 
+                        'Para febre, mantenha-se hidratado, descanse e considere medicamentos antitérmicos como paracetamol se disponíveis. Se a febre persistir por mais de 3 dias ou for muito alta (acima de 39°C), procure ajuda médica.' :
+                        currentLanguage === 'es' ?
+                        'Para la fiebre, manténgase hidratado, descanse y considere medicamentos antipiréticos como paracetamol si están disponibles. Si la fiebre persiste por más de 3 días o es muy alta (por encima de 39°C), busque ayuda médica.' :
+                        'For fever, stay hydrated, rest, and consider antipyretic medications like paracetamol if available. If the fever persists for more than 3 days or is very high (above 39°C), seek medical help.';
+                } else if (message.toLowerCase().includes('dor') && message.toLowerCase().includes('cabeça') || 
+                          message.toLowerCase().includes('dolor') && message.toLowerCase().includes('cabeza') ||
+                          message.toLowerCase().includes('headache')) {
+                    response = currentLanguage === 'pt' ? 
+                        'Para dor de cabeça, tente descansar em um ambiente tranquilo e escuro. Aplique compressas frias na testa. Mantenha-se hidratado. Se a dor for intensa ou persistente, procure ajuda médica.' :
+                        currentLanguage === 'es' ?
+                        'Para el dolor de cabeza, intente descansar en un ambiente tranquilo y oscuro. Aplique compresas frías en la frente. Manténgase hidratado. Si el dolor es intenso o persistente, busque ayuda médica.' :
+                        'For headache, try to rest in a quiet, dark environment. Apply cold compresses to your forehead. Stay hydrated. If the pain is intense or persistent, seek medical help.';
+                } else {
+                    response = currentLanguage === 'pt' ? 
+                        'Estou operando no modo offline com informações limitadas. Para sintomas específicos, recomendo consultar um profissional de saúde quando possível. Enquanto isso, mantenha-se hidratado e descanse.' :
+                        currentLanguage === 'es' ?
+                        'Estoy operando en modo offline con información limitada. Para síntomas específicos, recomiendo consultar a un profesional de salud cuando sea posible. Mientras tanto, manténgase hidratado y descanse.' :
+                        'I am operating in offline mode with limited information. For specific symptoms, I recommend consulting a healthcare professional when possible. In the meantime, stay hydrated and rest.';
+                }
+            } else if (chatMode === 'med_info-offline') {
+                if (message.toLowerCase().includes('paracetamol') || message.toLowerCase().includes('acetaminofen')) {
+                    response = currentLanguage === 'pt' ? 
+                        'O paracetamol é usado para aliviar dor e reduzir febre. Dosagem usual para adultos: 500mg a 1000mg a cada 6 horas, não excedendo 4000mg por dia. Efeitos colaterais raros, mas pode causar danos ao fígado em doses excessivas. Não consuma álcool enquanto estiver tomando este medicamento.' :
+                        currentLanguage === 'es' ?
+                        'El paracetamol se usa para aliviar el dolor y reducir la fiebre. Dosis usual para adultos: 500mg a 1000mg cada 6 horas, sin exceder 4000mg por día. Efectos secundarios raros, pero puede causar daño hepático en dosis excesivas. No consuma alcohol mientras esté tomando este medicamento.' :
+                        'Paracetamol is used to relieve pain and reduce fever. Usual adult dose: 500mg to 1000mg every 6 hours, not exceeding 4000mg per day. Rare side effects, but can cause liver damage in excessive doses. Do not consume alcohol while taking this medication.';
+                } else if (message.toLowerCase().includes('ibuprofeno') || message.toLowerCase().includes('ibuprofen')) {
+                    response = currentLanguage === 'pt' ? 
+                        'O ibuprofeno é um anti-inflamatório usado para aliviar dor, reduzir febre e inflamação. Dosagem usual para adultos: 200mg a 400mg a cada 6-8 horas, não excedendo 1200mg por dia sem supervisão médica. Tome com alimentos para reduzir o risco de irritação gástrica. Não recomendado para pessoas com problemas renais ou úlceras.' :
+                        currentLanguage === 'es' ?
+                        'El ibuprofeno es un antiinflamatorio usado para aliviar el dolor, reducir la fiebre y la inflamación. Dosis usual para adultos: 200mg a 400mg cada 6-8 horas, sin exceder 1200mg por día sin supervisión médica. Tómelo con alimentos para reducir el riesgo de irritación gástrica. No recomendado para personas con problemas renales o úlceras.' :
+                        'Ibuprofen is an anti-inflammatory used to relieve pain, reduce fever and inflammation. Usual adult dose: 200mg to 400mg every 6-8 hours, not exceeding 1200mg per day without medical supervision. Take with food to reduce the risk of gastric irritation. Not recommended for people with kidney problems or ulcers.';
+                } else {
+                    response = currentLanguage === 'pt' ? 
+                        'Estou operando no modo offline com informações limitadas. Para informações específicas sobre medicamentos, consulte um profissional de saúde ou farmacêutico quando possível. Leia sempre a bula do medicamento.' :
+                        currentLanguage === 'es' ?
+                        'Estoy operando en modo offline con información limitada. Para información específica sobre medicamentos, consulte a un profesional de la salud o farmacéutico cuando sea posible. Lea siempre el prospecto del medicamento.' :
+                        'I am operating in offline mode with limited information. For specific information about medications, consult a healthcare professional or pharmacist when possible. Always read the medication leaflet.';
+                }
+            } else if (chatMode === 'first_aid-offline') {
+                if (message.toLowerCase().includes('corte') || message.toLowerCase().includes('ferida') || 
+                    message.toLowerCase().includes('corte') || message.toLowerCase().includes('herida') ||
+                    message.toLowerCase().includes('cut') || message.toLowerCase().includes('wound')) {
+                    response = currentLanguage === 'pt' ? 
+                        'Para cortes e feridas: 1) Lave as mãos. 2) Limpe a ferida com água limpa. 3) Aplique pressão para parar o sangramento. 4) Aplique um antisséptico se disponível. 5) Cubra com um curativo limpo. 6) Procure ajuda médica se a ferida for profunda, se não parar de sangrar ou se houver sinais de infecção.' :
+                        currentLanguage === 'es' ?
+                        'Para cortes y heridas: 1) Lávese las manos. 2) Limpie la herida con agua limpia. 3) Aplique presión para detener el sangrado. 4) Aplique un antiséptico si está disponible. 5) Cúbrala con un vendaje limpio. 6) Busque ayuda médica si la herida es profunda, si no detiene el sangrado o si hay signos de infección.' :
+                        'For cuts and wounds: 1) Wash your hands. 2) Clean the wound with clean water. 3) Apply pressure to stop bleeding. 4) Apply an antiseptic if available. 5) Cover with a clean dressing. 6) Seek medical help if the wound is deep, if it doesn\'t stop bleeding, or if there are signs of infection.';
+                } else if (message.toLowerCase().includes('queimadura') || message.toLowerCase().includes('quemadura') || 
+                          message.toLowerCase().includes('burn')) {
+                    response = currentLanguage === 'pt' ? 
+                        'Para queimaduras leves: 1) Resfrie a área com água corrente por 10-15 minutos. 2) Não aplique gelo diretamente. 3) Não use manteiga ou outros remédios caseiros. 4) Cubra com um curativo estéril. 5) Tome analgésicos se necessário. Para queimaduras graves, procure ajuda médica imediatamente.' :
+                        currentLanguage === 'es' ?
+                        'Para quemaduras leves: 1) Enfríe el área con agua corriente durante 10-15 minutos. 2) No aplique hielo directamente. 3) No use mantequilla u otros remedios caseros. 4) Cúbrala con un vendaje estéril. 5) Tome analgésicos si es necesario. Para quemaduras graves, busque ayuda médica inmediatamente.' :
+                        'For minor burns: 1) Cool the area with running water for 10-15 minutes. 2) Do not apply ice directly. 3) Do not use butter or other home remedies. 4) Cover with a sterile dressing. 5) Take pain relievers if necessary. For severe burns, seek medical help immediately.';
+                } else {
+                    response = currentLanguage === 'pt' ? 
+                        'Estou operando no modo offline com informações limitadas. Para situações de emergência, procure ajuda médica o mais rápido possível. Enquanto isso, mantenha a calma e tente manter a vítima segura e confortável.' :
+                        currentLanguage === 'es' ?
+                        'Estoy operando en modo offline con información limitada. Para situaciones de emergencia, busque ayuda médica lo más rápido posible. Mientras tanto, mantenga la calma e intente mantener a la víctima segura y cómoda.' :
+                        'I am operating in offline mode with limited information. For emergency situations, seek medical help as quickly as possible. In the meantime, stay calm and try to keep the victim safe and comfortable.';
+                }
+            } else {
+                response = currentLanguage === 'pt' ? 
+                    'Estou operando no modo offline com informações limitadas. Para assistência médica completa, por favor, conecte-se à internet ou consulte um profissional de saúde.' :
+                    currentLanguage === 'es' ?
+                    'Estoy operando en modo offline con información limitada. Para asistencia médica completa, por favor, conéctese a internet o consulte a un profesional de la salud.' :
+                    'I am operating in offline mode with limited information. For complete medical assistance, please connect to the internet or consult a healthcare professional.';
+            }
+            
+            // Adicionar resposta do bot ao chat
+            addOfflineMessage('bot', response);
+        }, 1000);
+    }
+    
+    // Adicionar mensagem ao chat (online)
+    function addMessage(sender, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex items-start space-x-3 ${sender === 'user' ? 'justify-end' : ''}`;
+        
+        if (sender === 'user') {
+            messageDiv.innerHTML = `
+                <div class="flex-grow text-right">
+                    <div class="bg-teal-600 text-white rounded-2xl rounded-tr-none p-4 max-w-[80%] inline-block">
+                        <p class="whitespace-pre-wrap">${text}</p>
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    <div class="inline-flex items-center justify-center size-10 bg-gray-200 rounded-full text-gray-700 font-bold text-lg">EU</div>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="flex-shrink-0">
+                    <div class="inline-flex items-center justify-center size-10 bg-teal-600 rounded-full text-white font-bold text-lg">IA</div>
+                </div>
+                <div class="flex-grow">
+                    <div class="bg-gray-100 rounded-2xl rounded-tl-none p-4 max-w-[80%]">
+                        <div class="ai-response-content">${formatResponse(text)}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    // Adicionar mensagem ao chat (offline)
+    function addOfflineMessage(sender, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex items-start space-x-3 ${sender === 'user' ? 'justify-end' : ''}`;
+        
+        if (sender === 'user') {
+            messageDiv.innerHTML = `
+                <div class="flex-grow text-right">
+                    <div class="bg-teal-600 text-white rounded-2xl rounded-tr-none p-4 max-w-[80%] inline-block">
+                        <p class="whitespace-pre-wrap">${text}</p>
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    <div class="inline-flex items-center justify-center size-10 bg-gray-200 rounded-full text-gray-700 font-bold text-lg">EU</div>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="flex-shrink-0">
+                    <div class="inline-flex items-center justify-center size-10 bg-teal-600 rounded-full text-white font-bold text-lg">IA</div>
+                </div>
+                <div class="flex-grow">
+                    <div class="bg-gray-100 rounded-2xl rounded-tl-none p-4 max-w-[80%]">
+                        <div class="ai-response-content">${formatResponse(text)}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        chatContainerOffline.appendChild(messageDiv);
+        chatContainerOffline.scrollTop = chatContainerOffline.scrollHeight;
+    }
+    
+    // Formatar resposta da IA
+    function formatResponse(text) {
+        // Converter quebras de linha em <br>
+        let formatted = text.replace(/\n/g, '<br>');
+        
+        // Converter listas simples
+        formatted = formatted.replace(/^-\s+(.+)$/gm, '<li>$1</li>');
+        formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+        
+        return formatted;
+    }
+    
+    // Carregar idioma salvo
+    const savedLanguage = localStorage.getItem('language');
+    if (savedLanguage && ['pt', 'es', 'en'].includes(savedLanguage)) {
+        currentLanguage = savedLanguage;
+    }
+    
+    // Atualizar botões de idioma
+    langButtons.forEach(button => {
+        if (button.getAttribute('data-lang') === currentLanguage) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+    
+    // Inicializar aplicação
+    init();
+});
+
+// Função global para voltar
+function goBack() {
+    if (!document.getElementById('chat-screen').classList.contains('hidden')) {
+        // Se estiver na tela de chat online, voltar para a tela de boas-vindas online
+        document.getElementById('chat-screen').classList.add('hidden');
+        document.getElementById('welcome-screen').classList.remove('hidden');
+    } else if (!document.getElementById('chat-screen-offline').classList.contains('hidden')) {
+        // Se estiver na tela de chat offline, voltar para a tela de boas-vindas offline
+        document.getElementById('chat-screen-offline').classList.add('hidden');
+        document.getElementById('welcome-screen-offline').classList.remove('hidden');
+    } else {
+        // Se estiver em qualquer outra tela, voltar para a página inicial
+        window.location.href = 'index.html';
+    }
+}
+</script>
+</body>
+</html>
