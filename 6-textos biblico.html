@@ -4,20 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-lang="app.title">Renovação Diária - MissionCare Plus</title>
-    <!-- Importação de Fontes e Tailwind CSS -->
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     
-    <!-- Font Awesome para ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="css/tailwind.min.css"> <link rel="stylesheet" href="css/fontawesome.all.min.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
+
     <style>
         body {
             font-family: 'Lexend', 'Noto Sans', sans-serif;
             --primary-color: #0d9488; /* Tailwind teal-600 */
-            --text-color-dark: #374151; /* gray-700 */
-            --text-color-light: #6b7280; /* gray-500 */
         }
         .devotional-card {
             background-size: cover;
@@ -27,161 +20,100 @@
             flex-direction: column;
             justify-content: flex-end;
         }
-        /* Estilos para as bandeiras */
         .lang-switcher {
             display: flex;
             gap: 10px;
-            margin-left: auto; /* Empurra para a direita */
+            margin-left: auto;
         }
         .lang-switcher button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: none; border: none; cursor: pointer; padding: 5px;
+            border-radius: 50%; transition: background-color 0.2s;
+            display: flex; align-items: center; justify-content: center;
         }
-        .lang-switcher button:hover {
-            background-color: #f0f0f0;
-        }
+        .lang-switcher button:hover { background-color: #f0f0f0; }
         .lang-switcher img {
-            width: 28px; /* Tamanho um pouco maior para as bandeiras */
-            height: 28px;
-            display: block;
-            border-radius: 50%; /* Para que as bandeiras fiquem redondas */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            width: 28px; height: 28px; display: block;
+            border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        /* Estilos para a mensagem de notificação */
         #app-message {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 1rem;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; width: 100%;
+            padding: 1rem; text-align: center; color: white;
+            font-weight: bold; z-index: 1000;
             transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-            transform: translateY(-100%);
-            opacity: 0;
+            transform: translateY(-100%); opacity: 0;
         }
-        #app-message.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        #app-message.error {
-            background-color: #dc2626; /* red-600 */
-        }
-        #app-message.success {
-            background-color: #0d9488; /* teal-600 */
-        }
-        #app-message.info {
-            background-color: #2563eb; /* blue-600 */
-        }
-        /* Estilos para o indicador de modo offline */
+        #app-message.show { transform: translateY(0); opacity: 1; }
+        #app-message.error { background-color: #dc2626; }
+        #app-message.success { background-color: #0d9488; }
+        #app-message.info { background-color: #2563eb; }
+
         .offline-indicator {
-            position: fixed;
-            bottom: 70px;
-            right: 10px;
-            background-color: #f59e0b;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 100;
-            display: none;
+            position: fixed; bottom: 70px; right: 10px;
+            background-color: #f59e0b; color: white; padding: 5px 10px;
+            border-radius: 20px; font-size: 12px; font-weight: bold;
+            z-index: 100; display: none;
         }
-        .offline-indicator.show {
-            display: block;
-        }
-        /* Estilo para imagens offline */
-        .offline-image {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect fill="%230d9488" width="800" height="600"/><path fill="%23ffffff" d="M400,150 L500,350 L300,350 Z" opacity="0.3"/><circle fill="%23ffffff" cx="400" cy="300" r="80" opacity="0.2"/><text x="400" y="450" font-family="Arial" font-size="24" fill="white" text-anchor="middle">MissionCare Plus</text></svg>');
-            background-size: cover;
-            background-position: center;
-        }
+        .offline-indicator.show { display: block; }
     </style>
 </head>
 <body class="bg-white">
-    <!-- Container da Aplicação -->
     <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-white">
-        <!-- Mensagem de Notificação -->
-        <div id="app-message" class="hidden"></div>
-        
-        <!-- Indicador de Modo Offline -->
+        <div id="app-message"></div>
         <div id="offline-indicator" class="offline-indicator">Modo Offline</div>
-        <!-- Conteúdo Principal -->
-        <div>
-            <header class="sticky top-0 z-10 flex items-center bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
-                <a href="#" class="text-gray-600 hover:text-gray-900 p-2 -ml-2" onclick="goBack()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
-                </a>
-                <h1 data-lang="header.title" class="text-gray-800 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-8">Renovação Diária</h1>
-                <!-- Language Switcher -->
-                <div class="lang-switcher">
-                    <button id="lang-pt" title="Português (Brasil)" aria-label="Mudar para Português (Brasil)">
-                        <img src="https://flagcdn.com/br.svg" alt="Bandeira do Brasil">
-                    </button>
-                    <button id="lang-es" title="Español (España)" aria-label="Mudar para Español (España)">
-                        <img src="https://flagcdn.com/es.svg" alt="Bandeira da Espanha">
-                    </button>
-                    <button id="lang-en" title="English" aria-label="Switch to English">
-                        <img src="https://flagcdn.com/us.svg" alt="Flag of United States">
-                    </button>
-                </div>
-            </header>
-            <main class="flex-grow pb-24"> <!-- Aumentado o padding-bottom para dar espaço aos botões -->
-                <div id="loading-state" class="p-4">
-                     <div class="animate-pulse flex flex-col items-stretch justify-end rounded-xl pt-[132px] bg-gray-200 h-64">
-                         <div class="p-4 space-y-2">
-                             <div class="h-6 bg-gray-300 rounded w-3/4"></div>
-                             <div class="h-6 bg-gray-300 rounded w-1/2"></div>
-                             <div class="h-4 bg-gray-300 rounded w-1/4 mt-2"></div>
-                         </div>
-                     </div>
-                     <p data-lang="loading.message" class="text-center text-gray-500 mt-4">A procurar inspiração...</p>
-                </div>
-                <div id="content-state" class="hidden p-4 mb-8"> <!-- Adicionado margin-bottom para afastar do footer -->
-                    <div id="devotional-card" class="devotional-card flex flex-col items-stretch justify-end rounded-xl pt-[132px] min-h-[256px]">
-                        <div class="w-full bg-gradient-to-t from-black/60 to-transparent p-4 rounded-b-xl">
-                            <h2 id="devotional-title" class="text-white text-2xl font-bold leading-tight mb-2"></h2>
-                            <p id="scripture-text" class="text-white text-base font-medium leading-normal"></p>
-                            <p id="scripture-reference" class="text-white text-sm font-light leading-normal mt-1"></p>
-                        </div>
-                    </div>
-                    <div id="devotional-content-container" class="bg-gray-50 p-4 mt-4 rounded-xl shadow-sm border border-gray-200">
-                        <p id="devotional-text" class="text-gray-700 text-base leading-relaxed mb-4"></p>
-                        <p id="closing-prayer-reflection" class="text-gray-700 text-base leading-relaxed italic font-semibold"></p>
-                    </div>
-                    <!-- Botões de Ação - Movidos para melhor visualização -->
-                    <div class="flex justify-center gap-4 mt-6">
-                        <button id="new-devotional-btn" class="flex items-center px-6 py-3 bg-teal-600 text-white font-bold rounded-full shadow-md hover:bg-teal-700 transition-colors" aria-label="Gerar novo devocional">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0116 3.898V16a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1.899A7.002 7.002 0 014 9.101V7a1 1 0 011-1h1a1 1 0 011 1v2.101a5.002 5.002 0 0010 0V7a1 1 0 011-1h1a1 1 0 011 1v2.101a7.002 7.002 0 01-16 3.898V16a1 1 0 01-1 1H4a1 1 0 01-1-1v-1.899A7.002 7.002 0 014 9.101V7a1 1 0 011-1h1a1 1 0 011 1z" clip-rule="evenodd" /></svg>
-                            <span data-lang="button.new_devotional">Novo Devocional</span>
-                        </button>
-                        <button id="share-devotional-btn" class="flex items-center px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-full shadow-md hover:bg-gray-300 transition-colors" aria-label="Partilhar devocional">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.977l-1.293 1.293a1 1 0 00-1.414 0l-1.293-1.293A3 3 0 102 8a3 3 0 002.977 2.977l1.293 1.293a1 1 0 001.414 0l1.293 1.293A3 3 0 1018 12a3 3 0 00-2.977-2.977l-1.293-1.293a1 1 0 00-1.414 0l-1.293 1.293A3 3 0 1015 8z" /></svg>
-                            <span data-lang="button.share">Partilhar</span>
-                        </button>
+        
+        <header class="sticky top-0 z-10 flex items-center bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+            <a href="index.html" class="text-gray-600 hover:text-gray-900 p-2 -ml-2">
+                <i class="fas fa-arrow-left fa-fw"></i>
+            </a>
+            <h1 data-lang="header.title" class="text-gray-800 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-8">Renovação Diária</h1>
+            <div class="lang-switcher">
+                <button id="lang-pt" title="Português (Brasil)"><img src="https://flagcdn.com/br.svg" alt="Bandeira do Brasil"></button>
+                <button id="lang-es" title="Español (España)"><img src="https://flagcdn.com/es.svg" alt="Bandeira da Espanha"></button>
+                <button id="lang-en" title="English"><img src="https://flagcdn.com/us.svg" alt="Flag of United States"></button>
+            </div>
+        </header>
+
+        <main class="flex-grow pb-24">
+            <div id="loading-state" class="p-4">
+                <div class="animate-pulse flex flex-col items-stretch justify-end rounded-xl pt-[132px] bg-gray-200 h-64">
+                    <div class="p-4 space-y-2">
+                        <div class="h-6 bg-gray-300 rounded w-3/4"></div>
+                        <div class="h-6 bg-gray-300 rounded w-1/2"></div>
+                        <div class="h-4 bg-gray-300 rounded w-1/4 mt-2"></div>
                     </div>
                 </div>
-            </main>
-        </div>
-        <!-- BARRA DE NAVEGAÇÃO GLOBAL -->
+                <p data-lang="loading.message" class="text-center text-gray-500 mt-4">A procurar inspiração...</p>
+            </div>
+
+            <div id="content-state" class="hidden p-4 mb-8">
+                <div id="devotional-card" class="devotional-card flex flex-col items-stretch justify-end rounded-xl pt-[132px] min-h-[256px]">
+                    <div class="w-full bg-gradient-to-t from-black/60 to-transparent p-4 rounded-b-xl">
+                        <h2 id="devotional-title" class="text-white text-2xl font-bold leading-tight mb-2"></h2>
+                        <p id="scripture-text" class="text-white text-base font-medium leading-normal"></p>
+                        <p id="scripture-reference" class="text-gray-200 text-sm font-light leading-normal mt-1"></p>
+                    </div>
+                </div>
+                <div id="devotional-content-container" class="bg-gray-50 p-4 mt-4 rounded-xl shadow-sm border border-gray-200">
+                    <div id="devotional-text" class="text-gray-700 text-base leading-relaxed mb-4 space-y-4"></div>
+                    <p id="closing-prayer-reflection" class="text-gray-700 text-base leading-relaxed italic font-semibold mt-6 pt-4 border-t border-gray-200"></p>
+                </div>
+                <div class="flex justify-center gap-4 mt-6">
+                    <button id="new-devotional-btn" class="flex items-center px-6 py-3 bg-teal-600 text-white font-bold rounded-full shadow-md hover:bg-teal-700 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        <span data-lang="button.new_devotional">Novo Devocional</span>
+                    </button>
+                    <button id="share-devotional-btn" class="flex items-center px-6 py-3 bg-gray-200 text-gray-700 font-bold rounded-full shadow-md hover:bg-gray-300 transition-colors">
+                        <i class="fas fa-share-alt mr-2"></i>
+                        <span data-lang="button.share">Partilhar</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
         <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
             <div class="mx-auto flex h-16 max-w-4xl items-center justify-around">
-                <button onclick="goBack()" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
-                    <span data-lang="nav_voltar" class="mt-1 text-xs font-bold uppercase tracking-wider">Voltar</span>
-                </button>
-                <div class="h-8 w-px bg-gray-200"></div>
-                <a href="index.html" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
-                    <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                 <a href="index.html" class="flex h-full w-full flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+                    <i class="fas fa-home fa-lg"></i>
                     <span data-lang="nav_inicio" class="mt-1 text-xs font-bold uppercase tracking-wider">Início</span>
                 </a>
             </div>
@@ -189,13 +121,16 @@
     </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
-    // Função para voltar na história do navegador
-    window.goBack = function() {
+// Função global para voltar, caso seja necessária em outras páginas
+function goBack() {
+    if (window.history.length > 1) {
         window.history.back();
-    };
-    
-    // Elementos do DOM
+    } else {
+        window.location.href = 'index.html';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
     const loadingState = document.getElementById('loading-state');
     const contentState = document.getElementById('content-state');
     const devotionalCard = document.getElementById('devotional-card');
@@ -206,433 +141,161 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closingPrayerReflection = document.getElementById('closing-prayer-reflection');
     const newDevotionalBtn = document.getElementById('new-devotional-btn');
     const shareDevotionalBtn = document.getElementById('share-devotional-btn');
-    const langPtBtn = document.getElementById('lang-pt');
-    const langEsBtn = document.getElementById('lang-es');
-    const langEnBtn = document.getElementById('lang-en');
-    const appMessage = document.getElementById('app-message');
     const offlineIndicator = document.getElementById('offline-indicator');
-    
+
     let currentLanguage = localStorage.getItem('appLanguage') || 'pt';
-    let isOnline = navigator.onLine;
-    
-    // Verificar status de conexão
-    function updateOnlineStatus() {
-        isOnline = navigator.onLine;
-        if (!isOnline) {
-            offlineIndicator.classList.add('show');
-            showMessage(translations[currentLanguage]['offline.mode'], 'info', 5000);
-        } else {
-            offlineIndicator.classList.remove('show');
-            // Se voltou a ficar online, tenta sincronizar dados
-            syncOfflineData();
-        }
-    }
-    
-    // Adicionar event listeners para mudança de status de conexão
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
+    let currentDevotional = null;
+
+    // --- ESTRATÉGIA DE IMAGENS OFFLINE ---
+    // Passo 2: Crie uma pasta 'img/devotionals' e coloque suas imagens lá.
+    // Adicione os nomes dos arquivos aqui.
+    const localImages = [
+        'img/devotionals/image1.jpg',
+        'img/devotionals/image2.jpg',
+        'img/devotionals/image3.jpg',
+        'img/devotionals/image4.jpg',
+        'img/devotionals/image5.jpg',
+        'img/devotionals/image6.jpg',
+        'img/devotionals/image7.jpg'
+    ];
     
     // Objeto de traduções para textos estáticos da UI
     const translations = {
         'pt': {
-            'app.title': 'Renovação Diária - MissionCare Plus',
-            'header.title': 'Renovação Diária',
-            'loading.message': 'A procurar inspiração...',
-            'button.new_devotional': 'Novo Devocional',
-            'button.share': 'Partilhar',
-            'nav_voltar': 'Voltar',
-            'nav_inicio': 'Início',
-            'share.success': 'Devocional copiado!',
-            'share.error': 'Erro ao copiar. Por favor, tente novamente.',
-            'offline.mode': 'Modo Offline ativado. Usando dados armazenados localmente.',
-            'sync.success': 'Dados sincronizados com sucesso!',
-            'sync.error': 'Erro ao sincronizar dados. Tente novamente quando estiver online.'
+            'app.title': 'Renovação Diária - MissionCare Plus', 'header.title': 'Renovação Diária',
+            'loading.message': 'A procurar inspiração...', 'button.new_devotional': 'Novo Devocional',
+            'button.share': 'Partilhar', 'nav_inicio': 'Início', 'share.success': 'Devocional copiado!',
+            'share.error': 'Erro ao copiar. Por favor, tente novamente.', 'offline.mode': 'Modo Offline Ativado.',
+            'error.load_fail': 'Falha ao carregar. Exibindo último devocional salvo.'
         },
         'es': {
-            'app.title': 'Renovación Diaria - MissionCare Plus',
-            'header.title': 'Renovación Diaria',
-            'loading.message': 'Buscando inspiración...',
-            'button.new_devotional': 'Nuevo Devocional',
-            'button.share': 'Compartir',
-            'nav_voltar': 'Volver',
-            'nav_inicio': 'Inicio',
-            'share.success': '¡Devocional copiado!',
-            'share.error': 'Error al copiar. Por favor, inténtelo de nuevo.',
-            'offline.mode': 'Modo Offline activado. Usando datos almacenados localmente.',
-            'sync.success': '¡Datos sincronizados con éxito!',
-            'sync.error': 'Error al sincronizar datos. Inténtalo de nuevo cuando estés en línea.'
+            'app.title': 'Renovación Diaria - MissionCare Plus', 'header.title': 'Renovación Diaria',
+            'loading.message': 'Buscando inspiración...', 'button.new_devotional': 'Nuevo Devocional',
+            'button.share': 'Compartir', 'nav_inicio': 'Inicio', 'share.success': '¡Devocional copiado!',
+            'share.error': 'Error al copiar. Por favor, inténtelo de nuevo.', 'offline.mode': 'Modo Offline Activado.',
+            'error.load_fail': 'Fallo al cargar. Mostrando el último devocional guardado.'
         },
         'en': {
-            'app.title': 'Daily Renewal - MissionCare Plus',
-            'header.title': 'Daily Renewal',
-            'loading.message': 'Seeking inspiration...',
-            'button.new_devotional': 'New Devotional',
-            'button.share': 'Share',
-            'nav_voltar': 'Back',
-            'nav_inicio': 'Home',
-            'share.success': 'Devotional copied!',
-            'share.error': 'Error copying. Please try again.',
-            'offline.mode': 'Offline mode activated. Using locally stored data.',
-            'sync.success': 'Data synchronized successfully!',
-            'sync.error': 'Error synchronizing data. Try again when you are online.'
+            'app.title': 'Daily Renewal - MissionCare Plus', 'header.title': 'Daily Renewal',
+            'loading.message': 'Seeking inspiration...', 'button.new_devotional': 'New Devotional',
+            'button.share': 'Share', 'nav_inicio': 'Home', 'share.success': 'Devotional copied!',
+            'share.error': 'Error copying. Please try again.', 'offline.mode': 'Offline Mode Activated.',
+            'error.load_fail': 'Failed to load. Displaying last saved devotional.'
         }
     };
     
-    // Dados dos devocionais (diretamente do JSON fornecido)
-    const devotionalsData = {
-      "devocionais": [
-        {
-          "title": {
-            "pt": "Um ano novo",
-            "es": "Un año nuevo",
-            "en": "A New Year"
-          },
-          "scripture_reference": {
-            "pt": "Apocalipse 21:5",
-            "es": "Apocalipsis 21:5",
-            "en": "Revelation 21:5"
-          },
-          "scripture_text": {
-            "pt": "“Aquele que estava assentado no trono disse: 'Estou fazendo novas todas as coisas!'. E acrescentou: 'Escreva isto, pois estas palavras são verdadeiras e dignas de confiança'.”",
-            "es": "“El que estaba sentado en el trono dijo: '¡Yo hago nuevas todas las cosas!'. Y añadió: 'Escribe esto, porque estas palabras son verdaderas y dignas de confianza'.”",
-            "en": "“He who was seated on the throne said, 'I am making everything new!' Then he said, 'Write this down, for these words are trustworthy and true.'”"
-          },
-          "devotional_text": {
-            "pt": "Cada novo ano em nossas vidas é uma oportunidade para fazer um balanço de quem somos, o que somos e para onde nós vamos. É um tempo quando podemos acertar os erros do ano passado, e ajustar o curso de nossa jornada para a frente, sob a luz da vontade de Deus para nossas vidas. É hora de mudar e renovar. O poema de Lord Alfred Tennyson, \"Ring out, wild bells\", nos lembra que este é um tempo para nos dedicarmos a mudar o olhar do passado para o futuro, celebrando o novo, a verdade, o amor e o Cristo que há de vir.",
-            "es": "Cada nuevo año en nuestras vidas es una oportunidad para hacer un balance de quiénes somos, qué somos y hacia dónde vamos. Es un tiempo en el que podemos corregir los errores del año pasado y ajustar el rumbo de nuestro viaje hacia adelante, bajo la luz de la voluntad de Dios para nuestras vidas. Es hora de cambiar y renovar. El poema de Lord Alfred Tennyson, \"Ring out, wild bells\", nos recuerda que este es un tiempo para dedicarnos a cambiar nuestra mirada del pasado hacia el futuro, celebrando lo nuevo, la verdad, el amor y el Cristo que ha de venir.",
-            "en": "Each new year in our lives is an opportunity to take stock of who we are, what we are, and where we are going. It is a time when we can right the wrongs of the past year and adjust the course of our journey forward, under the light of God's will for our lives. It is a time to change and renew. The poem \"Ring out, wild bells\" by Lord Alfred Tennyson reminds us that this is a time to dedicate ourselves to shifting our gaze from the past to the future, celebrating the new, the truth, the love, and the Christ who is to come."
-          },
-          "closing_prayer_or_reflection": {
-            "pt": "Oração: Deus, nos use para trazer as mudanças que você deseja. Amém.",
-            "es": "Oración: Dios, úsanos para traer los cambios que deseas. Amén.",
-            "en": "Prayer: God, use us to bring about the changes you desire. Amen."
-          }
-        },
-        {
-          "title": {
-            "pt": "Alegrai-vos no Senhor: Adoração, Maravilha e Deleite",
-            "es": "Regocijaos en el Señor: Adoración, Maravilla y Deleite",
-            "en": "Rejoice in the Lord: Worship, Wonder, and Delight"
-          },
-          "scripture_reference": {
-            "pt": "Filipenses 4:4",
-            "es": "Filipenses 4:4",
-            "en": "Philippians 4:4"
-          },
-          "scripture_text": {
-            "pt": "“Alegrem-se sempre no Senhor. Novamente direi: alegrem-se!”",
-            "es": "“¡Regocijaos en el Señor siempre! Otra vez digo: ¡Regocijaos!”",
-            "en": "“Rejoice in the Lord always. I will say it again: Rejoice!”"
-          },
-          "devotional_text": {
-            "pt": "Uma das principais questões em aconselhamento espiritual é: "Que tipo de Deus você adora?" Alguns veem Deus como um ogro crítico. O apóstolo Paulo, antes um fariseu que via Deus através da Lei, teve um encontro transformador com Cristo na estrada para Damasco. Ele passou a deleitar-se no Deus que se humilhou, serviu e foi exaltado. A história de Jesus Cristo é uma história incrível que vale a pena contar e recontar, pois pecadores são transformados por este evangelho da graça. Quando Paulo vê a transformação na vida de seus amados filipenses, ele se alegra.",
-            "es": "Una de las preguntas clave en el consejo espiritual es: \"¿Qué tipo de Dios adoras?\" Algunos ven a Dios como un ogro crítico. El apóstol Pablo, antes un fariseo que veía a Dios a través de la Ley, tuvo un encuentro transformador con Cristo en el camino a Damasco. Pasó a deleitarse en el Dios que se humilló, sirvió y fue exaltado. La historia de Jesucristo es una historia increíble que vale la pena contar y volver a contar, pues los pecadores son transformados por este evangelio de la gracia. Cuando Pablo ve la transformación en la vida de sus amados filipenses, se regocija.",
-            "en": "One of the key questions in spiritual counseling is: \"What kind of God do you worship?\" Some see God as a critical ogre. The apostle Paul, once a Pharisee who saw God through the Law, had a transformative encounter with Christ on the road to Damascus. He came to delight in the God who humbled Himself, served, and was exalted. The story of Jesus Christ is an incredible one worth telling and retelling, as sinners are transformed by this gospel of grace. When Paul sees the transformation in the lives of his beloved Philippians, he rejoices."
-          },
-          "closing_prayer_or_reflection": {
-            "pt": "Reflexão: Que tipo de Deus nós adoramos? Precisamos refletir novamente sobre a vida de Cristo como um corretivo para a nossa compreensão do Pai.",
-            "es": "Reflexión: ¿Qué tipo de Dios adoramos? Necesitamos reflexionar de nuevo sobre la vida de Cristo como un correctivo para nuestra comprensión del Padre.",
-            "en": "Reflection: What kind of God do we worship? We need to reflect again on the life of Christ as a corrective to our understanding of the Father."
-          }
-        },
-        {
-          "title": {
-            "pt": "Primeiro o mais importante",
-            "es": "Primero lo más importante",
-            "en": "First Things First"
-          },
-          "scripture_reference": {
-            "pt": "Mateus 6:33",
-            "es": "Mateo 6:33",
-            "en": "Matthew 6:33"
-          },
-          "scripture_text": {
-            "pt": "“Busquem, pois, em primeiro lugar o Reino de Deus e a sua justiça, e todas essas coisas lhes serão acrescentadas.”",
-            "es": "“Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.”",
-            "en": "“But seek first his kingdom and his righteousness, and all these things will be given to you as well.”"
-          },
-          "devotional_text": {
-            "pt": "Nossa vida é cheia da "Tirania do urgente". Celular, e-mail e reuniões nos puxam em todas as direções. Marcos 1:35 nos informa que Jesus levantava-se de madrugada para ter um tempo a sós com Deus e rever as prioridades para seu dia. Precisamos, "De Propósito", fazer com que buscar a Deus seja nossa primeira prioridade. Dizer "Sim" a uma coisa significa dizer "Não" a outras. Não seja escravizado por dispositivos digitais. Considere o "Top 10" de Deus, que é amá-lo com todo nosso coração, alma e espírito. Comece certo e seja dirigido por Deus. Basta pedir e você receberá!",
-            "es": "Nuestra vida está llena de la \"Tiranía de lo urgente\". El celular, el correo electrónico y las reuniones nos jalan en todas direcciones. Marcos 1:35 nos informa que Jesús se levantaba de madrugada para tener un tiempo a solas con Dios y revisar las prioridades para su día. Necesitamos, \"A Propósito\", hacer que buscar a Dios sea nuestra primera prioridad. Decir \"Sí\" a una cosa significa decir \"No\" a otras. No seas esclavo de los dispositivos digitales. Considera el \"Top 10\" de Dios, que es amarlo con todo nuestro corazón, alma y espíritu. Comienza bien y sé dirigido por Dios. ¡Solo pide y recibirás!",
-            "en": "Our lives are filled with the \"Tyranny of the Urgent.\" Cell phones, emails, and meetings pull us in every direction. Mark 1:35 tells us that Jesus would rise early in the morning to have time alone with God and review the priorities for His day. We need, \"On Purpose,\" to make seeking God our first priority. Saying \"Yes\" to one thing means saying \"No\" to others. Don't be enslaved by digital devices. Consider God's \"Top 10,\" which is to love Him with all our heart, soul, and spirit. Start right and be led by God. Just ask, and you will receive!"
-          },
-          "closing_prayer_or_reflection": {
-            "pt": "Reflexão: Quais são os obstáculos para um período de silêncio regular com Deus? Como posso lidar com isso?",
-            "es": "Reflexión: ¿Cuáles son los obstáculos para un período de silencio regular con Dios? ¿Cómo puedo lidiar con ellos?",
-            "en": "Reflection: What are the obstacles to a regular quiet time with God? How can I overcome them?"
-          }
-        },
-        {
-          "title": {
-            "pt": "Visão",
-            "es": "Visión",
-            "en": "Vision"
-          },
-          "scripture_reference": {
-            "pt": "Neemias 1:11",
-            "es": "Nehemías 1:11",
-            "en": "Nehemiah 1:11"
-          },
-          "scripture_text": {
-            "pt": "...Faze que hoje este teu servo seja bem-sucedido...",
-            "es": "...Te ruego que concedas hoy buen éxito a tu siervo...",
-            "en": "...grant that your servant may have success today..."
-          },
-          "devotional_text": {
-            "pt": "O livro de Neemias apresenta a vida de um líder com qualidades extraordinárias. Uma de suas principais características foi a sua visão. "Sem visão o povo perece." Uma visão de sucesso, como a de Neemias, tem cinco características:\n\n1. Clara e específica: Ele tinha uma imagem clara dos muros de Jerusalém que precisavam ser restaurados.\n2. Compromisso: Ele estava completamente envolvido, dizendo "Vamos reconstruir".\n3. Envolvimento de outros: Ele compartilhou sua visão e pediu ajuda.\n4. Avaliação realista das dificuldades: Ele reconheceu os obstáculos e opositores.\n5. Confiança em Deus: Ele acreditava que "O Deus dos céus fará que sejamos bem-sucedidos."\nA visão foi o motor que motivou Neemias. Devemos ter uma visão clara de Deus para realizar Seus projetos através de nossas vidas.",
-            "es": "El libro de Nehemías presenta la vida de un líder con cualidades extraordinarias. Una de sus principales características fue su visión. \"Sin visión, el pueblo perece.\" Una visión de éxito, como la de Nehemías, tiene cinco características:\nClara y específica: Tenía una imagen clara de los muros de Jerusalén que necesitaban ser restaurados.\nCompromiso: Estaba completamente involucrado, diciendo \"Vamos a reconstruir\".\nParticipación de otros: Compartió su visión y pidió ayuda.\nEvaluación realista de las dificultades: Reconoció los obstáculos y opositores.\nConfianza en Dios: Creía que \"El Dios de los cielos, él nos prosperará.\"\nLa visión fue el motor que motivó a Nehemías. Debemos tener una visión clara de Dios para realizar Sus proyectos a través de nuestras vidas.",
-            "en": "The book of Nehemiah presents the life of a leader with extraordinary qualities. One of his main characteristics was his vision. \"Where there is no vision, the people perish.\" A successful vision, like Nehemiah's, has five characteristics:\nClear and specific: He had a clear image of the walls of Jerusalem that needed to be restored.\nCommitment: He was completely involved, saying, \"Let us start rebuilding.\"\nInvolvement of others: He shared his vision and asked for help.\nRealistic assessment of difficulties: He recognized the obstacles and opponents.\nTrust in God: He believed that \"The God of heaven will give us success.\"\nThe vision was the driving force that motivated Nehemiah. We must have a clear vision from God to carry out His projects through our lives."
-          },
-          "closing_prayer_or_reflection": {
-            "pt": "",
-            "es": "",
-            "en": ""
-          }
-        },
-        {
-          "title": {
-            "pt": "A corrida assinalada para você",
-            "es": "La carrera que nos está propuesta",
-            "en": "The Race Marked Out for You"
-          },
-          "scripture_reference": {
-            "pt": "Hebreus 12:1-2",
-            "es": "Hebreos 12:1-2",
-            "en": "Hebrews 12:1-2"
-          },
-          "scripture_text": {
-            "pt": "“Portanto, também nós, uma vez que estamos rodeados por tão grande nuvem de testemunhas, livremo-nos de tudo o que nos atrapalha e do pecado que nos envolve e corramos com perseverança a corrida que nos é proposta, tendo os olhos fitos em Jesus, autor e consumador da nossa fé.”",
-            "es": "“Por tanto, nosotros también, teniendo en derredor nuestro tan grande nube de testigos, despojémonos de todo peso y del pecado que nos asedia, y corramos con paciencia la carrera que tenemos por delante, puestos los ojos en Jesús, el autor y consumador de la fe.”",
-            "en": "“Therefore, since we are surrounded by such a great cloud of witnesses, let us throw off everything that hinders and the sin that so easily entangles. And let us run with perseverance the race marked out for us, fixing our eyes on Jesus, the pioneer and perfecter of faith.”"
-          },
-          "devotional_text": {
-            "pt": "A vida como jovem médico oferece inúmeras oportunidades para demonstrar amor, agir com integridade e trabalhar com generosidade. No entanto, também está repleta de distrações. O cansaço pode diminuir nossa resistência, e pode ser fácil se desviar com más companhias ou usar nossos recursos de forma egoísta. O apóstolo Paulo usa a analogia de um atleta para descrever a disciplina de um filho de Deus. Somos lembrados que existe uma corrida assinalada para cada um de nós. Deus não espera que sejamos super-homens, mas nos dá tarefas, responsabilidades e os recursos para fazermos o que Ele nos pede.",
-            "es": "La vida como joven médico ofrece innumerables oportunidades para demostrar amor, actuar con integridad y trabajar con generosidad. Sin embargo, también está llena de distracciones. El cansancio puede disminuir nuestra resistencia, y puede ser fácil desviarse con malas compañías o usar nuestros recursos de forma egoísta. El apóstol Pablo usa la analogía de un atleta para describir la disciplina de un hijo de Dios. Se nos recuerda que hay una carrera señalada para cada uno de nosotros. Dios no espera que seamos superhombres, pero Él nos da tareas, responsabilidades y los recursos para hacer lo que Él nos pide.",
-            "en": "Life as a young doctor offers numerous opportunities to show love, act with integrity, and work with generosity. However, it is also full of distractions. Fatigue can lower our resistance, and it can be easy to stray with bad company or use our resources selfishly. The apostle Paul uses the analogy of an athlete to describe the discipline of a child of God. We are reminded that there is a race marked out for each of us. God does not expect us to be supermen, but He gives us tasks, responsibilities, and the resources to do what He asks of us."
-          },
-          "closing_prayer_or_reflection": {
-            "pt": "Oração: Senhor Jesus, ajuda-me a lembrar que és o Deus 'capaz de me abençoar abundantemente, para que em todas as coisas e em todo o tempo, tendo tudo o que é necessário, transborde em toda boa obra, em nome de Jesus', amém.",
-            "es": "Oración: Señor Jesús, ayúdame a recordar que eres el Dios 'capaz de bendecirme abundantemente, para que en todas las cosas y en todo tiempo, teniendo todo lo que necesito, abunde para toda buena obra, en el nombre de Jesús', amén.",
-            "en": "Prayer: Lord Jesus, help me to remember that you are the God 'who is able to bless me abundantly, so that in all things at all times, having all that I need, I will abound in every good work, in Jesus' name,' amen."
-          }
-        }
-      ]
+    // Dados dos devocionais (JSON embutido para acesso offline)
+    const devotionalsData = { /* O seu JSON completo dos devocionais vai aqui, exatamente como no arquivo original */
+      "devocionais": [{"title":{"pt":"Um ano novo","es":"Un año nuevo","en":"A New Year"},"scripture_reference":{"pt":"Apocalipse 21:5","es":"Apocalipsis 21:5","en":"Revelation 21:5"},"scripture_text":{"pt":"“Aquele que estava assentado no trono disse: 'Estou fazendo novas todas as coisas!'. E acrescentou: 'Escreva isto, pois estas palavras são verdadeiras e dignas de confiança'.”","es":"“El que estaba sentado en el trono dijo: '¡Yo hago nuevas todas las cosas!'. Y añadió: 'Escribe esto, porque estas palabras son verdaderas y dignas de confianza'.”","en":"“He who was seated on the throne said, 'I am making everything new!' Then he said, 'Write this down, for these words are trustworthy and true.'”"},"devotional_text":{"pt":"Cada novo ano em nossas vidas é uma oportunidade para fazer um balanço de quem somos, o que somos e para onde nós vamos. É um tempo quando podemos acertar os erros do ano passado, e ajustar o curso de nossa jornada para a frente, sob a luz da vontade de Deus para nossas vidas. É hora de mudar e renovar. O poema de Lord Alfred Tennyson, \"Ring out, wild bells\", nos lembra que este é um tempo para nos dedicarmos a mudar o olhar do passado para o futuro, celebrando o novo, a verdade, o amor e o Cristo que há de vir.","es":"Cada nuevo año en nuestras vidas es una oportunidad para hacer un balance de quiénes somos, qué somos y hacia dónde vamos. Es un tiempo en el que podemos corregir los errores del año pasado y ajustar el rumbo de nuestro viaje hacia adelante, bajo la luz de la voluntad de Dios para nuestras vidas. Es hora de cambiar y renovar. El poema de Lord Alfred Tennyson, \"Ring out, wild bells\", nos recuerda que este es un tiempo para dedicarnos a cambiar nuestra mirada del pasado hacia el futuro, celebrando lo nuevo, la verdad, el amor y el Cristo que ha de venir.","en":"Each new year in our lives is an opportunity to take stock of who we are, what we are, and where we are going. It is a time when we can right the wrongs of the past year and adjust the course of our journey forward, under the light of God's will for our lives. It is a time to change and renew. The poem \"Ring out, wild bells\" by Lord Alfred Tennyson reminds us that this is a time to dedicate ourselves to shifting our gaze from the past to the future, celebrating the new, the truth, the love, and the Christ who is to come."},"closing_prayer_or_reflection":{"pt":"Oração: Deus, nos use para trazer as mudanças que você deseja. Amém.","es":"Oración: Dios, úsanos para traer los cambios que deseas. Amén.","en":"Prayer: God, use us to bring about the changes you desire. Amen."}},{"title":{"pt":"Alegrai-vos no Senhor: Adoração, Maravilha e Deleite","es":"Regocijaos en el Señor: Adoración, Maravilla y Deleite","en":"Rejoice in the Lord: Worship, Wonder, and Delight"},"scripture_reference":{"pt":"Filipenses 4:4","es":"Filipenses 4:4","en":"Philippians 4:4"},"scripture_text":{"pt":"“Alegrem-se sempre no Senhor. Novamente direi: alegrem-se!”","es":"“¡Regocijaos en el Señor siempre! Otra vez digo: ¡Regocijaos!”","en":"“Rejoice in the Lord always. I will say it again: Rejoice!”"},"devotional_text":{"pt":"Uma das principais questões em aconselhamento espiritual é: \"Que tipo de Deus você adora?\" Alguns veem Deus como um ogro crítico. O apóstolo Paulo, antes um fariseu que via Deus através da Lei, teve um encontro transformador com Cristo na estrada para Damasco. Ele passou a deleitar-se no Deus que se humilhou, serviu e foi exaltado. A história de Jesus Cristo é uma história incrível que vale a pena contar e recontar, pois pecadores são transformados por este evangelho da graça. Quando Paulo vê a transformação na vida de seus amados filipenses, ele se alegra.","es":"Una de las preguntas clave en el consejo espiritual es: \"¿Qué tipo de Dios adoras?\" Algunos ven a Dios como un ogro crítico. El apóstol Pablo, antes un fariseo que veía a Dios a través de la Ley, tuvo un encuentro transformador con Cristo en el camino a Damasco. Pasó a deleitarse en el Dios que se humilló, sirvió y fue exaltado. La historia de Jesucristo es una historia increíble que vale la pena contar y volver a contar, pues los pecadores son transformados por este evangelio de la gracia. Cuando Pablo ve la transformación en la vida de sus amados filipenses, se regocija.","en":"One of the key questions in spiritual counseling is: \"What kind of God do you worship?\" Some see God as a critical ogre. The apostle Paul, once a Pharisee who saw God through the Law, had a transformative encounter with Christ on the road to Damascus. He came to delight in the God who humbled Himself, served, and was exalted. The story of Jesus Christ is an incredible one worth telling and retelling, as sinners are transformed by this gospel of grace. When Paul sees the transformation in the lives of his beloved Philippians, he rejoices."},"closing_prayer_or_reflection":{"pt":"Reflexão: Que tipo de Deus nós adoramos? Precisamos refletir novamente sobre a vida de Cristo como um corretivo para a nossa compreensão do Pai.","es":"Reflexión: ¿Qué tipo de Dios adoramos? Necesitamos reflexionar de nuevo sobre la vida de Cristo como un correctivo para nuestra comprensión del Padre.","en":"Reflection: What kind of God do we worship? We need to reflect again on the life of Christ as a corrective to our understanding of the Father."}},{"title":{"pt":"Primeiro o mais importante","es":"Primero lo más importante","en":"First Things First"},"scripture_reference":{"pt":"Mateus 6:33","es":"Mateo 6:33","en":"Matthew 6:33"},"scripture_text":{"pt":"“Busquem, pois, em primeiro lugar o Reino de Deus e a sua justiça, e todas essas coisas lhes serão acrescentadas.”","es":"“Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.”","en":"“But seek first his kingdom and his righteousness, and all these things will be given to you as well.”"},"devotional_text":{"pt":"Nossa vida é cheia da \"Tirania do urgente\". Celular, e-mail e reuniões nos puxam em todas as direções. Marcos 1:35 nos informa que Jesus levantava-se de madrugada para ter um tempo a sós com Deus e rever as prioridades para seu dia. Precisamos, \"De Propósito\", fazer com que buscar a Deus seja nossa primeira prioridade. Dizer \"Sim\" a uma coisa significa dizer \"Não\" a outras. Não seja escravizado por dispositivos digitais. Considere o \"Top 10\" de Deus, que é amá-lo com todo nosso coração, alma e espírito. Comece certo e seja dirigido por Deus. Basta pedir e você receberá!","es":"Nuestra vida está llena de la \"Tiranía de lo urgente\". El celular, el correo electrónico y las reuniones nos jalan en todas direcciones. Marcos 1:35 nos informa que Jesús se levantaba de madrugada para tener un tiempo a solas con Dios y revisar las prioridades para su día. Necesitamos, \"A Propósito\", hacer que buscar a Dios sea nuestra primera prioridad. Decir \"Sí\" a una cosa significa decir \"No\" a otras. No seas esclavo de los dispositivos digitales. Considera el \"Top 10\" de Dios, que es amarlo con todo nuestro corazón, alma y espíritu. Comienza bien y sé dirigido por Dios. ¡Solo pide y recibirás!","en":"Our lives are filled with the \"Tyranny of the Urgent.\" Cell phones, emails, and meetings pull us in every direction. Mark 1:35 tells us that Jesus would rise early in the morning to have time alone with God and review the priorities for His day. We need, \"On Purpose,\" to make seeking God our first priority. Saying \"Yes\" to one thing means saying \"No\" to others. Don't be enslaved by digital devices. Consider God's \"Top 10,\" which is to love Him with all our heart, soul, and spirit. Start right and be led by God. Just ask, and you will receive!"},"closing_prayer_or_reflection":{"pt":"Reflexão: Quais são os obstáculos para um período de silêncio regular com Deus? Como posso lidar com isso?","es":"Reflexión: ¿Cuáles son los obstáculos para un período de silencio regular con Dios? ¿Cómo puedo lidiar con ellos?","en":"Reflection: What are the obstacles to a regular quiet time with God? How can I overcome them?"}},{"title":{"pt":"Visão","es":"Visión","en":"Vision"},"scripture_reference":{"pt":"Neemias 1:11","es":"Nehemías 1:11","en":"Nehemiah 1:11"},"scripture_text":{"pt":"...Faze que hoje este teu servo seja bem-sucedido...","es":"...Te ruego que concedas hoy buen éxito a tu siervo...","en":"...grant that your servant may have success today..."},"devotional_text":{"pt":"O livro de Neemias apresenta a vida de um líder com qualidades extraordinárias. Uma de suas principais características foi a sua visão. \"Sem visão o povo perece.\" Uma visão de sucesso, como a de Neemias, tem cinco características:\n\n1. Clara e específica: Ele tinha uma imagem clara dos muros de Jerusalém que precisavam ser restaurados.\n2. Compromisso: Ele estava completamente envolvido, dizendo \"Vamos reconstruir\".\n3. Envolvimento de outros: Ele compartilhou sua visão e pediu ajuda.\n4. Avaliação realista das dificuldades: Ele reconheceu os obstáculos e opositores.\n5. Confiança em Deus: Ele acreditava que \"O Deus dos céus fará que sejamos bem-sucedidos.\"\nA visão foi o motor que motivou Neemias. Devemos ter uma visão clara de Deus para realizar Seus projetos através de nossas vidas.","es":"El libro de Nehemías presenta la vida de un líder con cualidades extraordinarias. Una de sus principales características fue su visión. \"Sin visión, el pueblo perece.\" Una visión de éxito, como la de Nehemías, tiene cinco características:\nClara y específica: Tenía una imagen clara de los muros de Jerusalén que necesitaban ser restaurados.\nCompromiso: Estaba completamente involucrado, diciendo \"Vamos a reconstruir\".\nParticipación de otros: Compartió su visión y pidió ayuda.\nEvaluación realista de las dificultades: Reconoció los obstáculos y opositores.\nConfianza en Dios: Creía que \"El Dios de los cielos, él nos prosperará.\"\nLa visión fue el motor que motivó a Nehemías. Debemos tener una visión clara de Dios para realizar Sus proyectos a través de nuestras vidas.","en":"The book of Nehemiah presents the life of a leader with extraordinary qualities. One of his main characteristics was his vision. \"Where there is no vision, the people perish.\" A successful vision, like Nehemiah's, has five characteristics:\nClear and specific: He had a clear image of the walls of Jerusalem that needed to be restored.\nCommitment: He was completely involved, saying, \"Let us start rebuilding.\"\nInvolvement of others: He shared his vision and asked for help.\nRealistic assessment of difficulties: He recognized the obstacles and opponents.\nTrust in God: He believed that \"The God of heaven will give us success.\"\nThe vision was the driving force that motivated Nehemiah. We must have a clear vision from God to carry out His projects through our lives."},"closing_prayer_or_reflection":{"pt":"","es":"","en":""}},{"title":{"pt":"A corrida assinalada para você","es":"La carrera que nos está propuesta","en":"The Race Marked Out for You"},"scripture_reference":{"pt":"Hebreus 12:1-2","es":"Hebreos 12:1-2","en":"Hebrews 12:1-2"},"scripture_text":{"pt":"“Portanto, também nós, uma vez que estamos rodeados por tão grande nuvem de testemunhas, livremo-nos de tudo o que nos atrapalha e do pecado que nos envolve e corramos com perseverança a corrida que nos é proposta, tendo os olhos fitos em Jesus, autor e consumador da nossa fé.”","es":"“Por tanto, nosotros también, teniendo en derredor nuestro tan grande nube de testigos, despojémonos de todo peso y del pecado que nos asedia, y corramos con paciencia la carrera que tenemos por delante, puestos los ojos en Jesús, el autor y consumador de la fe.”","en":"“Therefore, since we are surrounded by such a great cloud of witnesses, let us throw off everything that hinders and the sin that so easily entangles. And let us run with perseverance the race marked out for us, fixing our eyes on Jesus, the pioneer and perfecter of faith.”"},"devotional_text":{"pt":"A vida como jovem médico oferece inúmeras oportunidades para demonstrar amor, agir com integridade e trabalhar com generosidade. No entanto, também está repleta de distrações. O cansaço pode diminuir nossa resistência, e pode ser fácil se desviar com más companhias ou usar nossos recursos de forma egoísta. O apóstolo Paulo usa a analogia de um atleta para descrever a disciplina de um filho de Deus. Somos lembrados que existe uma corrida assinalada para cada um de nós. Deus não espera que sejamos super-homens, mas nos dá tarefas, responsabilidades e os recursos para fazermos o que Ele nos pede.","es":"La vida como joven médico ofrece innumerables oportunidades para demostrar amor, actuar con integridad y trabajar con generosidad. Sin embargo, también está llena de distracciones. El cansancio puede disminuir nuestra resistencia, y puede ser fácil desviarse con malas compañías o usar nuestros recursos de forma egoísta. El apóstolo Pablo usa la analogía de un atleta para describir la disciplina de un hijo de Dios. Se nos recuerda que hay una carrera señalada para cada uno de nosotros. Dios no espera que seamos superhombres, pero Él nos da tareas, responsabilidades y los recursos para hacer lo que Él nos pide.","en":"Life as a young doctor offers numerous opportunities to show love, act with integrity, and work with generosity. However, it is also full of distractions. Fatigue can lower our resistance, and it can be easy to stray with bad company or use our resources selfishly. The apostle Paul uses the analogy of an athlete to describe the discipline of a child of God. We are reminded that there is a race marked out for each of us. God does not expect us to be supermen, but He gives us tasks, responsibilities, and the resources to do what He asks of us."},"closing_prayer_or_reflection":{"pt":"Oração: Senhor Jesus, ajuda-me a lembrar que és o Deus 'capaz de me abençoar abundantemente, para que em todas as coisas e em todo o tempo, tendo tudo o que é necessário, transborde em toda boa obra, em nome de Jesus', amém.","es":"Oración: Señor Jesús, ayúdame a recordar que eres el Dios 'capaz de bendecirme abundantemente, para que en todas las cosas y en todo tiempo, teniendo todo lo que necesito, abunde para toda buena obra, en el nombre de Jesús', amén.","en":"Prayer: Lord Jesus, help me to remember that you are the God 'who is able to bless me abundantly, so that in all things at all times, having all that I need, I will abound in every good work, in Jesus' name,' amen."}} ]
     };
-    
-    // Função para exibir mensagens de notificação na UI
+
     function showMessage(message, type = 'info', duration = 3000) {
+        const appMessage = document.getElementById('app-message');
         appMessage.textContent = message;
-        appMessage.className = `fixed top-0 left-0 right-0 p-4 text-center text-white font-bold z-1000 transition-transform ease-out duration-300 transform translate-y-0 opacity-100 ${type}`;
-        appMessage.style.display = 'block';
-        setTimeout(() => {
-            appMessage.className = `fixed top-0 left-0 right-0 p-4 text-center text-white font-bold z-1000 transition-transform ease-out duration-300 transform -translate-y-full opacity-0 ${type}`;
-            setTimeout(() => {
-                appMessage.style.display = 'none';
-            }, 300);
-        }, duration);
+        appMessage.className = `show ${type}`;
+        setTimeout(() => { appMessage.className = appMessage.className.replace('show', ''); }, duration);
     }
-    
-    // Função para traduzir elementos estáticos da UI
+
     function setLanguage(lang) {
         currentLanguage = lang;
         localStorage.setItem('appLanguage', lang);
-        document.querySelectorAll('[data-lang]').forEach(element => {
-            const key = element.getAttribute('data-lang');
+        document.documentElement.lang = lang.split('-')[0];
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            const key = el.getAttribute('data-lang');
             if (translations[lang] && translations[lang][key]) {
-                element.textContent = translations[lang][key];
+                el.textContent = translations[lang][key];
             }
         });
-        // A tradução do conteúdo devocional (título, texto, oração) é feita ao exibir o devocional.
         if (currentDevotional) {
             displayDevotional(currentDevotional);
         }
     }
-    
-    // Variável para guardar o devocional atualmente exibido
-    let currentDevotional = null;
-    
-    // Função para exibir o conteúdo do devocional
+
     function displayDevotional(devotional) {
-        if (!devotional) {
-            // Fallback se não houver devocional para exibir
-            devotionalTitle.textContent = translations[currentLanguage]['fallback.title'] || 'Devocional não encontrado.';
-            scriptureText.textContent = translations[currentLanguage]['fallback.scripture_text'] || 'Por favor, tente novamente.';
-            scriptureReference.textContent = '';
-            devotionalText.textContent = '';
-            closingPrayerReflection.textContent = '';
-            
-            // Usa imagem offline como fallback
-            devotionalCard.classList.add('offline-image');
-            return;
-        }
-        
+        if (!devotional) return;
+        currentDevotional = devotional;
+
         devotionalTitle.textContent = devotional.title[currentLanguage];
-        scriptureText.textContent = devotional.scripture_text[currentLanguage];
+        scriptureText.textContent = `“${devotional.scripture_text[currentLanguage]}”`;
         scriptureReference.textContent = devotional.scripture_reference[currentLanguage];
         
-        // Substituir quebras de linha por parágrafos para melhor formatação
-        let formattedText = devotional.devotional_text[currentLanguage];
-        formattedText = formattedText.replace(/\n\n/g, '</p><p>');
-        formattedText = formattedText.replace(/\n/g, '<br>');
-        devotionalText.innerHTML = `<p>${formattedText}</p>`;
-        
+        let formattedText = devotional.devotional_text[currentLanguage]
+            .split('\n')
+            .filter(p => p.trim() !== '')
+            .map(p => `<p>${p}</p>`)
+            .join('');
+        devotionalText.innerHTML = formattedText;
+
         closingPrayerReflection.textContent = devotional.closing_prayer_or_reflection[currentLanguage];
         
-        // Se estiver online, tenta carregar imagem dinâmica
-        if (isOnline) {
-            // Gera uma nova imagem aleatória de fundo
-            const imageUrl = `https://picsum.photos/800/600?random=${new Date().getTime()}`;
-            devotionalCard.style.backgroundImage = `linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%), url('${imageUrl}')`;
-            devotionalCard.classList.remove('offline-image');
-            
-            // Guarda a última imagem usada
-            localStorage.setItem('lastImageUrl', imageUrl);
-        } else {
-            // Usa imagem estática ou a última imagem salva
-            const lastImageUrl = localStorage.getItem('lastImageUrl');
-            if (lastImageUrl) {
-                devotionalCard.style.backgroundImage = `linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%), url('${lastImageUrl}')`;
-            } else {
-                devotionalCard.classList.add('offline-image');
-            }
-        }
-        
-        // Guarda o último devocional exibido no localStorage
+        // --- LÓGICA DE IMAGEM OFFLINE ---
+        const randomImage = localImages[Math.floor(Math.random() * localImages.length)];
+        devotionalCard.style.backgroundImage = `linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%), url('${randomImage}')`;
+
         localStorage.setItem('lastDevotional', JSON.stringify(devotional));
         loadingState.style.display = 'none';
         contentState.style.display = 'block';
     }
-    
-    // Função para sincronizar dados quando voltar a ficar online
-    async function syncOfflineData() {
-        try {
-            // Se houver dados offline que precisam ser sincronizados
-            showMessage(translations[currentLanguage]['sync.success'], 'success');
-        } catch (error) {
-            console.error("Erro ao sincronizar dados:", error);
-            showMessage(translations[currentLanguage]['sync.error'], 'error');
-        }
-    }
-    
-    // Função principal para carregar e exibir um devocional aleatório
-    async function loadRandomDevotional() {
+
+    function loadRandomDevotional() {
         loadingState.style.display = 'block';
         contentState.style.display = 'none';
-        
+
         try {
-            if (!devotionalsData || !devotionalsData.devocionais || devotionalsData.devocionais.length === 0) {
-                throw new Error("Dados de devocionais não encontrados ou vazios.");
-            }
-            
-            const randomIndex = Math.floor(Math.random() * devotionalsData.devocionais.length);
-            currentDevotional = devotionalsData.devocionais[randomIndex];
-            displayDevotional(currentDevotional);
+            const allDevotionals = devotionalsData.devocionais;
+            if (!allDevotionals || allDevotionals.length === 0) throw new Error("No devotionals data.");
+            const randomIndex = Math.floor(Math.random() * allDevotionals.length);
+            displayDevotional(allDevotionals[randomIndex]);
         } catch (error) {
-            console.error("Erro ao carregar devocional:", error);
-            
-            // Tenta carregar do localStorage em caso de erro
-            const lastDevotionalString = localStorage.getItem('lastDevotional');
-            if (lastDevotionalString) {
-                currentDevotional = JSON.parse(lastDevotionalString);
-                displayDevotional(currentDevotional);
-                showMessage(translations[currentLanguage]['error.load_fail'], 'error');
-            } else {
-                // Fallback para um devocional padrão se não houver nada no localStorage
-                displayDevotional({
-                    title: {
-                        pt: translations.pt['fallback.title'],
-                        es: translations.es['fallback.title'],
-                        en: translations.en['fallback.title']
-                    },
-                    scripture_reference: {
-                        pt: translations.pt['fallback.scripture_reference'],
-                        es: translations.es['fallback.scripture_reference'],
-                        en: translations.en['fallback.scripture_reference']
-                    },
-                    scripture_text: {
-                        pt: translations.pt['fallback.scripture_text'],
-                        es: translations.es['fallback.scripture_text'],
-                        en: translations.en['fallback.scripture_text']
-                    },
-                    devotional_text: {
-                        pt: translations.pt['fallback.devotional_text'],
-                        es: translations.es['fallback.devotional_text'],
-                        en: translations.en['fallback.devotional_text']
-                    },
-                    closing_prayer_or_reflection: {
-                        pt: translations.pt['fallback.closing_prayer_reflection'],
-                        es: translations.es['fallback.closing_prayer_reflection'],
-                        en: translations.en['fallback.closing_prayer_reflection']
-                    }
-                });
-                showMessage(translations[currentLanguage]['error.load_fail'], 'error');
+            console.error("Error loading new devotional:", error);
+            showMessage(translations[currentLanguage]['error.load_fail'], 'error');
+            const lastDevotional = JSON.parse(localStorage.getItem('lastDevotional'));
+            if (lastDevotional) {
+                displayDevotional(lastDevotional);
             }
         }
     }
-    
-    // Adiciona fallbacks para o objeto de traduções
-    translations.pt['fallback.title'] = 'Devocional Padrão';
-    translations.pt['fallback.scripture_reference'] = 'Salmos 119:105 (NVI)';
-    translations.pt['fallback.scripture_text'] = 'A tua palavra é lâmpada para os meus pés e luz para o meu caminho.';
-    translations.pt['fallback.devotional_text'] = 'Mesmo sem conexão, a Palavra de Deus continua a nos guiar e iluminar o nosso caminho. Confie na Sua direção diária.';
-    translations.pt['fallback.closing_prayer_reflection'] = 'Oração: Que a Tua Palavra seja sempre a minha luz. Amém.';
-    translations.pt['error.load_fail'] = 'Não foi possível carregar o devocional. A exibir o último guardado ou um padrão.';
-    
-    translations.es['fallback.title'] = 'Devocional Predeterminado';
-    translations.es['fallback.scripture_reference'] = 'Salmos 119:105 (NVI)';
-    translations.es['fallback.scripture_text'] = 'Lámpara es a mis pies tu palabra, y lumbrera a mi camino.';
-    translations.es['fallback.devotional_text'] = 'Incluso sin conexión, la Palabra de Dios continúa guiándonos e iluminando nuestro camino. Confíe en Su dirección diaria.';
-    translations.es['fallback.closing_prayer_reflection'] = 'Oración: Que tu Palabra sea siempre mi luz. Amén.';
-    translations.es['error.load_fail'] = 'No se pudo cargar el devocional. Mostrando el último guardado o uno predeterminado.';
-    
-    translations.en['fallback.title'] = 'Default Devotional';
-    translations.en['fallback.scripture_reference'] = 'Psalm 119:105 (NIV)';
-    translations.en['fallback.scripture_text'] = 'Your word is a lamp for my feet, a light on my path.';
-    translations.en['fallback.devotional_text'] = 'Even without a connection, God\'s Word continues to guide us and light our way. Trust in His daily direction.';
-    translations.en['fallback.closing_prayer_reflection'] = 'Prayer: May Your Word always be my light. Amen.';
-    translations.en['error.load_fail'] = 'Could not load devotional. Displaying last saved or a default one.';
-    
-    // Inicializa o status de conexão
-    updateOnlineStatus();
-    
+
+    function updateOnlineStatus() {
+        if (!navigator.onLine) {
+            offlineIndicator.classList.add('show');
+            showMessage(translations[currentLanguage]['offline.mode'], 'info');
+        } else {
+            offlineIndicator.classList.remove('show');
+        }
+    }
+
     // Event Listeners
     newDevotionalBtn.addEventListener('click', loadRandomDevotional);
     
     shareDevotionalBtn.addEventListener('click', async () => {
-        // Garante que o devocional atual está disponível e no idioma correto para partilha
-        const currentDev = currentDevotional;
-        if (!currentDev) {
-            showMessage(translations[currentLanguage]['share.error'], 'error');
-            return;
-        }
-        
-        const textToShare = `${currentDev.title[currentLanguage]}\n${currentDev.scripture_text[currentLanguage]} ${currentDev.scripture_reference[currentLanguage]}\n\n${currentDev.devotional_text[currentLanguage].replace(/<p>|<\/p>|<br>/g, '')}\n\n${currentDev.closing_prayer_or_reflection[currentLanguage]}\n\n#MissionCarePlus #RenovacaoDiaria`;
-        
+        if (!currentDevotional) return;
+        const textToShare = `*${currentDevotional.title[currentLanguage]}*\n\n_"${currentDevotional.scripture_text[currentLanguage]}"_\n(${currentDevotional.scripture_reference[currentLanguage]})\n\n${currentDevotional.devotional_text[currentLanguage].replace(/<p>|<\/p>|<br>/g, '')}\n\n*${currentDevotional.closing_prayer_or_reflection[currentLanguage]}*\n\nCompartilhado via MissionCare Plus`;
         try {
-            await navigator.clipboard.writeText(textToShare);
-            showMessage(translations[currentLanguage]['share.success'], 'success');
+            if (navigator.share) {
+                await navigator.share({ title: currentDevotional.title[currentLanguage], text: textToShare });
+            } else {
+                await navigator.clipboard.writeText(textToShare);
+                showMessage(translations[currentLanguage]['share.success'], 'success');
+            }
         } catch (err) {
-            console.error('Erro ao copiar texto: ', err);
+            console.error('Error sharing:', err);
             showMessage(translations[currentLanguage]['share.error'], 'error');
         }
     });
+
+    document.getElementById('lang-pt').addEventListener('click', () => setLanguage('pt'));
+    document.getElementById('lang-es').addEventListener('click', () => setLanguage('es'));
+    document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
     
-    langPtBtn.addEventListener('click', () => setLanguage('pt'));
-    langEsBtn.addEventListener('click', () => setLanguage('es'));
-    langEnBtn.addEventListener('click', () => setLanguage('en'));
-    
-    // Carrega o conteúdo inicial (do localStorage ou um novo)
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    // Initial Load
+    setLanguage(currentLanguage);
+    updateOnlineStatus();
     loadRandomDevotional();
 });
-
-// Função global para voltar
-function goBack() {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        window.location.href = 'index.html';
-    }
-}
 </script>
 </body>
 </html>
