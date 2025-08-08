@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente IA - MissionCare Plus</title>
+    
+    <!-- Importação de Fontes e Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    
+    <!-- Scripts para modo offline -->
+    <script src="/js/connection-manager.js"></script>
+    <script src="/js/mode-switcher.js"></script>
+    <script src="/js/sync-manager.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
+            --primary-color: #0d9488; /* Tailwind teal-600 */
+            padding-bottom: 80px; /* Espaço para a barra de navegação inferior */
+        }
+        #chat-container {
+            scroll-behavior: smooth;
+        }
+        /* Animação de "digitando" */
+        .typing-indicator span {
+            height: 8px; width: 8px; float: left; margin: 0 1px;
+            background-color: #9ca3af; display: block; border-radius: 50%;
+            opacity: 0.4; animation: 1s blink infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: .2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: .4s; }
+        @keyframes blink { 50% { opacity: 1; } }
+        /* Estilos para os cartões de ação */
+        .action-card {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; background-color: #f9fafb; border: 1px solid #e5e7eb;
+            border-radius: 1rem; padding: 1.5rem 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer;
+        }
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .action-card svg {
+            width: 32px; height: 32px; color: var(--primary-color); margin-bottom: 0.75rem;
+        }
+        .action-card h3 {
+            font-size: 1rem; font-weight: 600; color: #374151;
+        }
+        /* Estilos para o conteúdo formatado da IA */
+        .ai-response-content p, .ai-response-content ul, .ai-response-content ol {
+            margin-bottom: 0.75rem;
+        }
+        .ai-response-content p:last-child, .ai-response-content ul:last-child, .ai-response-content ol:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Estilos para o seletor de idioma */
+        .lang-selector button img {
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .lang-selector button.active img {
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+        .lang-selector button:not(.active) img {
+            opacity: 0.6;
+        }
+        .lang-selector button:not(.active):hover img {
+            opacity: 1;
+        }
+        
+        /* Estilos para o indicador de conexão */
+        .connection-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .connection-indicator.online {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .connection-indicator.offline {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .connection-indicator i {
+            margin-right: 5px;
+        }
+        
+        /* Estilos para notificações */
+        .mode-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 80%;
+            text-align: center;
+        }
+        .mode-notification.online {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+        .mode-notification.offline {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+        .mode-notification-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .mode-notification-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .mode-notification-text strong {
+            font-weight: 700;
+        }
+        .mode-notification-text small {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        /* Estilos para modo offline */
+        .offline-banner {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* Estilos para perguntas frequentes offline */
+        .faq-item {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .faq-question {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; padding: 1rem; background-color: white;
+            cursor: pointer; transition: background-color 0.2s ease;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .faq-question:hover {
+            background-color: #f9fafb;
+        }
+        .faq-question h3 {
+            font-size: 1rem; font-weight: 600; color: #111827;
+        }
+        .faq-question svg {
+            width: 20px; height: 20px; color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+        .faq-item.open .faq-question svg {
+            transform: rotate(90deg);
+        }
+        .faq-answer {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            padding: 0 1rem;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 500px; padding: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- Indicador de Conexão -->
+    <div id="connection-indicator" class="connection-indicator online">
+        <i class="fas fa-wifi"></i> Online
+    </div>
+
+    <!-- Container da Aplicação -->
+    <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-white">
+        <!-- MODO ONLINE -->
+        <div id="online-mode">
+            <header class="sticky top-0 z-20 flex items-center justify-between bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                <div class="w-1/4"></div> <!-- Espaçador à esquerda -->
+                <h1 data-i18n="assistente_titulo" class="text-gray-800 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Assistente IA</h1>
+                <!-- Seletor de Idioma -->
+                <div class="lang-selector flex justify-end items-center gap-2 w-1/4">
+                    <button data-lang="pt"><img src="https://flagcdn.com/w40/br.png" alt="Português" class="w-6 h-auto rounded-full"></button>
+                    <button data-lang="es"><img src="https://flagcdn.com/w40/es.png" alt="Español" class="w-6 h-auto rounded-full"></button>
+                    <button data-lang="en"><img src="https://flagcdn.com/w40/us.png" alt="English" class="w-6 h-auto rounded-full"></button>
+                </div>
+            </header>
+            
+            <!-- TELA INICIAL COM AÇÕES VISUAIS -->
+            <div id="welcome-screen" class="p-4 flex-grow flex flex-col justify-center">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center size-16 bg-teal-600 rounded-full text-white font-bold text-2xl mb-4">IA</div>
+                    <h2 data-i18n="welcome_ola" class="text-2xl font-bold text-gray-800">Olá! Sou seu assistente médico virtual.</h2>
+                    <p data-i18n="welcome_ajuda" class="text-gray-500 mt-1">Estou aqui para dar a você orientações iniciais, sem substituir seu médico.</p>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <div data-action="symptoms" class="action-card">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <h3 data-i18n="acao_sintomas">Analisar Sintomas</h3>
+                    </div>
+                    <div data-action="med_info" class="action-card">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <h3 data-i18n="acao_remedio">Info de Remédio</h3>
+                    </div>
+                    <div data-action="first_aid" class="action-card">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+                        <h3 data-i18n="acao_socorros">Primeiros Socorros</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TELA DE CHAT (Inicialmente oculta) -->
+            <div id="chat-screen" class="hidden flex flex-col h-full">
+                <!-- Área do Chat -->
+                <main id="chat-container" class="flex-grow p-4 space-y-6 overflow-y-auto">
+                    <!-- Mensagens serão adicionadas aqui -->
+                </main>
+                <!-- Barra de Input Fixa -->
+                <footer class="bg-white/90 backdrop-blur-sm border-t border-gray-200 p-4">
+                    <div class="flex w-full items-center rounded-full border-2 border-gray-200 focus-within:border-teal-600 transition-colors duration-200 bg-white">
+                        <input id="chat-input" type="text" data-i18n-placeholder="input_placeholder" placeholder="Pergunte ao MedGemma..." class="form-input flex-grow bg-transparent border-none focus:ring-0 h-12 placeholder:text-gray-400 p-4 text-base"/>
+                        <button id="send-btn" class="text-teal-600 hover:text-teal-800 p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z"></path></svg>
+                        </button>
+                    </div>
+                    <p data-i18n="footer_aviso" class="text-gray-500 text-xs text-center pt-2 px-4">
+                        As respostas são para fins educativos e não substituem a avaliação de um profissional de saúde.
+                    </p>
+                </footer>
+            </div>
+        </div>
+        
+        <!-- MODO OFFLINE -->
+        <div id="offline-mode" class="hidden">
+            <header class="sticky top-0 z-20 flex items-center justify-between bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                <div class="w-1/4"></div> <!-- Espaçador à esquerda -->
+                <h1 data-i18n="assistente_titulo_offline" class="text-gray-800 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Assistente IA - Offline</h1>
+                <!-- Seletor de Idioma -->
+                <div class="lang-selector flex justify-end items-center gap-2 w-1/4">
+                    <button data-lang="pt"><img src="https://flagcdn.com/w40/br.png" alt="Português" class="w-6 h-auto rounded-full"></button>
+                    <button data-lang="es"><img src="https://flagcdn.com/w40/es.png" alt="Español" class="w-6 h-auto rounded-full"></button>
+                    <button data-lang="en"><img src="https://flagcdn.com/w40/us.png" alt="English" class="w-6 h-auto rounded-full"></button>
+                </div>
+            </header>
+            
+            <div class="offline-banner m-4">
+                <i class="fas fa-wifi-slash"></i>
+                <span data-i18n="offlineModeActive">Modo Offline Ativado - Funcionalidades Limitadas</span>
+            </div>
+            
+            <!-- TELA INICIAL OFFLINE -->
+            <div id="welcome-screen-offline" class="p-4 flex-grow flex flex-col">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center size-16 bg-teal-600 rounded-full text-white font-bold text-2xl mb-4">IA</div>
+                    <h2 data-i18n="welcome_ola" class="text-2xl font-bold text-gray-800">Olá! Sou seu assistente médico virtual.</h2>
+                    <p data-i18n="welcome_ajuda_offline" class="text-gray-500 mt-1">Estou aqui para dar a você orientações iniciais, sem substituir seu médico. (Modo Offline)</p>
+                </div>
+                
+                <div class="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <h3 class="text-lg font-bold text-yellow-800 mb-2" data-i18n="offlineInfoTitle">Informação Offline</h3>
+                    <p data-i18n="offlineInfoText" class="text-yellow-700">
+                        No modo offline, tenho acesso limitado a informações. Abaixo estão algumas perguntas frequentes e respostas pré-definidas que podem ajudar em situações comuns.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-4 mb-6">
+                    <div data-action="symptoms-offline" class="action-card">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <h3 data-i18n="acao_sintomas">Analisar Sintomas</h3>
+                    </div>
+                    <div data-action="med_info-offline" class="action-card">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <h3 data-i18n="acao_remedio">Info de Remédio</h3>
+                    </div>
+                    <div data-action="first_aid-offline" class="action-card">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+                        <h3 data-i18n="acao_socorros">Primeiros Socorros</h3>
+                    </div>
+                </div>
+                
+                <!-- Seção de Perguntas Frequentes -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-3" data-i18n="faqTitle">Perguntas Frequentes</h3>
+                    <div id="faq-container" class="space-y-3">
+                        <!-- As perguntas serão preenchidas dinamicamente -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TELA DE CHAT OFFLINE -->
+            <div id="chat-screen-offline" class="hidden flex flex-col h-full">
+                <!-- Área do Chat Offline -->
+                <main id="chat-container-offline" class="flex-grow p-4 space-y-6 overflow-y-auto">
+                    <!-- Mensagens serão adicionadas aqui -->
+                </main>
+                <!-- Barra de Input Fixa Offline -->
+                <footer class="bg-white/90 backdrop-blur-sm border-t border-gray-200 p-4">
+                    <div class="flex w-full items-center rounded-full border-2 border-gray-200 focus-within:border-teal-600 transition-colors duration-200 bg-white">
+                        <input id="chat-input-offline" type="text" data-i18n-placeholder="input_placeholder_offline" placeholder="Digite sua pergunta..." class="form-input flex-grow bg-transparent border-none focus:ring-0 h-12 placeholder:text-gray-400 p-4 text-base"/>
+                        <button id="send-btn-offline" class="text-teal-600 hover:text-teal-800 p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z"></path></svg>
+                        </button>
+                    </div>
+                    <p data-i18n="footer_aviso_offline" class="text-gray-500 text-xs text-center pt-2 px-4">
+                        As respostas são baseadas em informações pré-armazenadas e não substituem a avaliação de um profissional de saúde.
+                    </p>
+                </footer>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BARRA DE NAVEGAÇÃO GLOBAL -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
+        <div class="mx-auto flex h-16 max-w-4xl items-center justify-around">
+            <button onclick="goBack()" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+                <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                <span data-i18n="nav_voltar" class="mt-1 text-xs font-bold uppercase tracking-wider">Voltar</span>
+            </button>
+            <div class="h-8 w-px bg-gray-200"></div>
+            <a href="index.html" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+                <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                <span data-i18n="nav_inicio" class="mt-1 text-xs font-bold uppercase tracking-wider">Início</span>
+            </a>
+        </div>
+    </nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Elementos da UI
+    const onlineMode = document.getElementById('online-mode');
+    const offlineMode = document.getElementById('offline-mode');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const welcomeScreenOffline = document.getElementById('welcome-screen-offline');
+    const chatScreen = document.getElementById('chat-screen');
+    const chatScreenOffline = document.getElementById('chat-screen-offline');
+    const chatContainer = document.getElementById('chat-container');
+    const chatContainerOffline = document.getElementById('chat-container-offline');
+    const chatInput = document.getElementById('chat-input');
+    const chatInputOffline = document.getElementById('chat-input-offline');
+    const sendBtn = document.getElementById('send-btn');
+    const sendBtnOffline = document.getElementById('send-btn-offline');
+    const actionCards = document.querySelectorAll('.action-card');
+    const langButtons = document.querySelectorAll('.lang-selector button');
+    const faqContainer = document.getElementById('faq-container');
+    
+    // Configuração da API
+    const apiKey = 'AIzaSyAz6tEar6NJokgbEch5QLtbKL7dw_v6B3U'; 
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    
+    // Estado da Aplicação
+    let chatMode = 'general';
+    let chatHistory = [];
+    let currentLanguage = 'pt';
+    
+    // Dados offline para FAQs
+    const faqData = {
+        pt: [
+            {
+                question: "O que fazer em caso de febre alta?",
+                answer: "Em caso de febre alta (acima de 38.5°C), mantenha-se hidratado bebendo bastante água. Descanse em um ambiente fresco. Use medicamentos antitérmicos como paracetamol se disponíveis e apropriados. Se a febre persistir por mais de 3 dias ou se houver outros sintomas graves, procure atendimento médico."
+            },
+            {
+                question: "Como tratar uma ferida pequena?",
+                answer: "Lave a ferida com água limpa e sabão. Aplique um antisséptico se disponível. Cubra com um curativo limpo e seco. Troque o curativo diariamente e observe sinais de infecção como vermelhidão, inchaço ou pus. Se esses sinais aparecerem, procure ajuda médica."
+            },
+            {
+                question: "O que fazer em caso de diarreia?",
+                answer: "Em casos de diarreia, a prioridade é evitar a desidratação. Beba bastante água, soluções de reidratação oral ou chás. Evite alimentos gordurosos, lácteos e muito açucar. Se a diarreia persistir por mais de 2 dias, houver sangue nas fezes ou sinais de desid
