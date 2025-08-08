@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-lang">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="pageTitle">Sintomas Graves - MissionCare Plus</title>
+    <!-- Importação de Fontes e Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel='stylesheet' href='style.css'>
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
+            --primary-color: #0d9488; /* teal-600 */
+        }
+        .lang-btn {
+            padding: 0.25rem 0.5rem; border-radius: 9999px;
+            cursor: pointer; transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .lang-btn.active {
+            border-color: var(--primary-color);
+            background-color: white;
+        }
+        /* Estilos para a barra de navegação */
+        body {
+            padding-bottom: 80px;
+        }
+        /* Estilos para a mensagem de notificação */
+        #app-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        #app-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        #app-message.error {
+            background-color: #dc2626; /* red-600 */
+        }
+        #app-message.success {
+            background-color: #0d9488; /* teal-600 */
+        }
+        #app-message.info {
+            background-color: #2563eb; /* blue-600 */
+        }
+        /* Estilos para o indicador de modo offline */
+        .offline-indicator {
+            position: fixed;
+            bottom: 70px;
+            right: 10px;
+            background-color: #f59e0b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+        }
+        .offline-indicator.show {
+            display: block;
+        }
+        /* Estilos para o botão de emergência offline */
+        .emergency-contact {
+            background-color: #dc2626;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .emergency-contact.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Container Principal -->
+    <div class="relative flex size-full min-h-screen flex-col bg-gray-100">
+        <header class="sticky top-0 z-10 flex items-center bg-gray-100/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+            <h1 class="text-gray-800 text-xl font-bold leading-tight flex-1 text-center" data-i18n="headerTitle">Informação de Segurança</h1>
+            <!-- SELETOR DE IDIOMA -->
+            <div class="absolute top-3 right-3 flex space-x-1 bg-gray-200 p-1 rounded-full">
+                <button class="lang-btn" data-lang="pt">🇧🇷</button>
+                <button class="lang-btn" data-lang="es">🇪🇸</button>
+            </div>
+        </header>
+        <main class="p-4">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h2 class="text-lg font-bold text-gray-800 mb-4" data-i18n="mainTitle">Quando NÃO usar o MissionCare Plus</h2>
+                <p class="text-gray-600 mb-4" data-i18n="subtitle">O avaliador de sintomas não é adequado se você tiver:</p>
+                
+                <ul class="space-y-3 text-gray-700">
+                    <li class="flex items-start gap-3">
+                        <svg class="flex-shrink-0 w-6 h-6 text-red-500 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                        <span data-i18n="symptom1">Qualquer <strong class="font-semibold">dor forte ou apertada no peito</strong>, especialmente se associada a palidez ou suor (isto pode ser indicativo de um ataque cardíaco).</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="flex-shrink-0 w-6 h-6 text-red-500 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                        <span data-i18n="symptom2"><strong class="font-semibold">Queda de um lado do rosto</strong> e/ou fraqueza nos braços ou dificuldade para falar.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="flex-shrink-0 w-6 h-6 text-red-500 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                        <span data-i18n="symptom3">Súbito início de <strong class="font-semibold">confusão, sonolência ou desorientação</strong>.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="flex-shrink-0 w-6 h-6 text-red-500 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                        <span data-i18n="symptom4">Grave <strong class="font-semibold">dificuldade em respirar</strong>.</span>
+                    </li>
+                     <li class="flex items-start gap-3">
+                        <svg class="flex-shrink-0 w-6 h-6 text-red-500 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                        <span data-i18n="symptom5">Qualquer <strong class="font-semibold">sangramento não controlado</strong>.</span>
+                    </li>
+                     <li class="flex items-start gap-3">
+                        <svg class="flex-shrink-0 w-6 h-6 text-red-500 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                        <span data-i18n="symptom6"><strong class="font-semibold">Convulsões</strong>.</span>
+                    </li>
+                     <li class="flex items-start gap-3">
+                        <svg class="flex-shrink-0 w-6 h-6 text-red-500 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                        <span data-i18n="symptom7"><strong class="font-semibold">Inchaço rápido e repentino</strong> de qualquer parte do rosto ou corpo.</span>
+                    </li>
+                     <li class="flex items-start gap-3">
+                        <svg class="flex-shrink-0 w-6 h-6 text-red-500 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                        <span data-i18n="symptom8">Se você está <strong class="font-semibold">pensando em se machucar</strong> ou acabar com sua vida.</span>
+                    </li>
+                     <li class="flex items-start gap-3">
+                        <svg class="flex-shrink-0 w-6 h-6 text-red-500 mt-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                        <span data-i18n="symptom9"><strong class="font-semibold">Queimaduras e ferimentos graves</strong>, como após um acidente.</span>
+                    </li>
+                </ul>
+                <p class="mt-6 text-center font-semibold text-gray-800 bg-red-50 p-3 rounded-lg border border-red-200" data-i18n="finalWarning">
+                    Se você tiver algum destes sintomas, ligue para o número de emergência local ou visite a unidade de saúde mais próxima.
+                </p>
+                
+                <!-- Informações de Emergência Offline -->
+                <div id="emergency-info" class="emergency-contact">
+                    <p data-i18n="emergencyNumbers"><strong>Números de Emergência:</strong></p>
+                    <p>🚑 SAMU: 192</p>
+                    <p>🚨 Polícia Militar: 190</p>
+                    <p>🔥 Bombeiros: 193</p>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Mensagem de Notificação -->
+        <div id="app-message" class="hidden"></div>
+        
+        <!-- Indicador de Modo Offline -->
+        <div id="offline-indicator" class="offline-indicator">Modo Offline</div>
+    </div>
+    
+    <!-- Barra de Navegação Global -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
+      <div class="mx-auto flex h-16 max-w-4xl items-center justify-around">
+        <button onclick="window.history.back()" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+          <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+          <span class="mt-1 text-xs font-bold uppercase tracking-wider" data-i18n="navBack">Voltar</span>
+        </button>
+        <div class="h-8 w-px bg-gray-200"></div>
+        <a href="index.html" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
+          <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+          <span class="mt-1 text-xs font-bold uppercase tracking-wider" data-i18n="navHome">Início</span>
+        </a>
+      </div>
+    </nav>
+    
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Elementos do DOM
+    const appMessage = document.getElementById('app-message');
+    const offlineIndicator = document.getElementById('offline-indicator');
+    const emergencyInfo = document.getElementById('emergency-info');
+    
+    let currentLang = localStorage.getItem('language') || 'pt';
+    let isOnline = navigator.onLine;
+    
+    // Verificar status de conexão
+    function updateOnlineStatus() {
+        isOnline = navigator.onLine;
+        if (!isOnline) {
+            offlineIndicator.classList.add('show');
+            emergencyInfo.classList.add('show');
+            showMessage(translations[currentLang]['offline.mode'], 'info', 5000);
+        } else {
+            offlineIndicator.classList.remove('show');
+            emergencyInfo.classList.remove('show');
+        }
+    }
+    
+    // Adicionar event listeners para mudança de status de conexão
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    // Função para exibir mensagens de notificação na UI
+    function showMessage(message, type = 'info', duration = 3000) {
+        appMessage.textContent = message;
+        appMessage.className = `fixed top-0 left-0 right-0 p-4 text-center text-white font-bold z-1000 transition-transform ease-out duration-300 transform translate-y-0 opacity-100 ${type}`;
+        appMessage.style.display = 'block';
+
+        setTimeout(() => {
+            appMessage.className = `fixed top-0 left-0 right-0 p-4 text-center text-white font-bold z-1000 transition-transform ease-out duration-300 transform -translate-y-full opacity-0 ${type}`;
+            setTimeout(() => {
+                appMessage.style.display = 'none';
+            }, 300);
+        }, duration);
+    }
+    
+    // --- INÍCIO DA LÓGICA DE TRADUÇÃO ---
+    const translations = {
+        "pt": {
+            "pageTitle": "Sintomas Graves - MissionCare Plus",
+            "headerTitle": "Informação de Segurança",
+            "mainTitle": "Quando NÃO usar o MissionCare Plus",
+            "subtitle": "O avaliador de sintomas não é adequado se você tiver:",
+            "symptom1": "Qualquer <strong class='font-semibold'>dor forte ou apertada no peito</strong>, especialmente se associada a palidez ou suor (isto pode ser indicativo de um ataque cardíaco).",
+            "symptom2": "<strong class='font-semibold'>Queda de um lado do rosto</strong> e/ou fraqueza nos braços ou dificuldade para falar.",
+            "symptom3": "Súbito início de <strong class='font-semibold'>confusão, sonolência ou desorientação</strong>.",
+            "symptom4": "Grave <strong class='font-semibold'>dificuldade em respirar</strong>.",
+            "symptom5": "Qualquer <strong class='font-semibold'>sangramento não controlado</strong>.",
+            "symptom6": "<strong class='font-semibold'>Convulsões</strong>.",
+            "symptom7": "<strong class='font-semibold'>Inchaço rápido e repentino</strong> de qualquer parte do rosto ou corpo.",
+            "symptom8": "Se você está <strong class='font-semibold'>pensando em se machucar</strong> ou acabar com sua vida.",
+            "symptom9": "<strong class='font-semibold'>Queimaduras e ferimentos graves</strong>, como após um acidente.",
+            "finalWarning": "Se você tiver algum destes sintomas, ligue para o número de emergência local ou visite a unidade de saúde mais próxima.",
+            "navBack": "Voltar",
+            "navHome": "Início",
+            "emergencyNumbers": "Números de Emergência:",
+            "offline.mode": "Modo Offline ativado. Informações de emergência estão disponíveis abaixo."
+        },
+        "es": {
+            "pageTitle": "Síntomas Graves - MissionCare Plus",
+            "headerTitle": "Información de Seguridad",
+            "mainTitle": "Cuándo NO usar MissionCare Plus",
+            "subtitle": "El evaluador de síntomas no es adecuado si usted tiene:",
+            "symptom1": "Cualquier <strong class='font-semibold'>dolor fuerte u opresivo en el pecho</strong>, especialmente si se asocia con palidez o sudor (esto puede ser indicativo de un ataque cardíaco).",
+            "symptom2": "<strong class='font-semibold'>Caída de un lado de la cara</strong> y/o debilidad en los brazos o dificultad para hablar.",
+            "symptom3": "Inicio súbito de <strong class='font-semibold'>confusión, somnolencia o desorientación</strong>.",
+            "symptom4": "Grave <strong class='font-semibold'>dificultad para respirar</strong>.",
+            "symptom5": "Cualquier <strong class='font-semibold'>sangrado no controlado</strong>.",
+            "symptom6": "<strong class='font-semibold'>Convulsiones</strong>.",
+            "symptom7": "<strong class='font-semibold'>Hinchazón rápida y repentina</strong> de cualquier parte de la cara o el cuerpo.",
+            "symptom8": "Si está <strong class='font-semibold'>pensando en hacerse daño</strong> o terminar con su vida.",
+            "symptom9": "<strong class='font-semibold'>Quemaduras y heridas graves</strong>, como después de un accidente.",
+            "finalWarning": "Si tiene alguno de estos síntomas, llame al número de emergencia local o visite el centro de salud más cercano.",
+            "navBack": "Volver",
+            "navHome": "Inicio",
+            "emergencyNumbers": "Números de Emergencia:",
+            "offline.mode": "Modo sin conexión activado. La información de emergencia está disponible abajo."
+        }
+    };
+    
+    const setLanguage = (lang) => {
+        currentLang = lang;
+        document.getElementById('html-lang').setAttribute('lang', lang);
+        localStorage.setItem('language', lang);
+        
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            const translation = translations[lang][key] || translations['pt'][key];
+            // Usamos innerHTML para renderizar as tags <strong>
+            element.innerHTML = translation;
+        });
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+    };
+    
+    document.querySelectorAll('.lang-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            setLanguage(button.dataset.lang);
+        });
+    });
+    
+    // Inicializa o status de conexão
+    updateOnlineStatus();
+    
+    // Define o idioma inicial ao carregar a página
+    setLanguage(currentLang);
+});
+</script>
+</body>
+</html>
