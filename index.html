@@ -5,22 +5,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MissionCare Plus - Cuidado Integral para Missionários</title>
-
   <!-- PWA Manifest e Tema -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#3b82f6" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-
   <!-- Fontes e Tailwind -->
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900" />
   <script src="https://cdn.tailwindcss.com"></script>
-
   <!-- Font Awesome -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
   <style>
     :root {
       --primary: #3b82f6; --primary-dark: #2563eb; --secondary: #8b5cf6;
@@ -60,7 +56,6 @@
   <div id="connection-status" class="connection-status online">
     <i class="fas fa-wifi mr-2"></i><span id="connection-text">Online</span>
   </div>
-
   <!-- Modais -->
   <div id="emergency-alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[60]">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8">
@@ -80,7 +75,6 @@
       <button id="close-emergency-alert" class="mt-6 w-full py-3 rounded-full text-lg font-bold text-white bg-gray-700 hover:bg-gray-800">Entendi</button>
     </div>
   </div>
-
   <div id="disclaimer-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8 max-h-[90vh] overflow-y-auto">
       <h2 class="text-xl font-bold text-red-700 mb-4 flex items-center" data-i18n="disclaimerTitle">
@@ -96,7 +90,6 @@
       <button id="accept-disclaimer" class="mt-6 w-full py-3 rounded-full text-lg font-bold text-white bg-blue-600 hover:bg-blue-700">Entendi e Aceito</button>
     </div>
   </div>
-
   <!-- App -->
   <div id="app-container" class="max-w-4xl mx-auto">
     <header class="hero-section p-4 md:p-6 relative">
@@ -105,7 +98,6 @@
         <button id="lang-es" class="lang-btn" aria-label="Español">🇪🇸</button>
         <button id="lang-en" class="lang-btn" aria-label="English">🇬🇧</button>
       </div>
-
       <div class="mt-12 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-3xl shadow-xl p-6 md:p-8 flex flex-col md:flex-row items-center text-white relative overflow-hidden">
         <div class="z-10 md:w-2/3">
           <h1 class="text-3xl md:text-4xl font-bold mb-2" data-i18n="mainTitle">MissionCare Plus</h1>
@@ -127,7 +119,6 @@
         </div>
       </div>
     </header>
-
     <main class="px-4 md:px-6">
       <!-- Ações Críticas -->
       <section class="mt-8">
@@ -149,7 +140,6 @@
           </a>
         </div>
       </section>
-
       <!-- Recursos Destacados -->
       <section class="mt-10">
         <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="featuredResources">Recursos Destacados</h2>
@@ -166,7 +156,6 @@
             <p class="text-sm text-gray-600 online-content">Protocolos validados por profissionais de saúde para situações de emergência.</p>
             <p class="text-sm text-gray-600 offline-content hidden">Protocolos básicos de emergência disponíveis offline.</p>
           </div>
-
           <div class="feature-card fade-in" style="animation-delay:.1s">
             <div class="flex items-center mb-3">
               <div class="bg-green-100 p-3 rounded-lg mr-3">
@@ -179,7 +168,6 @@
             <p class="text-sm text-gray-600 online-content">Informações críticas disponíveis mesmo sem conexão com a internet.</p>
             <p class="text-sm text-gray-600 offline-content hidden">Informações essenciais disponíveis offline.</p>
           </div>
-
           <div class="feature-card fade-in" style="animation-delay:.2s">
             <div class="flex items-center mb-3">
               <div class="bg-purple-100 p-3 rounded-lg mr-3">
@@ -194,7 +182,6 @@
           </div>
         </div>
       </section>
-
       <!-- Atenção Principal -->
       <section class="mt-10">
         <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="mainAttention">Atenção Principal</h2>
@@ -213,7 +200,6 @@
               <span class="offline-content hidden">Triagem básica disponível offline</span>
             </div>
           </a>
-
           <a href="3b-triagem-pediatria.html" class="action-card">
             <div class="offline-badge hidden" id="pediatric-triage-offline-badge">Offline</div>
             <div class="mb-4 p-4 bg-pink-100 rounded-full">
@@ -230,7 +216,6 @@
           </a>
         </div>
       </section>
-
       <!-- Ferramentas -->
       <section class="mt-10">
         <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="toolsSupport">Ferramentas e Suporte</h2>
@@ -248,12 +233,11 @@
               <span class="offline-content hidden">Respostas básicas offline</span>
             </div>
           </a>
-
           <a href="8-medicamentos.html" class="action-card">
             <div class="offline-badge hidden" id="medications-offline-badge">Offline</div>
             <div class="mb-4 p-3 bg-orange-100 rounded-full">
               <svg class="w-8 h-8 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11.354 1.093A3.75 3.75 0 0112 1.5h.003c.365 0 .717.056 1.06.163l.164.055a.75.75 0 00.675-.281l.055-.164a3.75 3.75 0 015.694 5.694l-.163.055a.75.75 0 00-.281.675l.055.164A3.75 3.75 0 0118.5 12h-1.5a.75.75 0 00-.75.75v3a.75.75 0 00.75.75h1.5c.365 0 .717-.056 1.06-.163l.164-.055a.75.75 0 00.675.281l.055.164a3.75 3.75 0 01-5.694 5.694l-.163-.055a.75.75 0 00-.675.281l-.055.164a3.75 3.75 0 01-6.756-3.033l.055-.164a.75.75 0 00.281-.675l-.164-.055A3.75 3.75 0 014.5 12h1.5a.75.75 0 00.75-.75v-3a.75.75 0 00-.75-.75h-1.5a3.75 3.75 0 01-2.907-5.857l.164-.055a.75.75 0 00.281-.675l-.055-.164a3.75 3.75 0 013.033-6.756l.164.055a.75.75 0 00.675.281l.055.164z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.354 1.093A3.75 3.75 0 0112 1.5h.003c.365 0 .717.056 1.06.163l.164.055a.75.75 0 00.675-.281l.055-.164a3.75 3.75 0 015.694 5.694l-.163.055a.75.75 0 00-.281.675l.055.164A3.75 3.75 0 0118.5 12h-1.5a.75.75 0 00-.75.75v3a.75.75 0 00.75.75h1.5c.365 0 .717-.056 1.06-.163l.164-.055a.75.75 0 00.675.281l.055.164a3.75 3.75 0 01-5.694 5.694l-.163-.055a.75.75 0 00-.675.281l-.055-.164a3.75 3.75 0 01-6.756-3.033l.055-.164a.75.75 0 00.281-.675l-.164-.055A3.75 3.75 0 014.5 12h1.5a.75.75 0 00.75-.75v-3a.75.75 0 00-.75-.75h-1.5a3.75 3.75 0 01-2.907-5.857l.164-.055a.75.75 0 00.281-.675l-.055-.164a3.75 3.75 0 013.033-6.756l.164.055a.75.75 0 00.675.281l.055.164z" />
               </svg>
             </div>
             <h3 class="font-bold text-gray-800" data-i18n="meds">MEDICAMENTOS</h3>
@@ -262,7 +246,6 @@
               <span class="offline-content hidden">Base essencial offline</span>
             </div>
           </a>
-
           <a href="6-textos-biblicos.html" class="action-card">
             <div class="offline-badge hidden" id="bible-offline-badge">Offline</div>
             <div class="mb-4 p-3 bg-purple-100 rounded-full">
@@ -276,7 +259,6 @@
               <span class="offline-content hidden">Versículos essenciais</span>
             </div>
           </a>
-
           <a href="9-contatos.html" class="action-card">
             <div class="offline-badge hidden" id="contacts-offline-badge">Offline</div>
             <div class="mb-4 p-3 bg-indigo-100 rounded-full">
@@ -290,7 +272,6 @@
               <span class="offline-content hidden">Contatos essenciais</span>
             </div>
           </a>
-
           <a href="sintomas-graves.html" class="action-card">
             <div class="offline-badge hidden" id="severe-symptoms-offline-badge">Offline</div>
             <div class="mb-4 p-3 bg-red-100 rounded-full">
@@ -306,7 +287,6 @@
           </a>
         </div>
       </section>
-
       <!-- Sincronização -->
       <section class="mt-10 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 hidden" id="sync-section">
         <div class="flex items-center justify-between">
@@ -327,7 +307,6 @@
       </section>
     </main>
   </div>
-
   <!-- Barra inferior -->
   <nav class="bottom-nav">
     <div class="max-w-4xl mx-auto px-4">
@@ -350,7 +329,6 @@
       </div>
     </div>
   </nav>
-
   <script>
     // Traduções embutidas (funciona offline)
     const translations = {
@@ -358,9 +336,7 @@
       es: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Si está presentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SÍNTOMAS GRAVES</a>, no use MissionCare Plus. En su lugar, contacte a los servicios de emergencia.", disclaimerTitle:"AVISO DE RESPONSABILIDAD", disclaimerP1:"MissionCare Plus es una herramienta de apoyo educativo. La información aquí contenida <strong>no reemplaza</strong> una consulta médica.", disclaimerP2:"En caso de emergencia, busque ayuda médica de inmediato.", mainTitle:"MissionCare Plus", subtitle:"\"Llevando sanación y esperanza hasta los confines de la Tierra\"", criticalActions:"Acciones Críticas", emergenciesTitle:"Guía de Emergencias", emergenciesDesc:"Primeros auxilios y orientación rápida.", featuredResources:"Recursos Destacados", mainAttention:"Atención Principal", adultsTitle:"ATENCIÓN ADULTOS", adultsDesc:"Evalúe síntomas y reciba orientación.", pediatricsTitle:"ATENCIÓN PEDIATRÍA", pediatricsDesc:"Cuidado especializado para niños.", toolsSupport:"Herramientas y Soporte", aiAssistant:"ASISTENTE IA", meds:"MEDICAMENTOS", dailyRenewal:"RENOVACIÓN DIARIA", contacts:"CONTACTOS" },
       en: { emergencyAlertTitle:"Important Notice", emergencyAlertText:"If you are experiencing <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SEVERE SYMPTOMS</a>, do not use MissionCare Plus. Instead, contact emergency services.", disclaimerTitle:"DISCLAIMER", disclaimerP1:"MissionCare Plus is an educational support tool. The information herein <strong>does not replace</strong> a medical consultation.", disclaimerP2:"In case of emergency, seek medical help immediately.", mainTitle:"MissionCare Plus", subtitle:"\"Bringing healing and hope to the ends of the Earth\"", criticalActions:"Critical Actions", emergenciesTitle:"Emergency Guide", emergenciesDesc:"First aid and quick guidance.", featuredResources:"Featured Resources", mainAttention:"Main Care", adultsTitle:"ADULT CARE", adultsDesc:"Evaluate symptoms and receive guidance.", pediatricsTitle:"PEDIATRIC CARE", pediatricsDesc:"Specialized care for children.", toolsSupport:"Tools and Support", aiAssistant:"AI ASSISTANT", meds:"MEDICATIONS", dailyRenewal:"DAILY RENEWAL", contacts:"CONTACTS" }
     };
-
     let currentLang = localStorage.getItem('lang') || 'pt';
-
     function updateContent(dict) {
       const d = dict || translations[currentLang];
       document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -372,9 +348,7 @@
         btn.classList.toggle('inactive', btn.id !== `lang-${currentLang}`);
       });
     }
-
     function debounce(fn, wait){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
-
     function updateConnectionStatus() {
       const status = document.getElementById('connection-status');
       const text = document.getElementById('connection-text');
@@ -382,7 +356,6 @@
       const onlineContent = document.querySelectorAll('.online-content');
       const offlineContent = document.querySelectorAll('.offline-content');
       const offlineBadges = document.querySelectorAll('.offline-badge');
-
       if (navigator.onLine) {
         status.className = 'connection-status online';
         text.textContent = 'Online';
@@ -399,7 +372,6 @@
         offlineBadges.forEach(el => el.classList.remove('hidden'));
       }
     }
-
     function syncData(){
       const btn = document.getElementById('sync-button');
       const box = document.getElementById('sync-progress');
@@ -420,19 +392,26 @@
         }
       }, 250);
     }
-
     document.addEventListener('DOMContentLoaded', () => {
-      // Service Worker (escopo correto para GitHub Pages de projeto)
+      // Service Worker corrigido - usando sw.js
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js', { scope: './' })
-          .then(reg => console.log('SW ok:', reg.scope))
-          .catch(err => console.log('SW erro:', err));
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(reg => {
+            console.log('Service Worker registrado com sucesso:', reg.scope);
+            // Verificar se há uma versão anterior esperando
+            if (reg.waiting) {
+              console.log('Nova versão disponível');
+              // Opcional: notificar o usuário sobre a atualização
+            }
+          })
+          .catch(err => {
+            console.error('Falha ao registrar Service Worker:', err);
+          });
       }
-
+      
       updateConnectionStatus();
       window.addEventListener('online', updateConnectionStatus);
       window.addEventListener('offline', updateConnectionStatus);
-
       const langBtns = document.querySelectorAll('.lang-btn');
       langBtns.forEach(btn => {
         btn.addEventListener('click', debounce(() => {
@@ -441,15 +420,12 @@
           updateContent();
         }, 200));
       });
-
       updateContent();
-
       // Modais
       const emergencyModal = document.getElementById('emergency-alert-modal');
       const closeEmergencyBtn = document.getElementById('close-emergency-alert');
       const disclaimerModal = document.getElementById('disclaimer-modal');
       const acceptDisclaimerBtn = document.getElementById('accept-disclaimer');
-
       const showDisclaimerIfNeeded = () => {
         const accepted = localStorage.getItem('disclaimerAccepted');
         if (!accepted) { disclaimerModal.classList.remove('hidden'); }
@@ -460,7 +436,6 @@
         else { showDisclaimerIfNeeded(); }
       };
       showEmergencyIfNeeded();
-
       closeEmergencyBtn?.addEventListener('click', () => {
         emergencyModal.classList.add('hidden');
         sessionStorage.setItem('emergencyDismissed','true');
@@ -470,7 +445,6 @@
         disclaimerModal.classList.add('hidden');
         localStorage.setItem('disclaimerAccepted','true');
       });
-
       [emergencyModal, disclaimerModal].forEach(modal => {
         modal?.addEventListener('click', (ev) => {
           if (ev.target === modal && modal.id === 'emergency-alert-modal') {
@@ -480,9 +454,17 @@
           }
         });
       });
-
       // Sincronização
       document.getElementById('sync-button')?.addEventListener('click', syncData);
+      
+      // Verificar atualizações do service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          console.log('Nova versão do aplicativo carregada');
+          // Opcional: recarregar a página automaticamente
+          // window.location.reload();
+        });
+      }
     });
   </script>
 </body>
