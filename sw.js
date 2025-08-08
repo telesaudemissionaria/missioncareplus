@@ -1,4 +1,4 @@
-const CACHE = 'missioncare-v1.2';
+const CACHE = 'missioncare-v1.3';
 const PRECACHE = [
   './',
   './index.html',
@@ -12,20 +12,14 @@ const PRECACHE = [
   './6-textos-biblicos.html',
   './8-medicamentos.html',
   './9-contatos.html',
-  './sintomas-graves.html',
-  // Recursos externos (com fallback)
-  'https://cdn.tailwindcss.com',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900'
+  './sintomas-graves.html'
 ];
 
 // Instalação do Service Worker
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(cache => {
-        return cache.addAll(PRECACHE.map(url => new Request(url, { cache: 'reload' })));
-      })
+      .then(cache => cache.addAll(PRECACHE))
       .then(() => self.skipWaiting())
       .catch(err => console.error('Falha no cache:', err))
   );
@@ -42,7 +36,7 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Estratégia de cache: Network First para navegações, Cache First para demais recursos
+// Estratégia de cache otimizada
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   const url = new URL(req.url);
@@ -56,17 +50,25 @@ self.addEventListener('fetch', (e) => {
   if (req.mode === 'navigate' || 
       (req.method === 'GET' && req.headers.get('accept')?.includes('text/html'))) {
     e.respondWith(
-      fetch(req)
-        .then(response => {
-          // Clonar a resposta para armazenar em cache
-          const responseClone = response.clone();
-          caches.open(CACHE).then(cache => cache.put(req, responseClone));
-          return response;
-        })
-        .catch(() => {
-          // Fallback para o cache se offline
-          return caches.match(req)
-            .then(cached => cached || caches.match('./index.html'));
+      caches.match(req)
+        .then(cached => {
+          // Se estiver offline, usa o cache
+          if (!navigator.onLine && cached) {
+            return cached;
+          }
+          
+          // Se estiver online, tenta buscar da rede
+          return fetch(req)
+            .then(response => {
+              // Clonar a resposta para armazenar em cache
+              const responseClone = response.clone();
+              caches.open(CACHE).then(cache => cache.put(req, responseClone));
+              return response;
+            })
+            .catch(() => {
+              // Fallback para o cache se offline ou erro de rede
+              return cached || caches.match('./index.html');
+            });
         })
     );
     return;
@@ -97,24 +99,3 @@ self.addEventListener('fetch', (e) => {
       })
   );
 });
-
-// Sincronização em segundo plano
-self.addEventListener('sync', (e) => {
-  if (e.tag === 'sync-data') {
-    e.waitUntil(syncData());
-  }
-});
-
-// Função de sincronização de dados
-async function syncData() {
-  try {
-    // Lógica de sincronização aqui
-    console.log('Sincronizando dados...');
-    // Exemplo: enviar dados para o servidor
-    // await sendDataToServer();
-    return true;
-  } catch (err) {
-    console.error('Erro na sincronização:', err);
-    return false;
-  }
-}
