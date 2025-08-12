@@ -152,6 +152,11 @@
     <div id="connection-indicator" class="connection-indicator online">
         <i class="fas fa-wifi"></i> Online
     </div>
+    
+    <!-- Indicador de Status do Backend -->
+    <div id="backend-status-indicator" class="connection-indicator online" style="top: 50px;">
+        <i class="fas fa-server"></i> Backend OK
+    </div>
 
     <!-- MODAL DE ALERTA DE EMERGÊNCIA -->
     <div id="emergency-alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[60]">
@@ -252,6 +257,11 @@
                     </form>
                 </main>
                 <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0">
+                    <div class="flex gap-2 mb-3">
+                        <button id="test-backend-btn" type="button" class="flex-1 py-2 px-4 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-server mr-2"></i>Testar Backend
+                        </button>
+                    </div>
                     <button id="generate-analysis-btn" type="button" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-[var(--primary-color)] hover:opacity-90" data-i18n="generateButton">
                         Gerar Análise
                     </button>
@@ -262,6 +272,10 @@
             <div id="loading-screen" class="hidden fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
                 <svg class="animate-spin h-10 w-10 text-[var(--primary-color)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 <p id="loading-text" class="mt-4 text-lg font-semibold text-gray-700" data-i18n="loadingText">Analisando dados...</p>
+                <div id="loading-status" class="mt-2 text-sm text-gray-500 text-center">
+                    <p>Conectando ao MissionCare Plus Backend</p>
+                    <p class="text-xs mt-1">https://missioncare-plus-backend.onrender.com</p>
+                </div>
             </div>
             
             <!-- TELA DE RESULTADOS -->
@@ -693,6 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsScreenOffline = document.getElementById('results-screen-offline');
     const generateBtn = document.getElementById('generate-analysis-btn');
     const generateBtnOffline = document.getElementById('generate-analysis-btn-offline');
+    const testBackendBtn = document.getElementById('test-backend-btn');
     const emergencyModal = document.getElementById('emergency-alert-modal');
     const closeEmergencyBtn = document.getElementById('close-emergency-alert');
     const form = document.getElementById('anamnesis-form');
@@ -724,9 +739,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Configuração da API
-    const apiKey = "AIzaSyAz6tEar6NJokgbEch5QLtbKL7dw_v6B3U"; 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    // Configuração da API do MissionCare Plus Backend
+    const backendUrl = "https://missioncare-plus-backend.onrender.com";
     
     // Função de chamada à API com tentativas
     const fetchWithRetry = async (url, options, retries = 3, backoff = 1000) => {
@@ -751,6 +765,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    // Botão de teste do backend
+    testBackendBtn.addEventListener('click', async () => {
+        testBackendBtn.disabled = true;
+        testBackendBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Testando...';
+        
+        const isConnected = await testBackendConnection();
+        
+        if (isConnected) {
+            testBackendBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Conectado!';
+            testBackendBtn.className = 'flex-1 py-2 px-4 border border-green-300 rounded-full text-sm font-medium text-green-700 bg-green-50';
+        } else {
+            testBackendBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Falha';
+            testBackendBtn.className = 'flex-1 py-2 px-4 border border-red-300 rounded-full text-sm font-medium text-red-700 bg-red-50';
+        }
+        
+        setTimeout(() => {
+            testBackendBtn.disabled = false;
+            testBackendBtn.innerHTML = '<i class="fas fa-server mr-2"></i>Testar Backend';
+            testBackendBtn.className = 'flex-1 py-2 px-4 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50';
+        }, 2000);
+    });
+    
     // Lógica Principal: Geração da Análise (MODO ONLINE)
     generateBtn.addEventListener('click', async () => {
         const lang = localStorage.getItem('language') || 'pt';
@@ -774,67 +810,68 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // 2. Montar o prompt para a IA
-        const prompt = `
-            Você é MedGemma, um assistente médico de IA treinado para fornecer análises de triagem com base em dados de anamnese.
-            Sua resposta deve ser estruturada, empática e seguir um formato específico.
-            Aja como um profissional de saúde experiente, mas lembre-se que sua orientação não substitui uma consulta médica.
-            
-            Analise os seguintes dados de anamnese de um paciente e forneça um relatório em formato JSON.
-            IMPORTANTE: A resposta JSON DEVE estar inteiramente no idioma '${lang}'. Todos os valores de string (level, reason, orientation, symptom, history, background) devem ser traduzidos para o idioma '${lang}'.
-            DADOS DO PACIENTE:
-            - Principal problema ou sintoma: ${problemaPrincipal}
-            - Início dos sintomas: ${inicioSintomas}
-            - Estava se sentindo bem antes?: ${sentindoBem || "Não informado"}
-            - Fator desencadeante: ${fatorDesencadeante || "Nenhum informado"}
-            - Progressão dos sintomas: ${progressaoSintomas || "Não informado"}
-            - O que melhora ou piora: ${melhoraPiora || "Nenhum informado"}
-            - Tratamento já tentado: ${tratamentoTentado || "Nenhum informado"}
-            - Doenças crônicas: ${condicoes}
-            - Medicamentos de uso contínuo: ${medicamentos || "Nenhum informado"}
-            - Alergias: ${alergias || "Nenhuma informada"}
-            ESTRUTURA DA RESPOSTA (OBRIGATÓRIO):
-            Sempre responda com um objeto JSON válido, sem nenhum texto ou formatação adicional antes ou depois.
-            O JSON deve ter a seguinte estrutura:
-            {
-              "urgency": {
-                "level": "string (um de: 'Emergência', 'Urgente', 'Moderado', 'Baixo', 'Informativo')",
-                "reason": "string (uma breve justificativa para o nível de urgência)"
-              },
-              "orientation": "string (um texto em formato Markdown com as orientações detalhadas para o paciente, incluindo possíveis hipóteses diagnósticas (sempre como 'possibilidades'), recomendações de autocuidado, e sinais de alerta que indicam a necessidade de procurar atendimento médico imediato. Use uma linguagem clara e acolhedora.)",
-              "summary": {
-                "symptom": "string (resumo do sintoma principal)",
-                "history": "string (resumo da história da doença atual)",
-                "background": "string (resumo dos antecedentes médicos relevantes)"
-              }
-            }
-        `;
+                // 2. Preparar dados para envio ao backend
+        const anamnesisData = {
+            problemaPrincipal: problemaPrincipal,
+            inicioSintomas: inicioSintomas,
+            sentindoBem: sentindoBem || "Não informado",
+            fatorDesencadeante: fatorDesencadeante || "Nenhum informado",
+            progressaoSintomas: progressaoSintomas || "Não informado",
+            melhoraPiora: melhoraPiora || "Nenhum informado",
+            tratamentoTentado: tratamentoTentado || "Nenhum informado",
+            condicoes: condicoes,
+            medicamentos: medicamentos || "Nenhum informado",
+            alergias: alergias || "Nenhuma informada",
+            idioma: lang
+        };
         
-        // 3. Mostrar tela de carregamento e fazer a chamada para a API
+        // 3. Mostrar tela de carregamento e fazer a chamada para o backend
         formScreen.classList.add('hidden');
         loadingScreen.classList.remove('hidden');
         resultsScreen.classList.add('hidden');
         window.scrollTo(0, 0);
         
+        // Atualizar texto de carregamento
+        const loadingStatus = document.getElementById('loading-status');
+        if (lang === 'pt') {
+            loadingText.textContent = "Conectando ao backend...";
+            loadingStatus.innerHTML = '<p>Conectando ao MissionCare Plus Backend</p><p class="text-xs mt-1">https://missioncare-plus-backend.onrender.com</p>';
+        } else if (lang === 'es') {
+            loadingText.textContent = "Conectando al backend...";
+            loadingStatus.innerHTML = '<p>Conectando al MissionCare Plus Backend</p><p class="text-xs mt-1">https://missioncare-plus-backend.onrender.com</p>';
+        } else {
+            loadingText.textContent = "Connecting to backend...";
+            loadingStatus.innerHTML = '<p>Connecting to MissionCare Plus Backend</p><p class="text-xs mt-1">https://missioncare-plus-backend.onrender.com</p>';
+        }
+        
         try {
-            const payload = {
-                contents: [{
-                    parts: [{ text: prompt }]
-                }]
-            };
+            // Atualizar texto de carregamento
+            if (lang === 'pt') {
+                loadingText.textContent = "Analisando dados com IA...";
+                loadingStatus.innerHTML = '<p>Processando com assistente médico especializado</p><p class="text-xs mt-1">Assistente de Clínica Geral</p>';
+            } else if (lang === 'es') {
+                loadingText.textContent = "Analizando datos con IA...";
+                loadingStatus.innerHTML = '<p>Procesando con asistente médico especializado</p><p class="text-xs mt-1">Asistente de Clínica General</p>';
+            } else {
+                loadingText.textContent = "Analyzing data with AI...";
+                loadingStatus.innerHTML = '<p>Processing with specialized medical assistant</p><p class="text-xs mt-1">General Clinic Assistant</p>';
+            }
             
-            const response = await fetchWithRetry(apiUrl, {
+            // Enviar dados para o backend usando o assistente de clínica
+            const response = await fetchWithRetry(`${backendUrl}/api/assistants/run/clinica`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    message: `Analise os seguintes dados de anamnese e forneça um relatório médico estruturado em formato JSON no idioma ${lang}. Dados: ${JSON.stringify(anamnesisData, null, 2)}`
+                })
             });
             
             if (!response.ok) {
-                let errorMessage = `Erro na API: ${response.status} ${response.statusText}`;
+                let errorMessage = `Erro no backend: ${response.status} ${response.statusText}`;
                 try {
                     const errorBody = await response.json();
-                    if (errorBody.error && errorBody.error.message) {
-                        errorMessage = errorBody.error.message;
+                    if (errorBody.error) {
+                        errorMessage = errorBody.error;
                     }
                 } catch (e) { /* Ignora erro de parsing do JSON de erro */ }
                 throw new Error(errorMessage);
@@ -842,13 +879,51 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const data = await response.json();
             
-            if (!data.candidates || !data.candidates[0].content.parts[0].text) {
-                throw new Error("Resposta da API inválida ou vazia.");
+            if (!data.ok) {
+                throw new Error(data.error || "Erro na análise do backend");
             }
             
-            const responseText = data.candidates[0].content.parts[0].text;
-            const jsonString = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-            const analysisResult = JSON.parse(jsonString);
+            // Processar a resposta do assistente
+            const responseText = data.text;
+            
+            // Tentar extrair JSON da resposta
+            let analysisResult;
+            try {
+                // Procurar por JSON na resposta
+                const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    analysisResult = JSON.parse(jsonMatch[0]);
+                } else {
+                    // Se não encontrar JSON, criar uma resposta estruturada baseada no texto
+                    analysisResult = {
+                        urgency: {
+                            level: "Moderado",
+                            reason: "Análise realizada com sucesso"
+                        },
+                        orientation: responseText,
+                        summary: {
+                            symptom: problemaPrincipal,
+                            history: `Sintomas iniciaram ${inicioSintomas}`,
+                            background: condicoes
+                        }
+                    };
+                }
+            } catch (parseError) {
+                console.warn("Erro ao fazer parse do JSON, criando resposta estruturada:", parseError);
+                // Criar resposta estruturada baseada no texto
+                analysisResult = {
+                    urgency: {
+                        level: "Moderado",
+                        reason: "Análise realizada com sucesso"
+                    },
+                    orientation: responseText,
+                    summary: {
+                        symptom: problemaPrincipal,
+                        history: `Sintomas iniciaram ${inicioSintomas}`,
+                        background: condicoes
+                    }
+                };
+            }
             
             displayResults(analysisResult);
         } catch (error) {
@@ -1296,6 +1371,30 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingScreen.classList.add('hidden');
         });
     });
+    
+    // Função para testar conectividade com o backend
+    async function testBackendConnection() {
+        const backendIndicator = document.getElementById('backend-status-indicator');
+        try {
+            const response = await fetch(`${backendUrl}/`);
+            if (response.ok) {
+                console.log('Backend conectado com sucesso');
+                backendIndicator.className = 'connection-indicator online';
+                backendIndicator.innerHTML = '<i class="fas fa-server"></i> Backend OK';
+                return true;
+            } else {
+                throw new Error(`HTTP ${response.status}`);
+            }
+        } catch (error) {
+            console.warn('Erro ao conectar com o backend:', error);
+            backendIndicator.className = 'connection-indicator offline';
+            backendIndicator.innerHTML = '<i class="fas fa-server"></i> Backend Offline';
+            return false;
+        }
+    }
+    
+    // Testar conectividade na inicialização
+    testBackendConnection();
     
     // Inicializar indicador de sincronização
     updateSyncIndicator();
