@@ -9,16 +9,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&family=Noto+Sans:wght@400;600;800&display=swap" rel="stylesheet">
   
-  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   
-  <!-- Chosen Palette: Clinical Teal & Slate (MissionCare+ Identity) -->
-  <!-- Application Structure Plan: A guided, multi-screen flow was implemented based on the approved proposal. It starts with large, clear profile selection boxes to simplify the initial choice. This leads to a sequential process (Vitals -> Symptoms -> Result), with a persistent "Patient Card" at the top to keep critical context (Profile, Gestational Age) visible. This structure is superior for field use as it minimizes cognitive load and guides even infrequent users through the protocol correctly. -->
-  <!-- Visualization & Content Choices: The application uses interactive UI cards and forms. Goal: Guided Risk Stratification with quick actions. Method: The "Código Mater" button was updated to a "Comunicar Emergência" button linking to WhatsApp with a pre-formatted message. A multi-language system (JS i18n object) was added with UI buttons for on-the-fly translation. Justification: These features enhance usability and actionability, aligning with the project's real-world needs for multilingual support and modern communication channels. Library: Vanilla JS. -->
-  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-
   <meta name="theme-color" content="#0f766e"/>
   <style>
-    body { font-family: 'Noto Sans', sans-serif; }
+    body { font-family: 'Noto Sans', sans-serif; padding-bottom: 80px; }
     h1, h2, h3, button, .font-semibold, .font-extrabold { font-family: 'Lexend', sans-serif; }
     .page {
         display: none;
@@ -43,11 +39,14 @@
         font-weight: 800;
         text-decoration: underline;
     }
+    .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#fff;box-shadow:0 -4px 15px -5px rgba(0,0,0,.1);z-index:50;padding:.75rem 0}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem;cursor:pointer;transition:.2s;border-radius:.5rem;color:#6b7280}
+    .nav-item:hover{background:rgba(59,130,246,.1)}
   </style>
 </head>
 <body class="bg-slate-100 text-slate-900">
   <main class="max-w-3xl mx-auto p-4 sm:p-6">
-    <header class="mb-6 text-center">
+    <header class="mb-6 text-center relative">
       <h1 class="text-3xl font-extrabold text-teal-800" data-i18n="main_title">Triagem Gineco-Obstetrícia</h1>
       <p class="text-sm text-slate-600 mt-2" data-i18n="subtitle">
         Ferramenta de apoio à decisão. <strong>Não substitui uma consulta médica.</strong>
@@ -195,10 +194,27 @@
         </section>
     </div>
   </main>
+  
+  <!-- Barra inferior -->
+  <nav class="bottom-nav">
+    <div class="max-w-3xl mx-auto px-4">
+      <div class="grid grid-cols-2 gap-4">
+        <button id="back-btn" class="nav-item">
+            <i class="fas fa-arrow-left text-xl mb-1"></i>
+            <span class="text-xs" data-i18n="nav_back">Voltar</span>
+        </button>
+        <a href="index.html" class="nav-item">
+          <i class="fas fa-home text-xl mb-1"></i>
+          <span class="text-xs" data-i18n="nav_home">Início</span>
+        </a>
+      </div>
+    </div>
+  </nav>
 
   <script>
     const el = id => document.getElementById(id);
     const state = { profile: null, ig: null, summary: '' };
+    let currentPage = 1;
     const pages = {
         '1': el('page-1'),
         '2': el('page-2'),
@@ -237,6 +253,8 @@
             copy_summary_button: "Copiar Resumo",
             new_triage_button: "Nova Triagem",
             copied: "Copiado!",
+            nav_back: "Voltar",
+            nav_home: "Início",
             symptom_bleeding: "Sangramento vaginal intenso/coágulos",
             symptom_pain: "Dor abdominal forte/contrações regulares",
             symptom_fluid_loss: "Perda de líquido pela vagina",
@@ -277,6 +295,8 @@
             copy_summary_button: "Copiar Resumen",
             new_triage_button: "Nuevo Triaje",
             copied: "¡Copiado!",
+            nav_back: "Volver",
+            nav_home: "Inicio",
             symptom_bleeding: "Sangrado vaginal intenso/coágulos",
             symptom_pain: "Dolor abdominal fuerte/contracciones regulares",
             symptom_fluid_loss: "Pérdida de líquido por la vagina",
@@ -317,6 +337,8 @@
             copy_summary_button: "Copy Summary",
             new_triage_button: "New Triage",
             copied: "Copied!",
+            nav_back: "Back",
+            nav_home: "Home",
             symptom_bleeding: "Heavy vaginal bleeding/clots",
             symptom_pain: "Severe abdominal pain/regular contractions",
             symptom_fluid_loss: "Leaking fluid from vagina",
@@ -350,12 +372,18 @@
         document.querySelectorAll('.lang-btn').forEach(btn => {
             btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
         });
+        
+        if (state.profile) {
+            el('card-profile').textContent = profileLabels[currentLang][state.profile];
+        }
     }
 
 
     function showPage(pageNumber) {
         Object.values(pages).forEach(p => p.classList.remove('active'));
         pages[pageNumber].classList.add('active');
+        currentPage = pageNumber;
+        updateNav();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -568,6 +596,23 @@
         state.summary = '';
         showPage('1');
     }
+    
+    function handleBack() {
+        if (currentPage > 1) {
+            showPage(currentPage - 1);
+        }
+    }
+    
+    function updateNav() {
+        const backBtn = el('back-btn');
+        if (currentPage === 1) {
+            backBtn.style.opacity = '0.5';
+            backBtn.style.cursor = 'not-allowed';
+        } else {
+            backBtn.style.opacity = '1';
+            backBtn.style.cursor = 'pointer';
+        }
+    }
 
     el('analisarBtn').addEventListener('click', async () => {
       // Mostrar loading
@@ -618,6 +663,8 @@
     ['dum', 'igSemanas'].forEach(id => {
       el(id).addEventListener('input', debounce(getIG, 300));
     });
+
+    el('back-btn').addEventListener('click', handleBack);
 
     // Initial load
     document.addEventListener('DOMContentLoaded', () => {
