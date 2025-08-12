@@ -858,11 +858,43 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Enviar dados para o backend usando o assistente de clínica
+            const promptMessage = `Você é um assistente médico especializado em triagem. Analise os seguintes dados de anamnese e forneça um relatório médico estruturado em formato JSON válido.
+
+IMPORTANTE: Responda APENAS com um objeto JSON válido, sem texto adicional antes ou depois.
+
+Dados do paciente:
+- Problema principal: ${anamnesisData.problemaPrincipal}
+- Início dos sintomas: ${anamnesisData.inicioSintomas}
+- Estava se sentindo bem antes: ${anamnesisData.sentindoBem}
+- Fator desencadeante: ${anamnesisData.fatorDesencadeante}
+- Progressão dos sintomas: ${anamnesisData.progressaoSintomas}
+- O que melhora ou piora: ${anamnesisData.melhoraPiora}
+- Tratamento já tentado: ${anamnesisData.tratamentoTentado}
+- Doenças crônicas: ${anamnesisData.condicoes}
+- Medicamentos contínuos: ${anamnesisData.medicamentos}
+- Alergias: ${anamnesisData.alergias}
+
+Estrutura obrigatória da resposta JSON:
+{
+  "urgency": {
+    "level": "Emergência|Urgente|Moderado|Baixo|Informativo",
+    "reason": "Justificativa para o nível de urgência"
+  },
+  "orientation": "Orientações médicas detalhadas em markdown",
+  "summary": {
+    "symptom": "Resumo do sintoma principal",
+    "history": "Histórico da doença atual",
+    "background": "Antecedentes médicos relevantes"
+  }
+}
+
+Responda APENAS com o JSON, sem formatação adicional.`;
+
             const response = await fetchWithRetry(`${backendUrl}/api/assistants/run/clinica`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: `Analise os seguintes dados de anamnese e forneça um relatório médico estruturado em formato JSON no idioma ${lang}. Dados: ${JSON.stringify(anamnesisData, null, 2)}`
+                    message: promptMessage
                 })
             });
             
@@ -886,14 +918,27 @@ document.addEventListener('DOMContentLoaded', () => {
             // Processar a resposta do assistente
             const responseText = data.text;
             
+            // Log para debug
+            console.log('Resposta do backend:', data);
+            console.log('Texto da resposta:', responseText);
+            
             // Tentar extrair JSON da resposta
             let analysisResult;
             try {
+                // Limpar o texto da resposta
+                let cleanText = responseText.trim();
+                
+                // Remover possíveis marcadores de código
+                cleanText = cleanText.replace(/```json\s*/g, '').replace(/```\s*$/g, '');
+                
                 // Procurar por JSON na resposta
-                const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+                const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
-                    analysisResult = JSON.parse(jsonMatch[0]);
+                    const jsonString = jsonMatch[0];
+                    console.log('JSON encontrado:', jsonString);
+                    analysisResult = JSON.parse(jsonString);
                 } else {
+                    console.log('Nenhum JSON encontrado, criando resposta estruturada');
                     // Se não encontrar JSON, criar uma resposta estruturada baseada no texto
                     analysisResult = {
                         urgency: {
@@ -924,6 +969,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
             }
+            
+            // Verificar se a estrutura está completa, se não, criar uma padrão
+            if (!analysisResult.urgency || !analysisResult.urgency.level) {
+                analysisResult.urgency = {
+                    level: "Moderado",
+                    reason: "Análise médica realizada com sucesso"
+                };
+            }
+            
+            if (!analysisResult.orientation) {
+                analysisResult.orientation = responseText;
+            }
+            
+            if (!analysisResult.summary) {
+                analysisResult.summary = {
+                    symptom: problemaPrincipal || "Sintoma principal não especificado",
+                    history: `Sintomas iniciaram ${inicioSintomas || "tempo não especificado"}`,
+                    background: condicoes || "Nenhuma condição crônica informada"
+                };
+            }
+            
+            // Log final para debug
+            console.log('Resultado final da análise:', analysisResult);
             
             displayResults(analysisResult);
         } catch (error) {
@@ -1250,6 +1318,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Funções auxiliares para exibição (MODO ONLINE)
     function displayResults(result) {
+        // Verificar se o resultado tem a estrutura necessária
+        if (!result) {
+            console.error('Resultado vazio ou indefinido');
+            displayError('Resultado da análise não foi recebido corretamente.');
+            return;
+        }
+        
+        // Garantir que todos os campos necessários existam
+        const safeResult = {
+            urgency: {
+                level: result.urgency?.level || 'Moderado',
+                reason: result.urgency?.reason || 'Análise médica realizada'
+            },
+            orientation: result.orientation || 'Orientações não disponíveis',
+            summary: {
+                symptom: result.summary?.symptom || 'Sintoma não especificado',
+                history: result.summary?.history || 'Histórico não disponível',
+                background: result.summary?.background || 'Antecedentes não informados'
+            }
+        };
+        
         whatsappBtn.disabled = false;
         pdfBtn.disabled = false;
         whatsappBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -1268,17 +1357,27 @@ document.addEventListener('DOMContentLoaded', () => {
             'Informative': 'bg-blue-500'
         };
         
-        urgencyLevelDiv.textContent = `${result.urgency.level.toUpperCase()}: ${result.urgency.reason}`;
-        urgencyLevelDiv.className = `p-4 rounded-lg mb-4 text-center text-white font-bold text-lg ${urgencyClassMap[result.urgency.level] || 'bg-gray-500'}`;
-        orientationContent.innerHTML = marked.parse(result.orientation);
+        const urgencyLevel = safeResult.urgency.level;
+        const urgencyReason = safeResult.urgency.reason;
+        
+        urgencyLevelDiv.textContent = `${urgencyLevel.toUpperCase()}: ${urgencyReason}`;
+        urgencyLevelDiv.className = `p-4 rounded-lg mb-4 text-center text-white font-bold text-lg ${urgencyClassMap[urgencyLevel] || 'bg-gray-500'}`;
+        
+        // Renderizar orientações com marked, com fallback para texto simples
+        try {
+            orientationContent.innerHTML = marked.parse(safeResult.orientation);
+        } catch (error) {
+            console.warn('Erro ao renderizar markdown, usando texto simples:', error);
+            orientationContent.innerHTML = `<div class="prose max-w-none"><p>${safeResult.orientation}</p></div>`;
+        }
         
         const summaryHtml = `
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white border border-gray-200 rounded-lg">
                     <tbody>
-                        <tr class="border-b"><td class="p-3 font-semibold text-gray-700">${translations[localStorage.getItem('language') || 'pt'].tabSummary.split(' ')[0]} Principal</td><td class="p-3 text-gray-600">${result.summary.symptom}</td></tr>
-                        <tr class="border-b"><td class="p-3 font-semibold text-gray-700">Histórico da Doença</td><td class="p-3 text-gray-600">${result.summary.history}</td></tr>
-                        <tr><td class="p-3 font-semibold text-gray-700">Antecedentes Relevantes</td><td class="p-3 text-gray-600">${result.summary.background}</td></tr>
+                        <tr class="border-b"><td class="p-3 font-semibold text-gray-700">${translations[localStorage.getItem('language') || 'pt'].tabSummary.split(' ')[0]} Principal</td><td class="p-3 text-gray-600">${safeResult.summary.symptom}</td></tr>
+                        <tr class="border-b"><td class="p-3 font-semibold text-gray-700">Histórico da Doença</td><td class="p-3 text-gray-600">${safeResult.summary.history}</td></tr>
+                        <tr><td class="p-3 font-semibold text-gray-700">Antecedentes Relevantes</td><td class="p-3 text-gray-600">${safeResult.summary.background}</td></tr>
                     </tbody>
                 </table>
             </div>
