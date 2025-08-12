@@ -406,13 +406,86 @@
       };
     }
 
-    function classificar() {
+    // Configuração da API do MissionCare Plus Backend
+    const backendUrl = "https://missioncare-plus-backend.onrender.com";
+    
+    async function classificar() {
       const sintomas = [...document.querySelectorAll('.sym:checked')].map(x => x.value);
       const sinaisVitais = {
         pas: +(el('pas').value || 0), pad: +(el('pad').value || 0), fc: +(el('fc').value || 0), fr: +(el('fr').value || 0), temp: +(el('temp').value || 0)
       };
       const IG = getIG();
       
+      // Se não há sintomas selecionados, usar classificação local
+      if (sintomas.length === 0) {
+        return { 
+          nivel: '🟢 Verde — Não Urgente', 
+          classe: 'border-emerald-500 bg-emerald-50',
+          plano: [
+            '<strong>Conduta:</strong> Manter acompanhamento de rotina (pré-natal ou ginecológico).',
+            '<strong>Autocuidado:</strong> Focar em descanso, hidratação e alimentação saudável.',
+            '<strong>Sinais de Alerta:</strong> Observar surgimento de sangramento, piora da dor, febre, desmaio ou falta de ar.'
+          ]
+        };
+      }
+      
+      try {
+        // Preparar dados para envio ao backend
+        const gobData = {
+          profile: state.profile,
+          ig: IG,
+          sintomas: sintomas,
+          sinaisVitais: sinaisVitais,
+          idioma: currentLang
+        };
+        
+        // Enviar dados para o backend usando o assistente de GOB
+        const response = await fetch(`${backendUrl}/api/assistants/run/gob`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: `Você é um assistente médico especializado em gineco-obstetrícia. Analise os seguintes dados de triagem GOB e forneça uma classificação de urgência em formato JSON no idioma ${currentLang}. Dados: ${JSON.stringify(gobData, null, 2)}`
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Erro no backend: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.ok) {
+          throw new Error(data.error || "Erro na análise do backend");
+        }
+        
+        // Processar a resposta do assistente
+        const responseText = data.text;
+        
+        // Tentar extrair JSON da resposta
+        try {
+          const cleanText = responseText.trim().replace(/```json\s*/g, '').replace(/```\s*$/g, '');
+          const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+          
+          if (jsonMatch) {
+            const analysisResult = JSON.parse(jsonMatch[0]);
+            
+            // Verificar se a estrutura está completa
+            if (analysisResult.nivel && analysisResult.classe && analysisResult.plano) {
+              return analysisResult;
+            }
+          }
+        } catch (parseError) {
+          console.warn("Erro ao fazer parse do JSON, usando classificação local:", parseError);
+        }
+        
+        // Se não conseguir processar a resposta do backend, usar classificação local
+        console.log("Usando classificação local devido a erro no backend");
+        
+      } catch (error) {
+        console.warn("Erro ao conectar com o backend, usando classificação local:", error);
+      }
+      
+      // Classificação local como fallback
       const emergencia = verificarEmergencia(sintomas, state.profile, IG, sinaisVitais);
       if (emergencia) return emergencia;
       
@@ -496,21 +569,38 @@
         showPage('1');
     }
 
-    el('analisarBtn').addEventListener('click', () => {
-      const r = classificar();
-      el('resultado').className = 'rounded-2xl p-5 border-4 ' + r.classe;
-      el('nivel').innerHTML = r.nivel;
-      el('aconselhamento').innerHTML = '<ul class="space-y-1">' + r.plano.map(x => `<li>${x}</li>`).join('') + '</ul>';
-      el('resumo').textContent = montarResumo(r.nivel);
-
-      el('emergency-actions').classList.toggle('hidden', !r.isEmergency);
-      el('other-actions').classList.toggle('hidden', !r.isUrgency);
+    el('analisarBtn').addEventListener('click', async () => {
+      // Mostrar loading
+      el('analisarBtn').disabled = true;
+      el('analisarBtn').textContent = 'Analisando...';
       
-      if(r.isEmergency) {
-          setupEmergencyActions();
-      }
+      try {
+        const r = await classificar();
+        el('resultado').className = 'rounded-2xl p-5 border-4 ' + r.classe;
+        el('nivel').innerHTML = r.nivel;
+        el('aconselhamento').innerHTML = '<ul class="space-y-1">' + r.plano.map(x => `<li>${x}</li>`).join('') + '</ul>';
+        el('resumo').textContent = montarResumo(r.nivel);
 
-      showPage('3');
+        el('emergency-actions').classList.toggle('hidden', !r.isEmergency);
+        el('other-actions').classList.toggle('hidden', !r.isUrgency);
+        
+        if(r.isEmergency) {
+            setupEmergencyActions();
+        }
+
+        showPage('3');
+      } catch (error) {
+        console.error('Erro na análise:', error);
+        // Em caso de erro, mostrar mensagem de erro
+        el('resultado').className = 'rounded-2xl p-5 border-4 border-red-500 bg-red-50';
+        el('nivel').innerHTML = '❌ Erro na Análise';
+        el('aconselhamento').innerHTML = '<p>Ocorreu um erro ao analisar os dados. Tente novamente ou use a classificação local.</p>';
+        showPage('3');
+      } finally {
+        // Restaurar botão
+        el('analisarBtn').disabled = false;
+        el('analisarBtn').textContent = translations[currentLang].analyze_button || 'Analisar Sinais';
+      }
     });
 
     el('copiarBtn')?.addEventListener('click', () => { 

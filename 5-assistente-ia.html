@@ -253,13 +253,13 @@
                 <!-- Barra de Input Fixa -->
                 <footer class="bg-white/90 backdrop-blur-sm border-t border-gray-200 p-4">
                     <div class="flex w-full items-center rounded-full border-2 border-gray-200 focus-within:border-teal-600 transition-colors duration-200 bg-white">
-                        <input id="chat-input" type="text" data-i18n-placeholder="input_placeholder" placeholder="Pergunte ao MedGemma..." class="form-input flex-grow bg-transparent border-none focus:ring-0 h-12 placeholder:text-gray-400 p-4 text-base"/>
+                        <input id="chat-input" type="text" data-i18n-placeholder="input_placeholder" placeholder="Pergunte ao assistente médico..." class="form-input flex-grow bg-transparent border-none focus:ring-0 h-12 placeholder:text-gray-400 p-4 text-base"/>
                         <button id="send-btn" class="text-teal-600 hover:text-teal-800 p-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M223.87,114l-168-95.89A16,16,0,0,0,32.93,37.32l31,90.47a.42.42,0,0,0,0,.1.3.3,0,0,0,0,.1l-31,90.67A16,16,0,0,0,48,240a16.14,16.14,0,0,0,7.92-2.1l167.91-96.05a16,16,0,0,0,.05-27.89ZM48,224l0-.09L78.14,136H136a8,8,0,0,0,0-16H78.22L48.06,32.12,48,32l168,95.83Z"></path></svg>
                         </button>
                     </div>
                     <p data-i18n="footer_aviso" class="text-gray-500 text-xs text-center pt-2 px-4">
-                        As respostas são para fins educativos e não substituem a avaliação de um profissional de saúde.
+                        As respostas são geradas por IA especializada e não substituem a avaliação de um profissional de saúde.
                     </p>
                 </footer>
             </div>
@@ -379,13 +379,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const faqContainer = document.getElementById('faq-container');
     const connectionIndicator = document.getElementById('connection-indicator');
     
-    // Configuração da API
-    const apiKey = 'AIzaSyAz6tEar6NJokgbEch5QLtbKL7dw_v6B3U'; 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-    
     // Estado da Aplicação
     let chatMode = 'general';
-    let chatHistory = [];
     let currentLanguage = 'pt';
     let isOnline = navigator.onLine;
     
@@ -581,7 +576,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Limpar histórico de chat
         chatContainer.innerHTML = '';
-        chatHistory = [];
         
         // Configurar modo de chat
         chatMode = action;
@@ -620,11 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Adicionar mensagem inicial ao chat
         addMessage('bot', initialMessage);
         
-        // Adicionar prompt inicial ao histórico
-        chatHistory.push({
-            role: 'user',
-            parts: [{ text: initialPrompt }]
-        });
+
     }
     
     // Lidar com cliques nos botões de ação (offline)
@@ -683,6 +673,9 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('language', lang);
     }
     
+    // Configuração da API do MissionCare Plus Backend
+    const backendUrl = "https://missioncare-plus-backend.onrender.com";
+    
     // Enviar mensagem (online)
     async function sendMessage() {
         const message = chatInput.value.trim();
@@ -714,27 +707,47 @@ document.addEventListener('DOMContentLoaded', () => {
         chatContainer.appendChild(typingIndicator);
         chatContainer.scrollTop = chatContainer.scrollHeight;
         
-        // Adicionar mensagem ao histórico
-        chatHistory.push({
-            role: 'user',
-            parts: [{ text: message }]
-        });
-        
         try {
-            // Enviar requisição para a API
-            const response = await fetch(apiUrl, {
+            // Preparar contexto baseado no modo de chat
+            let systemPrompt = '';
+            switch (chatMode) {
+                case 'symptoms':
+                    systemPrompt = currentLanguage === 'pt' ? 
+                        'Você é um assistente médico virtual especializado em sintomas. Forneça orientações gerais sobre sintomas, mas sempre lembre que você não substitui um médico real. Seja empático e claro nas explicações.' :
+                        currentLanguage === 'es' ? 
+                        'Eres un asistente médico virtual especializado en síntomas. Proporciona orientaciones generales sobre síntomas, pero siempre recuerda que no sustituyes a un médico real. Sé empático y claro en las explicaciones.' :
+                        'You are a virtual medical assistant specializing in symptoms. Provide general guidance about symptoms, but always remember that you do not replace a real doctor. Be empathetic and clear in explanations.';
+                    break;
+                case 'med_info':
+                    systemPrompt = currentLanguage === 'pt' ? 
+                        'Você é um assistente médico virtual especializado em medicamentos. Forneça informações gerais sobre usos, efeitos colaterais e precauções, mas sempre lembre que você não substitui um médico ou farmacêutico. Seja preciso e cauteloso.' :
+                        currentLanguage === 'es' ? 
+                        'Eres un asistente médico virtual especializado en medicamentos. Proporciona información general sobre usos, efectos secundarios y precauciones, pero siempre recuerda que no sustituyes a un médico o farmacéutico. Sé preciso y cauteloso.' :
+                        'You are a virtual medical assistant specializing in medications. Provide general information about uses, side effects and precautions, but always remember that you do not replace a doctor or pharmacist. Be accurate and cautious.';
+                    break;
+                case 'first_aid':
+                    systemPrompt = currentLanguage === 'pt' ? 
+                        'Você é um assistente médico virtual especializado em primeiros socorros. Forneça instruções claras e passo a passo para situações de emergência, mas sempre recomende buscar ajuda profissional quando apropriado. Seja direto e prático.' :
+                        currentLanguage === 'es' ? 
+                        'Eres un asistente médico virtual especializado en primeros auxilios. Proporciona instrucciones claras paso a paso para situaciones de emergencia, pero siempre recomienda buscar ayuda profesional cuando sea apropiado. Sé directo y práctico.' :
+                        'You are a virtual medical assistant specializing in first aid. Provide clear step-by-step instructions for emergency situations, but always recommend seeking professional help when appropriate. Be direct and practical.';
+                    break;
+                default:
+                    systemPrompt = currentLanguage === 'pt' ? 
+                        'Você é um assistente médico virtual. Forneça orientações gerais sobre saúde, mas sempre lembre que você não substitui um médico real.' :
+                        currentLanguage === 'es' ? 
+                        'Eres un asistente médico virtual. Proporciona orientaciones generales sobre salud, pero siempre recuerda que no sustituyes a un médico real.' :
+                        'You are a virtual medical assistant. Provide general guidance about health, but always remember that you do not replace a real doctor.';
+            }
+            
+            // Enviar requisição para o backend usando o assistente de emergências
+            const response = await fetch(`${backendUrl}/api/assistants/run/emergencias`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    contents: chatHistory,
-                    generationConfig: {
-                        temperature: 0.2,
-                        topK: 40,
-                        topP: 0.95,
-                        maxOutputTokens: 1024,
-                    }
+                    message: `${systemPrompt}\n\nPergunta do usuário: ${message}\n\nResponda no idioma ${currentLanguage === 'pt' ? 'português' : currentLanguage === 'es' ? 'espanhol' : 'inglês'}.`
                 })
             });
             
@@ -743,17 +756,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Remover indicador de digitação
             chatContainer.removeChild(typingIndicator);
             
-            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                const botResponse = data.candidates[0].content.parts[0].text;
+            if (data.ok && data.text) {
+                const botResponse = data.text;
                 
                 // Adicionar resposta do bot ao chat
                 addMessage('bot', botResponse);
                 
-                // Adicionar resposta ao histórico
-                chatHistory.push({
-                    role: 'model',
-                    parts: [{ text: botResponse }]
-                });
+
             } else {
                 // Erro na resposta
                 const errorMessage = currentLanguage === 'pt' ? 'Desculpe, ocorreu um erro ao processar sua solicitação. Tente novamente.' :

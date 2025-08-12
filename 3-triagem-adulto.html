@@ -153,10 +153,7 @@
         <i class="fas fa-wifi"></i> Online
     </div>
     
-    <!-- Indicador de Status do Backend -->
-    <div id="backend-status-indicator" class="connection-indicator online" style="top: 50px;">
-        <i class="fas fa-server"></i> Backend OK
-    </div>
+
 
     <!-- MODAL DE ALERTA DE EMERGÊNCIA -->
     <div id="emergency-alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[60]">
@@ -257,11 +254,6 @@
                     </form>
                 </main>
                 <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0">
-                    <div class="flex gap-2 mb-3">
-                        <button id="test-backend-btn" type="button" class="flex-1 py-2 px-4 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            <i class="fas fa-server mr-2"></i>Testar Backend
-                        </button>
-                    </div>
                     <button id="generate-analysis-btn" type="button" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-[var(--primary-color)] hover:opacity-90" data-i18n="generateButton">
                         Gerar Análise
                     </button>
@@ -272,10 +264,7 @@
             <div id="loading-screen" class="hidden fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
                 <svg class="animate-spin h-10 w-10 text-[var(--primary-color)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 <p id="loading-text" class="mt-4 text-lg font-semibold text-gray-700" data-i18n="loadingText">Analisando dados...</p>
-                <div id="loading-status" class="mt-2 text-sm text-gray-500 text-center">
-                    <p>Conectando ao MissionCare Plus Backend</p>
-                    <p class="text-xs mt-1">https://missioncare-plus-backend.onrender.com</p>
-                </div>
+
             </div>
             
             <!-- TELA DE RESULTADOS -->
@@ -707,7 +696,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsScreenOffline = document.getElementById('results-screen-offline');
     const generateBtn = document.getElementById('generate-analysis-btn');
     const generateBtnOffline = document.getElementById('generate-analysis-btn-offline');
-    const testBackendBtn = document.getElementById('test-backend-btn');
     const emergencyModal = document.getElementById('emergency-alert-modal');
     const closeEmergencyBtn = document.getElementById('close-emergency-alert');
     const form = document.getElementById('anamnesis-form');
@@ -765,28 +753,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // Botão de teste do backend
-    testBackendBtn.addEventListener('click', async () => {
-        testBackendBtn.disabled = true;
-        testBackendBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Testando...';
-        
-        const isConnected = await testBackendConnection();
-        
-        if (isConnected) {
-            testBackendBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Conectado!';
-            testBackendBtn.className = 'flex-1 py-2 px-4 border border-green-300 rounded-full text-sm font-medium text-green-700 bg-green-50';
-        } else {
-            testBackendBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Falha';
-            testBackendBtn.className = 'flex-1 py-2 px-4 border border-red-300 rounded-full text-sm font-medium text-red-700 bg-red-50';
-        }
-        
-        setTimeout(() => {
-            testBackendBtn.disabled = false;
-            testBackendBtn.innerHTML = '<i class="fas fa-server mr-2"></i>Testar Backend';
-            testBackendBtn.className = 'flex-1 py-2 px-4 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50';
-        }, 2000);
-    });
-    
     // Lógica Principal: Geração da Análise (MODO ONLINE)
     generateBtn.addEventListener('click', async () => {
         const lang = localStorage.getItem('language') || 'pt';
@@ -832,29 +798,22 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo(0, 0);
         
         // Atualizar texto de carregamento
-        const loadingStatus = document.getElementById('loading-status');
         if (lang === 'pt') {
             loadingText.textContent = "Conectando ao backend...";
-            loadingStatus.innerHTML = '<p>Conectando ao MissionCare Plus Backend</p><p class="text-xs mt-1">https://missioncare-plus-backend.onrender.com</p>';
         } else if (lang === 'es') {
             loadingText.textContent = "Conectando al backend...";
-            loadingStatus.innerHTML = '<p>Conectando al MissionCare Plus Backend</p><p class="text-xs mt-1">https://missioncare-plus-backend.onrender.com</p>';
         } else {
             loadingText.textContent = "Connecting to backend...";
-            loadingStatus.innerHTML = '<p>Connecting to MissionCare Plus Backend</p><p class="text-xs mt-1">https://missioncare-plus-backend.onrender.com</p>';
         }
         
         try {
             // Atualizar texto de carregamento
             if (lang === 'pt') {
                 loadingText.textContent = "Analisando dados com IA...";
-                loadingStatus.innerHTML = '<p>Processando com assistente médico especializado</p><p class="text-xs mt-1">Assistente de Clínica Geral</p>';
             } else if (lang === 'es') {
                 loadingText.textContent = "Analizando datos con IA...";
-                loadingStatus.innerHTML = '<p>Procesando con asistente médico especializado</p><p class="text-xs mt-1">Asistente de Clínica General</p>';
             } else {
                 loadingText.textContent = "Analyzing data with AI...";
-                loadingStatus.innerHTML = '<p>Processing with specialized medical assistant</p><p class="text-xs mt-1">General Clinic Assistant</p>';
             }
             
             // Enviar dados para o backend usando o assistente de clínica
@@ -1471,29 +1430,7 @@ Responda APENAS com o JSON, sem formatação adicional.`;
         });
     });
     
-    // Função para testar conectividade com o backend
-    async function testBackendConnection() {
-        const backendIndicator = document.getElementById('backend-status-indicator');
-        try {
-            const response = await fetch(`${backendUrl}/`);
-            if (response.ok) {
-                console.log('Backend conectado com sucesso');
-                backendIndicator.className = 'connection-indicator online';
-                backendIndicator.innerHTML = '<i class="fas fa-server"></i> Backend OK';
-                return true;
-            } else {
-                throw new Error(`HTTP ${response.status}`);
-            }
-        } catch (error) {
-            console.warn('Erro ao conectar com o backend:', error);
-            backendIndicator.className = 'connection-indicator offline';
-            backendIndicator.innerHTML = '<i class="fas fa-server"></i> Backend Offline';
-            return false;
-        }
-    }
-    
-    // Testar conectividade na inicialização
-    testBackendConnection();
+
     
     // Inicializar indicador de sincronização
     updateSyncIndicator();
