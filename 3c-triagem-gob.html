@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-lang">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="gob.title">Triagem Gineco-Obstetrícia (GOB) — MissionCare Plus</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;600;800&family=Noto+Sans:wght@400;600;800">
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <meta name="theme-color" content="#0f766e"/>
+  <style>
+    .badge { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <main class="max-w-3xl mx-auto p-4 sm:p-6">
+    <header class="mb-4">
+      <h1 class="text-2xl font-extrabold">Triagem Gineco-Obstetrícia (GOB)</h1>
+      <p class="text-sm text-slate-600 mt-1">
+        Ferramenta educativa e de apoio, <strong>não substitui consulta</strong>. Em caso de <a href="sintomas-graves.html" class="underline">sintomas graves</a>, busque ajuda imediatamente.
+      </p>
+    </header>
+
+    <!-- Perfil -->
+    <section class="bg-white shadow rounded-2xl p-4 mb-4">
+      <label class="block font-semibold mb-1">Perfil</label>
+      <select id="perfil" class="w-full">
+        <option value="nao_gravida">Não grávida</option>
+        <option value="gestante">Gestante</option>
+        <option value="puerpera">Puérpera (até 6 semanas)</option>
+      </select>
+
+      <!-- IG / DUM (somente gestante) -->
+      <div id="gestanteFields" class="mt-4 hidden">
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium">DUM (data da última menstruação)</label>
+            <input type="date" id="dum" class="w-full">
+          </div>
+          <div>
+            <label class="block text-sm font-medium">IG em semanas (se não souber a DUM)</label>
+            <input type="number" id="igSemanas" class="w-full" min="4" max="43" placeholder="ex.: 28">
+          </div>
+        </div>
+        <p class="text-sm mt-2">Idade gestacional estimada: <span id="igTexto" class="font-semibold">—</span></p>
+      </div>
+    </section>
+
+    <!-- Sinais Vitais (opcionais) -->
+    <section class="bg-white shadow rounded-2xl p-4 mb-4">
+      <h2 class="font-semibold mb-2">Sinais vitais (opcional)</h2>
+      <div class="grid sm:grid-cols-5 gap-3">
+        <div><label class="block text-xs">PAS (mmHg)</label><input id="pas" type="number" class="w-full" min="50" max="250"></div>
+        <div><label class="block text-xs">PAD (mmHg)</label><input id="pad" type="number" class="w-full" min="30" max="150"></div>
+        <div><label class="block text-xs">FC (bpm)</label><input id="fc" type="number" class="w-full" min="30" max="220"></div>
+        <div><label class="block text-xs">FR (irpm)</label><input id="fr" type="number" class="w-full" min="8" max="60"></div>
+        <div><label class="block text-xs">Temp (°C)</label><input id="temp" type="number" step="0.1" class="w-full" min="34" max="42"></div>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">Se não tiver esses dados, tudo bem — a triagem funciona sem eles.</p>
+    </section>
+
+    <!-- Sintomas -->
+    <section class="bg-white shadow rounded-2xl p-4 mb-4">
+      <h2 class="font-semibold mb-2">Sintomas (marque os que se aplicam)</h2>
+      <div class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+        <label><input type="checkbox" class="mr-2 sym" value="sangramento_intenso">Sangramento vaginal intenso/coágulos</label>
+        <label><input type="checkbox" class="mr-2 sym" value="dor_abdominal_forte">Dor abdominal forte/contrações regulares</label>
+        <label><input type="checkbox" class="mr-2 sym" value="perda_liquido">Perda de líquido pela vagina</label>
+        <label><input type="checkbox" class="mr-2 sym" value="cefaleia_visao">Cefaleia forte/visão turva</label>
+        <label><input type="checkbox" class="mr-2 sym" value="convulsao">Convulsão/desmaio</label>
+        <label><input type="checkbox" class="mr-2 sym" value="dispneia_toracica">Falta de ar/dor torácica</label>
+        <label><input type="checkbox" class="mr-2 sym" value="febre_alta">Febre alta/calafrios</label>
+        <label><input type="checkbox" class="mr-2 sym" value="disuria_lombar">Dor ao urinar/dor lombar</label>
+        <label class="gestanteOnly hidden"><input type="checkbox" class="mr-2 sym" value="mov_fetais_reduzidos">Movimentos fetais reduzidos (≥24 sem)</label>
+        <label class="gestanteOnly hidden"><input type="checkbox" class="mr-2 sym" value="ombro_dor">Dor no ombro/tontura (suspeita de ectópica)</label>
+        <label class="puerperaOnly hidden"><input type="checkbox" class="mr-2 sym" value="sangramento_puerperio">Sangramento anormal no puerpério</label>
+        <label class="puerperaOnly hidden"><input type="checkbox" class="mr-2 sym" value="mastite">Mama vermelha/dolorosa com febre (mastite)</label>
+        <label><input type="checkbox" class="mr-2 sym" value="vomitos_persistentes">Vômitos persistentes/incapaz de ingerir líquidos</label>
+      </div>
+    </section>
+
+    <!-- Botões -->
+    <div class="flex flex-wrap gap-3 mb-4">
+      <button id="analisarBtn" class="px-4 py-2 rounded-xl bg-teal-700 text-white font-semibold">Analisar</button>
+      <button id="limparBtn" class="px-4 py-2 rounded-xl bg-slate-200">Limpar</button>
+      <a href="index.html" class="ml-auto text-teal-700 underline">Voltar ao início</a>
+    </div>
+
+    <!-- Resultado -->
+    <section id="resultado" class="hidden rounded-2xl p-4 border-2">
+      <p class="text-sm mb-2">Classificação:</p>
+      <div id="nivel" class="text-lg font-extrabold"></div>
+      <div id="aconselhamento" class="mt-2 text-sm leading-relaxed"></div>
+      <details class="mt-3">
+        <summary class="cursor-pointer text-sm font-semibold">Ver resumo</summary>
+        <pre id="resumo" class="mt-2 text-xs bg-slate-100 p-2 rounded overflow-x-auto"></pre>
+      </details>
+      <div class="mt-3 flex gap-2">
+        <button id="copiarBtn" class="px-3 py-2 bg-slate-800 text-white rounded-lg text-sm">Copiar resumo</button>
+        <button id="imprimirBtn" class="px-3 py-2 bg-slate-200 rounded-lg text-sm">Imprimir/Salvar PDF</button>
+      </div>
+    </section>
+
+    <footer class="mt-8 text-xs text-slate-500">
+      <p>
+        Este conteúdo é educativo e de apoio. Não realiza diagnóstico nem prescrição. Em <strong>emergências</strong>, busque atendimento imediato.
+      </p>
+    </footer>
+  </main>
+
+  <script>
+    // Helpers de seleção
+    const el = id => document.getElementById(id);
+    const perfil = el('perfil');
+    const gestanteFields = el('gestanteFields');
+    const dum = el('dum');
+    const igSemanas = el('igSemanas');
+    const igTexto = el('igTexto');
+    const resultado = el('resultado');
+    const nivel = el('nivel');
+    const aconselhamento = el('aconselhamento');
+    const resumo = el('resumo');
+
+    const showByPerfil = () => {
+      document.querySelectorAll('.gestanteOnly').forEach(x => x.classList.toggle('hidden', perfil.value!=='gestante'));
+      document.querySelectorAll('.puerperaOnly').forEach(x => x.classList.toggle('hidden', perfil.value!=='puerpera'));
+      gestanteFields.classList.toggle('hidden', perfil.value!=='gestante');
+    };
+    perfil.addEventListener('change', showByPerfil); showByPerfil();
+
+    // Calcula IG (semanas) por DUM
+    function semanasEntre(d1, d2){
+      const MS = 24*60*60*1000;
+      return Math.floor((d2 - d1)/MS/7);
+    }
+    function getIG(){
+      let ig = null;
+      if (perfil.value === 'gestante'){
+        const hoje = new Date();
+        if (dum.value){
+          const d = new Date(dum.value + 'T12:00:00'); // evita TZ
+          ig = Math.max(0, Math.min(43, semanasEntre(d, hoje)));
+        } else if (igSemanas.value){
+          ig = parseInt(igSemanas.value, 10);
+        }
+      }
+      igTexto.textContent = (ig!=null? ig+' sem' : '—');
+      return ig;
+    }
+    dum.addEventListener('change', getIG);
+    igSemanas.addEventListener('input', getIG);
+
+    // Regras de risco (simplificadas e conservadoras)
+    function classificar(){
+      const syms = [...document.querySelectorAll('.sym:checked')].map(x=>x.value);
+      const v = {
+        pas:+(el('pas').value||0), pad:+(el('pad').value||0),
+        fc:+(el('fc').value||0), fr:+(el('fr').value||0),
+        temp:+(el('temp').value||0)
+      };
+      const IG = getIG(); // pode ser null
+      const after20w = IG!=null && IG>=20;
+      const after24w = IG!=null && IG>=24;
+
+      // Hemodinâmica instável ou sinais maiores
+      const hemoGrave = (v.pas && v.pas<90) || (v.pas && v.pas>=160) || (v.pad && v.pad>=110)
+                      || (v.fc && v.fc>120) || (v.fr && v.fr>30) || (v.temp && v.temp>=38.5);
+
+      // Emergência imediata (VERMELHO)
+      if (hemoGrave
+          || syms.includes('convulsao')
+          || syms.includes('dispneia_toracica')
+          || syms.includes('sangramento_intenso')
+          || (perfil.value==='gestante' && syms.includes('dor_abdominal_forte') && IG!=null && IG<12 && syms.includes('ombro_dor')) // suspeita ectópica
+          || (perfil.value==='gestante' && after20w && syms.includes('cefaleia_visao') && ((v.pas>=140)||(v.pad>=90))) // pré-eclâmpsia/eclâmpsia
+          || (perfil.value==='puerpera' && syms.includes('sangramento_puerperio'))
+      ){
+        return {nivel:'Vermelho — emergência agora', classe:'border-red-600 bg-red-50', plano:[
+          'Ir ao serviço de saúde mais próximo imediatamente.',
+          'Se possível, não ir sozinha. Levar cartão pré-natal/exames.',
+          'Manter repouso, não ingerir alimentos sólidos, levar água/paninho limpo.'
+        ]};
+      }
+
+      // Urgente ≤24h (LARANJA)
+      if ((perfil.value==='gestante' && syms.includes('perda_liquido') && IG!=null && IG<37) // PPROM
+          || (perfil.value==='gestante' && after24w && syms.includes('mov_fetais_reduzidos'))
+          || (perfil.value==='gestante' && syms.includes('febre_alta') && syms.includes('disuria_lombar')) // pielonefrite
+          || (perfil.value==='puerpera' && (syms.includes('mastite') || syms.includes('febre_alta'))) // mastite/suspeita endometrite
+      ){
+        return {nivel:'Laranja — avaliação em ≤ 24h', classe:'border-amber-500 bg-amber-50', plano:[
+          'Agendar consulta/avaliação presencial o quanto antes (≤24h).',
+          'Hidratar-se, observar evolução. Em piora, tratar como emergência.'
+        ]};
+      }
+
+      // 48–72h (AMARELO)
+      if (syms.includes('vomitos_persistentes') || syms.includes('disuria_lombar') || syms.includes('dor_abdominal_forte')){
+        return {nivel:'Amarelo — avaliação em 48–72h', classe:'border-yellow-500 bg-yellow-50', plano:[
+          'Marcar avaliação ambulatorial (48–72h).',
+          'Medidas de autocuidado e sinais de alarme informados.'
+        ]};
+      }
+
+      // Orientações gerais (VERDE)
+      return {nivel:'Verde — autocuidado e acompanhamento', classe:'border-emerald-600 bg-emerald-50', plano:[
+        'Descanso, hidratação, observação dos sintomas.',
+        'Sinais de alarme: sangramento intenso, piora da dor, febre alta, desmaio, falta de ar.'
+      ]};
+    }
+
+    function montarResumo(nivel, plano){
+      const syms = [...document.querySelectorAll('.sym:checked')].map(x=>x.parentElement.textContent.trim());
+      const p = perfil.options[perfil.selectedIndex].text;
+      return [
+        `Perfil: ${p}`,
+        (p.includes('Gestante')? `IG estimada: ${igTexto.textContent}`:''),
+        `Sintomas: ${syms.join('; ') || 'nenhum'}`,
+        `Classificação: ${nivel}`,
+        `Plano: ${plano.join(' | ')}`
+      ].filter(Boolean).join('\n');
+    }
+
+    el('analisarBtn').addEventListener('click', ()=>{
+      const r = classificar();
+      resultado.classList.remove('hidden');
+      resultado.className = 'rounded-2xl p-4 border-2 mt-2 ' + r.classe;
+      nivel.textContent = r.nivel;
+      aconselhamento.innerHTML = '<ul class="list-disc ml-5">'+r.plano.map(x=>`<li>${x}</li>`).join('')+'</ul>';
+      resumo.textContent = montarResumo(r.nivel, r.plano);
+    });
+
+    el('limparBtn').addEventListener('click', ()=>{
+      document.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
+      ['pas','pad','fc','fr','temp','dum','igSemanas'].forEach(id=>el(id).value='');
+      igTexto.textContent='—';
+      resultado.classList.add('hidden');
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+
+    el('copiarBtn')?.addEventListener('click', ()=>{ navigator.clipboard.writeText(resumo.textContent); });
+    el('imprimirBtn')?.addEventListener('click', ()=>{ window.print(); });
+  </script>
+</body>
+</html>
