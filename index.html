@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <base href="./">
+  <!-- <base href="./"> Removido para corrigir o erro de registro do Service Worker em alguns ambientes -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MissionCare Plus - Cuidado Integral para Missionários</title>
@@ -16,46 +16,39 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     :root {
       --primary: #3b82f6; --primary-dark: #2563eb; --secondary: #8b5cf6;
       --accent: #ec4899; --success: #10b981; --warning: #f59e0b;
       --danger: #ef4444; --light: #f9fafb; --dark: #1f2937;
     }
-    body { font-family: 'Lexend','Noto Sans',sans-serif; background:var(--light); color:var(--dark); padding-bottom:80px }
-    .lang-btn{padding:.25rem .75rem;border-radius:9999px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s}
-    .lang-btn.active{background:var(--primary);color:#fff}
+    body { font-family: 'Lexend','Noto Sans',sans-serif; background:var(--light); color:var(--dark); }
+    .lang-btn{padding:.25rem .75rem;border-radius:9999px;font-size:1.25rem;font-weight:700;cursor:pointer;transition:.2s}
+    .lang-btn.active{background:var(--primary);color:#fff; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);}
     .lang-btn.inactive{background:#e5e7eb;color:#4b5563}
     .lang-btn:hover{transform:scale(1.05)}
     .action-card{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#fff;border-radius:1.25rem;box-shadow:0 4px 15px -1px rgba(0,0,0,.1),0 2px 8px -2px rgba(0,0,0,.05);padding:1.75rem;transition:.3s;border:1px solid rgba(229,231,235,.8);min-height:200px;position:relative;overflow:hidden}
-    .action-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:5px;background:linear-gradient(90deg,var(--primary),var(--secondary));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+    .action-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:5px;transform:scaleX(0);transform-origin:left;transition:transform .3s}
+    .action-card.adult::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .action-card.pediatric::before { background: linear-gradient(90deg, #ec4899, #f9a8d4); }
+    .action-card.gob::before { background: linear-gradient(90deg, #8b5cf6, #c4b5fd); }
+    .action-card.meds::before { background: linear-gradient(90deg, #10b981, #6ee7b7); }
     .action-card:hover::before{transform:scaleX(1)}
     .action-card:hover{transform:translateY(-8px);box-shadow:0 15px 25px -5px rgba(0,0,0,.15),0 8px 10px -6px rgba(0,0,0,.1)}
     .emergency-card{background:linear-gradient(135deg,var(--danger),#b91c1c);color:#fff}
     .emergency-card:hover{background:linear-gradient(135deg,#b91c1c,#991b1b)}
-    .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#fff;box-shadow:0 -4px 15px -5px rgba(0,0,0,.1);z-index:50;padding:.75rem 0}
-    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem;cursor:pointer;transition:.2s;border-radius:.5rem;color:#6b7280}
-    .nav-item.active{color:var(--primary)}
-    .nav-item:hover{background:rgba(59,130,246,.1)}
-    .feature-card{background:#fff;border-radius:1rem;box-shadow:0 4px 6px -1px rgb(0 0 0 / .07),0 2px 4px -2px rgb(0 0 0 / .07);padding:1.5rem;transition:.3s;border:1px solid #f3f4f6}
-    .feature-card:hover{transform:translateY(-5px);box-shadow:0 10px 15px -3px rgb(0 0 0 / .1),0 4px 6px -4px rgb(0 0 0 / .1)}
-    .connection-status{position:fixed;top:10px;left:10px;z-index:100;display:flex;align-items:center;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:bold;transition:.3s}
-    .online{background:rgba(16,185,129,.2);color:var(--success)}
-    .offline{background:rgba(239,68,68,.2);color:var(--danger)}
     .offline-badge{position:absolute;top:10px;right:10px;background:var(--warning);color:#fff;font-size:10px;font-weight:bold;padding:2px 8px;border-radius:10px;text-transform:uppercase}
     .action-card:focus,.nav-item:focus{outline:3px solid var(--primary);outline-offset:2px}
     @media (prefers-contrast: high){ .action-card{border:2px solid var(--dark)} .bg-blue-600{background:#1e40af} }
     @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
     .fade-in{animation:fadeIn .6s ease-out forwards}
+    .hero-image { object-fit: cover; object-position: center; }
     @media (max-width:768px){.hero-section{padding:1.5rem}.action-card{min-height:160px;padding:1.25rem}}
   </style>
 </head>
 <body>
-  <!-- Status de conexão -->
-  <div id="connection-status" class="connection-status online">
-    <i class="fas fa-wifi mr-2"></i><span id="connection-text">Online</span>
-  </div>
   <!-- Modais -->
   <div id="emergency-alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[60]">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8">
@@ -93,36 +86,21 @@
   <!-- App -->
   <div id="app-container" class="max-w-4xl mx-auto">
     <header class="hero-section p-4 md:p-6 relative">
-      <div id="language-selector" class="absolute top-4 right-4 flex space-x-1 bg-white/80 backdrop-blur-sm p-1 rounded-full z-10 shadow-md">
+      <div id="language-selector" class="absolute top-4 right-4 flex space-x-2 bg-white/80 backdrop-blur-sm p-1 rounded-full z-10 shadow-md">
         <button id="lang-pt" class="lang-btn" aria-label="Português">🇧🇷</button>
         <button id="lang-es" class="lang-btn" aria-label="Español">🇪🇸</button>
         <button id="lang-en" class="lang-btn" aria-label="English">🇬🇧</button>
       </div>
-      <div class="mt-12 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-3xl shadow-xl p-6 md:p-8 flex flex-col md:flex-row items-center text-white relative overflow-hidden">
-        <div class="z-10 md:w-2/3">
-          <h1 class="text-3xl md:text-4xl font-bold mb-2" data-i18n="mainTitle">MissionCare Plus</h1>
-          <p class="text-blue-100 text-lg" data-i18n="subtitle">"Levando cura e esperança aos confins da Terra"</p>
-          <div class="mt-4 flex flex-wrap gap-2">
-            <div class="bg-white/20 rounded-full px-3 py-1 text-sm flex items-center">
-              <i class="fas fa-wifi-slash mr-2"></i><span>Funciona offline</span>
-            </div>
-            <div class="bg-white/20 rounded-full px-3 py-1 text-sm flex items-center">
-              <i class="fas fa-shield-alt mr-2"></i><span>Informações seguras</span>
-            </div>
-            <div class="bg-white/20 rounded-full px-3 py-1 text-sm flex items-center">
-              <i class="fas fa-heart mr-2"></i><span>Cuidado integral</span>
-            </div>
-          </div>
-        </div>
-        <div class="hidden md:block md:w-1/3 relative mt-6 md:mt-0">
-          <img src="https://placehold.co/300x300/ffffff/3b82f6?text=Cuidado+Mission%C3%A1rio" alt="Cuidado missionário" class="w-full h-auto rounded-xl">
-        </div>
+       <!-- Cabeçalho simplificado -->
+      <div class="pt-16 pb-8 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-blue-600" data-i18n="mainTitle">MissionCare Plus</h1>
+        <p class="text-lg text-gray-500 mt-2" data-i18n="subtitle">"Levando cura e esperança aos confins da Terra"</p>
       </div>
     </header>
-    <main class="px-4 md:px-6">
+    <main class="px-4 md:px-6 pb-8">
       <!-- Ações Críticas -->
-      <section class="mt-8">
-        <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="criticalActions">Ações Críticas</h2>
+      <section>
+        <h2 class="text-xl font-bold text-gray-800 mb-4 border-l-4 border-red-500 pl-3" data-i18n="criticalActions">Ações Críticas</h2>
         <div class="grid grid-cols-1 gap-5">
           <a href="4-emergencias.html" class="action-card emergency-card">
             <div class="offline-badge hidden" id="emergency-offline-badge">Offline</div>
@@ -134,114 +112,70 @@
             <h3 class="font-bold uppercase" data-i18n="emergenciesTitle">Guia de Emergências</h3>
             <p class="text-sm text-red-100 mt-1" data-i18n="emergenciesDesc">Primeiros socorros e orientação rápida.</p>
             <div class="mt-2 text-xs text-red-200">
-              <span class="online-content">Conteúdo atualizado disponível online</span>
-              <span class="offline-content hidden">Versão básica offline disponível</span>
+              <span class="online-content" data-i18n="onlineContent">Conteúdo atualizado disponível online</span>
+              <span class="offline-content hidden" data-i18n="offlineContent">Versão básica offline disponível</span>
             </div>
           </a>
         </div>
       </section>
       
-      <!-- Atenção Principal -->
+      <!-- Atenção Principal e Ferramentas -->
       <section class="mt-10">
         <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="mainAttention">Atenção Principal</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <a href="3-triagem-adulto.html" class="action-card">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <!-- Card Adultos com novo ícone e cor -->
+          <a href="3-triagem-adulto.html" class="action-card adult">
             <div class="offline-badge hidden" id="adult-triage-offline-badge">Offline</div>
             <div class="mb-4 p-4 bg-blue-100 rounded-full">
-              <svg class="w-10 h-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-blue-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
             <h3 class="font-bold text-gray-800" data-i18n="adultsTitle">ATENÇÃO ADULTOS</h3>
             <p class="text-sm text-gray-500 mt-1" data-i18n="adultsDesc">Avalie sintomas e receba orientação.</p>
           </a>
-          <a href="3b-triagem-pediatria.html" class="action-card">
+          <!-- Card Pediatria com novo ícone e cor -->
+          <a href="3b-triagem-pediatria.html" class="action-card pediatric">
             <div class="offline-badge hidden" id="pediatric-triage-offline-badge">Offline</div>
             <div class="mb-4 p-4 bg-pink-100 rounded-full">
-              <svg class="w-10 h-10 text-pink-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.5-2.28a4.5 4.5 0 00-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 001.13-1.897M16.5 7.5V12m0 0v-4.5m0 4.5h-4.5m4.5 0h4.5M3 18.75h4.5m-4.5 0a3 3 0 013-3h1.5a3 3 0 013 3m-7.5 0v-4.5A3.375 3.375 0 016.375 7.5h1.5c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125h-1.5a3.375 3.375 0 01-3.375-3.375V9.75" />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-pink-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9 9.75h.008v.008H9V9.75zm6 0h.008v.008H15V9.75z" />
               </svg>
             </div>
             <h3 class="font-bold text-gray-800" data-i18n="pediatricsTitle">ATENÇÃO PEDIATRIA</h3>
             <p class="text-sm text-gray-500 mt-1" data-i18n="pediatricsDesc">Cuidado especializado para crianças.</p>
           </a>
-          <!-- NOVO CARTÃO ASSISTENTE GOB -->
-          <a href="3c-assistente-gob.html" class="action-card">
+          <!-- Card GOB com novo nome, ícone e cor -->
+          <a href="3c-assistente-gob.html" class="action-card gob">
             <div class="offline-badge hidden" id="gob-triage-offline-badge">Offline</div>
             <div class="mb-4 p-4 bg-purple-100 rounded-full">
-              <svg class="w-10 h-10 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.691v4.992" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.198.934 7.172 2.502C21.066 7.07 22.5 9.444 22.5 12c0 2.556-1.434 4.93-3.328 6.498C17.198 20.066 14.755 21 12 21c-2.755 0-5.198-.934-7.172-2.502C2.934 16.93 1.5 14.556 1.5 12c0-2.556 1.434-4.93 3.328-6.498C6.802 3.934 9.245 3 12 3z" />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-purple-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
               </svg>
             </div>
-            <h3 class="font-bold text-gray-800" data-i18n="gobTitle">ASSISTENTE GOB</h3>
+            <h3 class="font-bold text-gray-800" data-i18n="gobTitle">ATENÇÃO OBSTETRÍCIA</h3>
             <p class="text-sm text-gray-500 mt-1" data-i18n="gobDesc">Triagem e suporte para Ginecologia e Obstetrícia.</p>
           </a>
-        </div>
-      </section>
-
-      <!-- Ferramentas -->
-      <section class="mt-10">
-        <h2 class="text-xl font-bold text-gray-800 mb-4" data-i18n="toolsSupport">Ferramentas e Suporte</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-5">
-          <a href="5-assistente-ia.html" class="action-card">
-            <div class="offline-badge hidden" id="ai-assistant-offline-badge">Offline</div>
-            <div class="mb-4 p-3 bg-green-100 rounded-full">
-              <svg class="w-8 h-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.572L16.5 21.75l-.398-1.178a3.375 3.375 0 00-2.31-2.31L12.602 18l1.178-.398a3.375 3.375 0 002.31 2.31L16.5 14.25l.398 1.178a3.375 3.375 0 002.31 2.31l1.178.398-1.178.398a3.375 3.375 0 00-2.31 2.31z" />
-              </svg>
-            </div>
-            <h3 class="font-bold text-gray-800" data-i18n="aiAssistant">ASSISTENTE IA</h3>
-          </a>
-          <a href="8-medicamentos.html" class="action-card">
+          <!-- Card Medicamentos com novo ícone e cor -->
+          <a href="8-medicamentos.html" class="action-card meds">
             <div class="offline-badge hidden" id="medications-offline-badge">Offline</div>
-            <div class="mb-4 p-3 bg-orange-100 rounded-full">
-              <svg class="w-8 h-8 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11.354 1.093A3.75 3.75 0 0112 1.5h.003c.365 0 .717.056 1.06.163l.164.055a.75.75 0 00.675-.281l.055-.164a3.75 3.75 0 015.694 5.694l-.163.055a.75.75 0 00-.281.675l.055.164A3.75 3.75 0 0118.5 12h-1.5a.75.75 0 00-.75.75v3a.75.75 0 00.75.75h1.5c.365 0 .717-.056 1.06-.163l.164-.055a.75.75 0 00.675.281l.055.164a3.75 3.75 0 01-5.694 5.694l-.163-.055a.75.75 0 00-.675.281l-.055-.164a3.75 3.75 0 01-6.756-3.033l.055-.164a.75.75 0 00.281-.675l-.164-.055A3.75 3.75 0 014.5 12h1.5a.75.75 0 00.75-.75v-3a.75.75 0 00-.75-.75h-1.5a3.75 3.75 0 01-2.907-5.857l.164-.055a.75.75 0 00.281-.675l-.055-.164a3.75 3.75 0 013.033-6.756l.164.055a.75.75 0 00.675.281l.055.164z" />
+            <div class="mb-4 p-4 bg-green-100 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-green-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <h3 class="font-bold text-gray-800" data-i18n="meds">MEDICAMENTOS</h3>
-          </a>
-          <a href="6-textos-biblicos.html" class="action-card">
-            <div class="offline-badge hidden" id="bible-offline-badge">Offline</div>
-            <div class="mb-4 p-3 bg-purple-100 rounded-full">
-              <svg class="w-8 h-8 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-              </svg>
-            </div>
-            <h3 class="font-bold text-gray-800" data-i18n="dailyRenewal">RENOVAÇÃO DIÁRIA</h3>
           </a>
         </div>
       </section>
     </main>
   </div>
-  <!-- Barra inferior -->
-  <nav class="bottom-nav">
-    <div class="max-w-4xl mx-auto px-4">
-      <div class="grid grid-cols-5 gap-1">
-        <a href="index.html" class="nav-item active">
-          <i class="fas fa-home text-xl mb-1"></i><span class="text-xs">Início</span>
-        </a>
-        <a href="3-triagem-adulto.html" class="nav-item">
-          <i class="fas fa-user-injured text-xl mb-1"></i><span class="text-xs">Triagem</span>
-        </a>
-        <a href="5-assistente-ia.html" class="nav-item">
-          <i class="fas fa-robot text-xl mb-1"></i><span class="text-xs">Assistente</span>
-        </a>
-        <a href="8-medicamentos.html" class="nav-item">
-          <i class="fas fa-pills text-xl mb-1"></i><span class="text-xs">Medicamentos</span>
-        </a>
-        <a href="9-contatos.html" class="nav-item">
-          <i class="fas fa-address-book text-xl mb-1"></i><span class="text-xs">Contatos</span>
-        </a>
-      </div>
-    </div>
-  </nav>
+  
   <script>
     const translations = {
-      pt: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Se você estiver apresentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.", disclaimerTitle:"AVISO DE RESPONSABILIDADE", disclaimerP1:"O MissionCare Plus é uma ferramenta de apoio educacional. As informações aqui contidas <strong>não substituem</strong> uma consulta médica.", disclaimerP2:"Em caso de emergência, procure ajuda médica imediatamente.", mainTitle:"MissionCare Plus", subtitle:"\"Levando cura e esperança aos confins da Terra\"", criticalActions:"Ações Críticas", emergenciesTitle:"Guia de Emergências", emergenciesDesc:"Primeiros socorros e orientação rápida.", featuredResources:"Recursos Destacados", mainAttention:"Atenção Principal", adultsTitle:"ATENÇÃO ADULTOS", adultsDesc:"Avalie sintomas e receba orientação.", pediatricsTitle:"ATENÇÃO PEDIATRIA", pediatricsDesc:"Cuidado especializado para crianças.", gobTitle: "ASSISTENTE GOB", gobDesc: "Triagem e suporte para Ginecologia e Obstetrícia.", toolsSupport:"Ferramentas e Suporte", aiAssistant:"ASSISTENTE IA", meds:"MEDICAMENTOS", dailyRenewal:"RENOVAÇÃO DIÁRIA", contacts:"CONTACTOS" },
-      es: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Si está presentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SÍNTOMAS GRAVES</a>, no use MissionCare Plus. En su lugar, contacte a los servicios de emergencia.", disclaimerTitle:"AVISO DE RESPONSABILIDAD", disclaimerP1:"MissionCare Plus es una herramienta de apoyo educativo. La información aquí contenida <strong>no reemplaza</strong> una consulta médica.", disclaimerP2:"En caso de emergencia, busque ayuda médica de inmediato.", mainTitle:"MissionCare Plus", subtitle:"\"Llevando sanación y esperanza hasta los confines de la Tierra\"", criticalActions:"Acciones Críticas", emergenciesTitle:"Guía de Emergencias", emergenciesDesc:"Primeros auxilios y orientación rápida.", featuredResources:"Recursos Destacados", mainAttention:"Atención Principal", adultsTitle:"ATENCIÓN ADULTOS", adultsDesc:"Evalúe síntomas y reciba orientación.", pediatricsTitle:"ATENCIÓN PEDIATRÍA", pediatricsDesc:"Cuidado especializado para niños.", gobTitle: "ASISTENTE GOB", gobDesc: "Triaje y soporte para Ginecología y Obstetricia.", toolsSupport:"Herramientas y Soporte", aiAssistant:"ASISTENTE IA", meds:"MEDICAMENTOS", dailyRenewal:"RENOVACIÓN DIARIA", contacts:"CONTACTOS" },
-      en: { emergencyAlertTitle:"Important Notice", emergencyAlertText:"If you are experiencing <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SEVERE SYMPTOMS</a>, do not use MissionCare Plus. Instead, contact emergency services.", disclaimerTitle:"DISCLAIMER", disclaimerP1:"MissionCare Plus is an educational support tool. The information herein <strong>does not replace</strong> a medical consultation.", disclaimerP2:"In case of emergency, seek medical help immediately.", mainTitle:"MissionCare Plus", subtitle:"\"Bringing healing and hope to the ends of the Earth\"", criticalActions:"Critical Actions", emergenciesTitle:"Emergency Guide", emergenciesDesc:"First aid and quick guidance.", featuredResources:"Featured Resources", mainAttention:"Main Care", adultsTitle:"ADULT CARE", adultsDesc:"Evaluate symptoms and receive guidance.", pediatricsTitle:"PEDIATRIC CARE", pediatricsDesc:"Specialized care for children.", gobTitle: "OB/GYN ASSISTANT", gobDesc: "Triage and support for Gynecology & Obstetrics.", toolsSupport:"Tools and Support", aiAssistant:"AI ASSISTANT", meds:"MEDICATIONS", dailyRenewal:"DAILY RENEWAL", contacts:"CONTACTS" }
+      pt: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Se você estiver apresentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.", disclaimerTitle:"AVISO DE RESPONSABILIDADE", disclaimerP1:"O MissionCare Plus é uma ferramenta de apoio educacional. As informações aqui contidas <strong>não substituem</strong> uma consulta médica.", disclaimerP2:"Em caso de emergência, procure ajuda médica imediatamente.", mainTitle:"MissionCare Plus", subtitle:"\"Levando cura e esperança aos confins da Terra\"", criticalActions:"Ações Críticas", emergenciesTitle:"Guia de Emergências", emergenciesDesc:"Primeiros socorros e orientação rápida.", mainAttention:"Atenção Principal e Ferramentas", adultsTitle:"ATENÇÃO ADULTOS", adultsDesc:"Avalie sintomas e receba orientação.", pediatricsTitle:"ATENÇÃO PEDIATRIA", pediatricsDesc:"Cuidado especializado para crianças.", gobTitle: "ATENÇÃO OBSTETRÍCIA", gobDesc: "Triagem e suporte para Ginecologia e Obstetrícia.", meds:"MEDICAMENTOS", onlineContent:"Conteúdo atualizado disponível online", offlineContent:"Versão básica offline disponível" },
+      es: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Si está presentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SÍNTOMAS GRAVES</a>, no use MissionCare Plus. En su lugar, contacte a los servicios de emergencia.", disclaimerTitle:"AVISO DE RESPONSABILIDAD", disclaimerP1:"MissionCare Plus es una herramienta de apoyo educativo. La información aquí contenida <strong>no reemplaza</strong> una consulta médica.", disclaimerP2:"En caso de emergencia, busque ayuda médica de inmediato.", mainTitle:"MissionCare Plus", subtitle:"\"Llevando sanación y esperanza hasta los confines de la Tierra\"", criticalActions:"Acciones Críticas", emergenciesTitle:"Guía de Emergencias", emergenciesDesc:"Primeros auxilios y orientación rápida.", mainAttention:"Atención Principal y Herramientas", adultsTitle:"ATENCIÓN ADULTOS", adultsDesc:"Evalúe síntomas y reciba orientación.", pediatricsTitle:"ATENCIÓN PEDIATRIA", pediatricsDesc:"Cuidado especializado para niños.", gobTitle: "ATENCIÓN OBSTETRICIA", gobDesc: "Triaje y soporte para Ginecología y Obstetricia.", meds:"MEDICAMENTOS", onlineContent:"Contenido actualizado disponible en línea", offlineContent:"Versión básica sin conexión disponible" },
+      en: { emergencyAlertTitle:"Important Notice", emergencyAlertText:"If you are experiencing <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SEVERE SYMPTOMS</a>, do not use MissionCare Plus. Instead, contact emergency services.", disclaimerTitle:"DISCLAIMER", disclaimerP1:"MissionCare Plus is an educational support tool. The information herein <strong>does not replace</strong> a medical consultation.", disclaimerP2:"In case of emergency, seek medical help immediately.", mainTitle:"MissionCare Plus", subtitle:"\"Bringing healing and hope to the ends of the Earth\"", criticalActions:"Critical Actions", emergenciesTitle:"Emergency Guide", emergenciesDesc:"First aid and quick guidance.", mainAttention:"Main Care and Tools", adultsTitle:"ADULT CARE", adultsDesc:"Evaluate symptoms and receive guidance.", pediatricsTitle:"PEDIATRIC CARE", pediatricsDesc:"Specialized care for children.", gobTitle: "OBSTETRIC CARE", gobDesc: "Triage and support for Gynecology & Obstetrics.", meds:"MEDICATIONS", onlineContent:"Updated content available online", offlineContent:"Basic offline version available" }
     };
     let currentLang = localStorage.getItem('lang') || 'pt';
     function updateContent(dict) {
@@ -257,23 +191,20 @@
     }
     function debounce(fn, wait){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
     function updateConnectionStatus() {
-      const status = document.getElementById('connection-status');
-      const text = document.getElementById('connection-text');
-      if (navigator.onLine) {
-        status.className = 'connection-status online';
-        text.textContent = 'Online';
-      } else {
-        status.className = 'connection-status offline';
-        text.textContent = 'Offline';
-      }
+      const isOnline = navigator.onLine;
+      document.querySelectorAll('.online-content').forEach(el => el.classList.toggle('hidden', !isOnline));
+      document.querySelectorAll('.offline-content').forEach(el => el.classList.toggle('hidden', isOnline));
+      document.querySelectorAll('.offline-badge').forEach(badge => badge.classList.toggle('hidden', isOnline));
     }
     document.addEventListener('DOMContentLoaded', () => {
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW reg failed:', err));
+        navigator.serviceWorker.register('sw.js').catch(err => console.error('SW reg failed:', err));
       }
+      
       updateConnectionStatus();
       window.addEventListener('online', updateConnectionStatus);
       window.addEventListener('offline', updateConnectionStatus);
+
       const langBtns = document.querySelectorAll('.lang-btn');
       langBtns.forEach(btn => {
         btn.addEventListener('click', debounce(() => {
@@ -308,3 +239,4 @@
   </script>
 </body>
 </html>
+
