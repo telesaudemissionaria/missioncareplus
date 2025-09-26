@@ -1,89 +1,86 @@
-const express = require('express');
-const OpenAI = require('openai');
-const cors = require('cors');
+
 require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const OpenAI = require('openai');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// OpenAI Client Initialization
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// --- Assistant ID Mapping ---
-const assistantMapping = {
-  'clinica': 'asst_qitIwbREUyPY1GRIYH7vYQx0',
-  'emergencias': 'asst_NU2rjoLUZiECJ711IE1pXotZ',
-  'gob': 'asst_6Y4J1zJGLhr7Wy129uj4shtA',
-  'pediatria': 'asst_AMRI91iC8Efv90P41K3PVATV',
+// Objeto para mapear nomes de assistentes para seus IDs
+const assistantIds = {
+  'clinica': 'asst_pQf3n1iGfI213a7p4l3l3Zz4', // Exemplo de ID para o assistente da clínica
+  // Adicione outros assistentes aqui se necessário
+  // 'outro_assistente': 'asst_xxxxxxxxxxxxxxxxxxxx'
 };
 
-// +++ HEALTH CHECK ROUTE +++
-app.get('/', (req, res) => {
-  res.status(200).json({ ok: true, message: "Backend is alive!" });
-});
-
-// Generic assistant runner endpoint
+// Rota principal para executar um assistente
 app.post('/api/assistants/run/:assistantName', async (req, res) => {
   const { assistantName } = req.params;
-  const assistantId = assistantMapping[assistantName];
-
-  if (!assistantId) {
-    return res.status(404).json({ ok: false, error: `Assistant '${assistantName}' not found.` });
-  }
-  
   const { message } = req.body;
 
-  if (!message) {
-    return res.status(400).json({ ok: false, error: 'Message is required.' });
+  const assistantId = assistantIds[assistantName];
+
+  if (!assistantId) {
+    return res.status(404).json({ error: 'Assistente não encontrado.' });
   }
 
-  console.log(`Running assistant '${assistantName}' (ID: ${assistantId})`);
+  if (!message) {
+    return res.status(400).json({ error: 'A mensagem do usuário é obrigatória.' });
+  }
 
   try {
-    // ... (rest of the assistant logic is the same)
-    const thread = await openai.beta.threads.create({
-      messages: [
-        {
-          role: "user",
-          content: message,
-        },
-      ],
+    // 1. Criar uma Thread
+    const thread = await openai.beta.threads.create();
+
+    // 2. Adicionar a mensagem do usuário à Thread
+    await openai.beta.threads.messages.create(thread.id, {
+      role: 'user',
+      content: message,
     });
+
+    // 3. Executar o Assistente (Run)
     const run = await openai.beta.threads.runs.create(thread.id, {
       assistant_id: assistantId,
     });
-    
+
+    // 4. Aguardar a conclusão da execução (Polling)
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     while (runStatus.status !== 'completed') {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Espera 1 segundo
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-      
-      if (['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
-        return res.status(500).json({ ok: false, error: 'The assistant run failed.', details: runStatus.last_error });
-      }
     }
-    
-    const messages = await openai.beta.threads.messages.list(thread.id);
-    const assistantResponse = messages.data.find(m => m.role === 'assistant');
 
-    if (assistantResponse && assistantResponse.content[0].type === 'text') {
-      const responseText = assistantResponse.content[0].text.value;
-      res.json({ ok: true, text: responseText });
+    // 5. Obter as mensagens da Thread
+    const messages = await openai.beta.threads.messages.list(thread.id);
+
+    // 6. Encontrar a última mensagem do assistente
+    const assistantMessage = messages.data.find(m => m.role === 'assistant');
+
+    if (assistantMessage && assistantMessage.content[0].type === 'text') {
+      res.json({ ok: true, text: assistantMessage.content[0].text.value });
     } else {
-      res.status(500).json({ ok: false, error: 'Could not find a valid response from the assistant.' });
+      res.status(500).json({ error: 'Nenhuma resposta recebida do assistente.' });
     }
+
   } catch (error) {
-    console.error('Error running assistant:', error);
-    res.status(500).json({ ok: false, error: 'An error occurred while communicating with the OpenAI assistant.' });
+    console.error('Erro ao executar o assistente:', error);
+    res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
   }
 });
 
+// Rota de "health check" para verificar se o servidor está no ar
+app.get('/', (req, res) => {
+  res.send('Servidor do MissionCarePlus Backend está no ar!');
+});
+
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
