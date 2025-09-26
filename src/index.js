@@ -16,9 +16,7 @@ const openai = new OpenAI({
 
 // Objeto para mapear nomes de assistentes para seus IDs
 const assistantIds = {
-  'clinica': 'asst_pQf3n1iGfI213a7p4l3l3Zz4', // Exemplo de ID para o assistente da clínica
-  // Adicione outros assistentes aqui se necessário
-  // 'outro_assistente': 'asst_xxxxxxxxxxxxxxxxxxxx'
+  'clinica': 'asst_pQf3n1iGfI213a7p4l3l3Zz4',
 };
 
 // Rota principal para executar um assistente
@@ -37,31 +35,23 @@ app.post('/api/assistants/run/:assistantName', async (req, res) => {
   }
 
   try {
-    // 1. Criar uma Thread
     const thread = await openai.beta.threads.create();
-
-    // 2. Adicionar a mensagem do usuário à Thread
     await openai.beta.threads.messages.create(thread.id, {
       role: 'user',
       content: message,
     });
 
-    // 3. Executar o Assistente (Run)
     const run = await openai.beta.threads.runs.create(thread.id, {
       assistant_id: assistantId,
     });
 
-    // 4. Aguardar a conclusão da execução (Polling)
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     while (runStatus.status !== 'completed') {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Espera 1 segundo
+      await new Promise(resolve => setTimeout(resolve, 1000));
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     }
 
-    // 5. Obter as mensagens da Thread
     const messages = await openai.beta.threads.messages.list(thread.id);
-
-    // 6. Encontrar a última mensagem do assistente
     const assistantMessage = messages.data.find(m => m.role === 'assistant');
 
     if (assistantMessage && assistantMessage.content[0].type === 'text') {
@@ -76,7 +66,6 @@ app.post('/api/assistants/run/:assistantName', async (req, res) => {
   }
 });
 
-// Rota de "health check" para verificar se o servidor está no ar
 app.get('/', (req, res) => {
   res.send('Servidor do MissionCarePlus Backend está no ar!');
 });

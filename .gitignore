@@ -1,9 +1,2 @@
-# Dependencies
-/node_modules
-
-# Environment variables
+node_modules
 .env
-*.env
-
-# Backend Environment variables
-/missioncareplus-backend/.env
