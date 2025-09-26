@@ -11,19 +11,23 @@ app.use(cors());
 app.use(express.json());
 
 // OpenAI Client Initialization
-// A .env file with OPENAI_API_KEY is required in the same directory
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 // --- Assistant ID Mapping ---
-// Add your assistant names and corresponding IDs here
 const assistantMapping = {
   'clinica': 'asst_qitIwbREUyPY1GRIYH7vYQx0',
   'emergencias': 'asst_NU2rjoLUZiECJ711IE1pXotZ',
   'gob': 'asst_6Y4J1zJGLhr7Wy129uj4shtA',
   'pediatria': 'asst_AMRI91iC8Efv90P41K3PVATV',
 };
+
+// +++ HEALTH CHECK ROUTE +++
+// A simple route to verify the server is running.
+app.get('/', (req, res) => {
+  res.status(200).json({ ok: true, message: "Backend is alive!" });
+});
 
 // Generic assistant runner endpoint
 app.post('/api/assistants/run/:assistantName', async (req, res) => {
@@ -79,7 +83,6 @@ app.post('/api/assistants/run/:assistantName', async (req, res) => {
     const messages = await openai.beta.threads.messages.list(thread.id);
 
     // 5. Find the assistant's response
-    // The messages are in descending order, so the first one should be the latest assistant response.
     const assistantResponse = messages.data.find(m => m.role === 'assistant');
 
     if (assistantResponse && assistantResponse.content[0].type === 'text') {
