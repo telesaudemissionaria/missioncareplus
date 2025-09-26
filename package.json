@@ -1,0 +1,13 @@
+{
+  "name": "missioncareplus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node missioncareplus-backend/index.js",
+    "install-backend": "npm install --prefix missioncareplus-backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
