@@ -91,13 +91,14 @@
         <button id="lang-es" class="lang-btn" aria-label="Español">🇪🇸</button>
         <button id="lang-en" class="lang-btn" aria-label="English">🇬🇧</button>
       </div>
-       <!-- Cabeçalho simplificado -->
+        <!-- Cabeçalho simplificado -->
       <div class="pt-16 pb-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold text-blue-600" data-i18n="mainTitle">MissionCare Plus</h1>
         <p class="text-lg text-gray-500 mt-2" data-i18n="subtitle">"Levando cura e esperança aos confins da Terra"</p>
       </div>
     </header>
-    <main class="px-4 md:px-6 pb-8">
+    <!-- Adicionado padding-bottom para não sobrepor o conteúdo com a nova barra de navegação -->
+    <main class="px-4 md:px-6 pb-24">
       <!-- Ações Críticas -->
       <section>
         <h2 class="text-xl font-bold text-gray-800 mb-4 border-l-4 border-red-500 pl-3" data-i18n="criticalActions">Ações Críticas</h2>
@@ -171,11 +172,30 @@
     </main>
   </div>
   
+  <!-- INÍCIO: Barra de Navegação Inferior Adicionada -->
+  <footer class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40">
+    <nav class="flex justify-around max-w-4xl mx-auto">
+      <a href="index.html" class="nav-item flex flex-col items-center justify-center text-center text-blue-600 p-2 w-1/3 transition-colors hover:bg-blue-50">
+        <i class="fas fa-home text-xl mb-1"></i>
+        <span class="text-xs font-medium" data-i18n="navHome">Início</span>
+      </a>
+      <a href="4-emergencias.html" class="nav-item flex flex-col items-center justify-center text-center text-gray-600 p-2 w-1/3 transition-colors hover:bg-gray-100">
+        <i class="fas fa-kit-medical text-xl mb-1"></i>
+        <span class="text-xs font-medium" data-i18n="navEmergencies">Emergências</span>
+      </a>
+      <a href="9-contatos.html" class="nav-item flex flex-col items-center justify-center text-center text-gray-600 p-2 w-1/3 transition-colors hover:bg-gray-100">
+        <i class="fas fa-headset text-xl mb-1"></i>
+        <span class="text-xs font-medium" data-i18n="navContact">Contato</span>
+      </a>
+    </nav>
+  </footer>
+  <!-- FIM: Barra de Navegação Inferior Adicionada -->
+  
   <script>
     const translations = {
-      pt: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Se você estiver apresentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.", disclaimerTitle:"AVISO DE RESPONSABILIDADE", disclaimerP1:"O MissionCare Plus é uma ferramenta de apoio educacional. As informações aqui contidas <strong>não substituem</strong> uma consulta médica.", disclaimerP2:"Em caso de emergência, procure ajuda médica imediatamente.", mainTitle:"MissionCare Plus", subtitle:"\"Levando cura e esperança aos confins da Terra\"", criticalActions:"Ações Críticas", emergenciesTitle:"Guia de Emergências", emergenciesDesc:"Primeiros socorros e orientação rápida.", mainAttention:"Atenção Principal e Ferramentas", adultsTitle:"ATENÇÃO ADULTOS", adultsDesc:"Avalie sintomas e receba orientação.", pediatricsTitle:"ATENÇÃO PEDIATRIA", pediatricsDesc:"Cuidado especializado para crianças.", gobTitle: "ATENÇÃO OBSTETRÍCIA", gobDesc: "Triagem e suporte para Ginecologia e Obstetrícia.", meds:"MEDICAMENTOS", onlineContent:"Conteúdo atualizado disponível online", offlineContent:"Versão básica offline disponível" },
-      es: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Si está presentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SÍNTOMAS GRAVES</a>, no use MissionCare Plus. En su lugar, contacte a los servicios de emergencia.", disclaimerTitle:"AVISO DE RESPONSABILIDAD", disclaimerP1:"MissionCare Plus es una herramienta de apoyo educativo. La información aquí contenida <strong>no reemplaza</strong> una consulta médica.", disclaimerP2:"En caso de emergencia, busque ayuda médica de inmediato.", mainTitle:"MissionCare Plus", subtitle:"\"Llevando sanación y esperanza hasta los confines de la Tierra\"", criticalActions:"Acciones Críticas", emergenciesTitle:"Guía de Emergencias", emergenciesDesc:"Primeros auxilios y orientación rápida.", mainAttention:"Atención Principal y Herramientas", adultsTitle:"ATENCIÓN ADULTOS", adultsDesc:"Evalúe síntomas y reciba orientación.", pediatricsTitle:"ATENCIÓN PEDIATRIA", pediatricsDesc:"Cuidado especializado para niños.", gobTitle: "ATENCIÓN OBSTETRICIA", gobDesc: "Triaje y soporte para Ginecología y Obstetricia.", meds:"MEDICAMENTOS", onlineContent:"Contenido actualizado disponible en línea", offlineContent:"Versión básica sin conexión disponible" },
-      en: { emergencyAlertTitle:"Important Notice", emergencyAlertText:"If you are experiencing <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SEVERE SYMPTOMS</a>, do not use MissionCare Plus. Instead, contact emergency services.", disclaimerTitle:"DISCLAIMER", disclaimerP1:"MissionCare Plus is an educational support tool. The information herein <strong>does not replace</strong> a medical consultation.", disclaimerP2:"In case of emergency, seek medical help immediately.", mainTitle:"MissionCare Plus", subtitle:"\"Bringing healing and hope to the ends of the Earth\"", criticalActions:"Critical Actions", emergenciesTitle:"Emergency Guide", emergenciesDesc:"First aid and quick guidance.", mainAttention:"Main Care and Tools", adultsTitle:"ADULT CARE", adultsDesc:"Evaluate symptoms and receive guidance.", pediatricsTitle:"PEDIATRIC CARE", pediatricsDesc:"Specialized care for children.", gobTitle: "OBSTETRIC CARE", gobDesc: "Triage and support for Gynecology & Obstetrics.", meds:"MEDICATIONS", onlineContent:"Updated content available online", offlineContent:"Basic offline version available" }
+      pt: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Se você estiver apresentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.", disclaimerTitle:"AVISO DE RESPONSABILIDADE", disclaimerP1:"O MissionCare Plus é uma ferramenta de apoio educacional. As informações aqui contidas <strong>não substituem</strong> uma consulta médica.", disclaimerP2:"Em caso de emergência, procure ajuda médica imediatamente.", mainTitle:"MissionCare Plus", subtitle:"\"Levando cura e esperança aos confins da Terra\"", criticalActions:"Ações Críticas", emergenciesTitle:"Guia de Emergências", emergenciesDesc:"Primeiros socorros e orientação rápida.", mainAttention:"Atenção Principal e Ferramentas", adultsTitle:"ATENÇÃO ADULTOS", adultsDesc:"Avalie sintomas e receba orientação.", pediatricsTitle:"ATENÇÃO PEDIATRIA", pediatricsDesc:"Cuidado especializado para crianças.", gobTitle: "ATENÇÃO OBSTETRÍCIA", gobDesc: "Triagem e suporte para Ginecologia e Obstetrícia.", meds:"MEDICAMENTOS", onlineContent:"Conteúdo atualizado disponível online", offlineContent:"Versão básica offline disponível", navHome:"Início", navEmergencies:"Emergências", navContact:"Contato" },
+      es: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Si está presentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SÍNTOMAS GRAVES</a>, no use MissionCare Plus. En su lugar, contacte a los servicios de emergencia.", disclaimerTitle:"AVISO DE RESPONSABILIDAD", disclaimerP1:"MissionCare Plus es una herramienta de apoyo educativo. La información aquí contenida <strong>no reemplaza</strong> una consulta médica.", disclaimerP2:"En caso de emergencia, busque ayuda médica de inmediato.", mainTitle:"MissionCare Plus", subtitle:"\"Llevando sanación y esperanza hasta los confines de la Tierra\"", criticalActions:"Acciones Críticas", emergenciesTitle:"Guía de Emergencias", emergenciesDesc:"Primeros auxilios y orientación rápida.", mainAttention:"Atención Principal y Herramientas", adultsTitle:"ATENCIÓN ADULTOS", adultsDesc:"Evalúe síntomas y reciba orientación.", pediatricsTitle:"ATENCIÓN PEDIATRIA", pediatricsDesc:"Cuidado especializado para niños.", gobTitle: "ATENCIÓN OBSTETRICIA", gobDesc: "Triaje y soporte para Ginecología y Obstetricia.", meds:"MEDICAMENTOS", onlineContent:"Contenido actualizado disponible en línea", offlineContent:"Versão básica sin conexión disponible", navHome:"Inicio", navEmergencies:"Emergencias", navContact:"Contacto" },
+      en: { emergencyAlertTitle:"Important Notice", emergencyAlertText:"If you are experiencing <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SEVERE SYMPTOMS</a>, do not use MissionCare Plus. Instead, contact emergency services.", disclaimerTitle:"DISCLAIMER", disclaimerP1:"MissionCare Plus is an educational support tool. The information herein <strong>does not replace</strong> a medical consultation.", disclaimerP2:"In case of emergency, seek medical help immediately.", mainTitle:"MissionCare Plus", subtitle:"\"Bringing healing and hope to the ends of the Earth\"", criticalActions:"Critical Actions", emergenciesTitle:"Emergency Guide", emergenciesDesc:"First aid and quick guidance.", mainAttention:"Main Care and Tools", adultsTitle:"ADULT CARE", adultsDesc:"Evaluate symptoms and receive guidance.", pediatricsTitle:"PEDIATRIC CARE", pediatricsDesc:"Specialized care for children.", gobTitle: "OBSTETRIC CARE", gobDesc: "Triage and support for Gynecology & Obstetrics.", meds:"MEDICATIONS", onlineContent:"Updated content available online", offlineContent:"Basic offline version available", navHome:"Home", navEmergencies:"Emergencies", navContact:"Contact" }
     };
     let currentLang = localStorage.getItem('lang') || 'pt';
     function updateContent(dict) {
@@ -239,4 +259,3 @@
   </script>
 </body>
 </html>
-
