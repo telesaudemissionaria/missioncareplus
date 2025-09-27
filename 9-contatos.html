@@ -147,7 +147,7 @@
         <div>
             <!-- Cabeçalho -->
             <header class="sticky top-0 z-10 flex items-center bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-                <a href="1-inicio.html" class="text-gray-600 hover:text-teal-700 p-2 -ml-2 rounded-full transition-colors duration-200">
+                <a href="index.html" class="text-gray-600 hover:text-teal-700 p-2 -ml-2 rounded-full transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
                 </a>
                 <h1 data-i18n='contatos.titulo' class="text-gray-800 text-xl font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-8">Contato e Suporte</h1>
@@ -161,7 +161,7 @@
             </header>
 
             <!-- Conteúdo da Página -->
-            <main class="flex-grow pb-24 max-w-2xl mx-auto">
+            <main class="flex-grow pb-24 max-w-2xl mx-auto w-full">
                 <!-- Informações da Missão -->
                 <div class="p-4">
                     <div class="bg-white rounded-xl p-4 text-center border border-gray-200 shadow-sm">
@@ -202,25 +202,6 @@
                         </div>
                     </div>
 
-                    <!-- NOVO CARD: Suporte Emocional e Espiritual -->
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-                                <svg class="w-6 h-6 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256"><path d="M240,94c0,70-103.79,126.66-108.21,129.a1a15.93,15.93,0,0,1-19.58,0C107.79,220.66,4,164,4,94A62,62,0,0,1,66,32a62.42,62.42,0,0,1,62,62A62.42,62.42,0,0,1,190,32,62,62,0,0,1,240,94Z"></path></svg>
-                            </div>
-                            <div class="flex-1">
-                                <h3 class="font-bold text-purple-700 text-lg" data-i18n="support.title">Apoio Emocional e Espiritual</h3>
-                                <p class="text-sm text-gray-600" data-i18n="support.desc">Precisa conversar, de oração ou um ombro amigo?</p>
-                            </div>
-                        </div>
-                        <a href="mailto:cuidado@missioncare.plus?subject=Pedido de Oração e Apoio" class="w-full block text-center bg-purple-600 text-white p-3 rounded-lg font-bold hover:bg-purple-700 transition-colors shadow-md">
-                            <span data-i18n="support.email_btn">Enviar um Email Confidencial</span>
-                        </a>
-                        <div class="offline-info">
-                            <p data-i18n="support.offline_info">Guarde nosso email de apoio para quando estiver online: <strong>cuidado@missioncare.plus</strong></p>
-                        </div>
-                    </div>
-
                     <!-- Email Geral -->
                     <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
                         <div class="flex items-center mb-3">
@@ -242,11 +223,8 @@
                         <h3 class="font-bold text-gray-700 mb-3 flex items-center text-lg" data-i18n="social.title">
                             <span class="mr-2 text-xl">🌐</span> Siga-nos nas redes sociais
                         </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <button onclick="abrirRedeSocial('facebook')" class="flex items-center justify-center p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md">
-                                <span class="mr-2">📘</span> Facebook
-                            </button>
-                            <button onclick="abrirRedeSocial('instagram')" class="flex items-center justify-center p-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors font-semibold shadow-md">
+                        <div class="flex justify-center">
+                            <button onclick="abrirRedeSocial('instagram')" class="flex items-center justify-center p-3 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-colors font-semibold shadow-md w-full sm:w-auto sm:min-w-[200px]">
                                 <span class="mr-2">📷</span> Instagram
                             </button>
                         </div>
@@ -282,21 +260,9 @@
     <!-- Barra de Navegação Inferior -->
     <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
         <nav class="flex justify-around items-center h-16 max-w-2xl mx-auto">
-            <a href="https://telesaudemissionaria.github.io/missioncare-plus/" class="bottom-nav-item" id="nav-home">
+            <a href="index.html" class="bottom-nav-item active" id="nav-home">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h9.75a1.125 1.125 0 001.125-1.125V9.75M8.25 21h8.25" /></svg>
                 <span data-i18n="nav.home">Início</span>
-            </a>
-            <a href="4-emergencias.html" class="bottom-nav-item" id="nav-emergencies">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
-                <span data-i18n="nav.emergencies">Emergências</span>
-            </a>
-            <a href="5. assistenteIA.html" class="bottom-nav-item" id="nav-ai-assistant">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.572L16.5 21.75l-.398-1.178a3.375 3.375 0 00-2.31-2.31L12.602 18l1.178-.398a3.375 3.375 0 002.31 2.31L16.5 14.25l.398 1.178a3.375 3.375 0 002.31 2.31l1.178.398-1.178.398a3.375 3.375 0 00-2.31 2.31z" /></svg>
-                <span data-i18n="nav.ai_assistant">Assistente IA</span>
-            </a>
-            <a href="9-contatos.html" class="bottom-nav-item active" id="nav-contacts">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
-                <span data-i18n="nav.contacts">Contatos</span>
             </a>
         </nav>
     </footer>
@@ -314,19 +280,12 @@
                 'whatsapp.offline_info_label': 'Ligue para:',
                 'whatsapp.copy_btn': 'Copiar Número',
                 'whatsapp.copied_success': 'Número copiado!',
-                'support.title': 'Apoio Emocional e Espiritual',
-                'support.desc': 'Precisa conversar, de oração ou um ombro amigo?',
-                'support.email_btn': 'Enviar um Email Confidencial',
-                'support.offline_info': 'Guarde nosso email de apoio para quando estiver online: cuidado@missioncare.plus',
                 'email.title': 'Email Geral',
                 'email.desc': 'Para dúvidas, sugestões e informações gerais.',
                 'social.title': 'Siga-nos nas redes sociais',
                 'social.offline_info': 'Conecte-se conosco quando estiver online para receber encorajamento e notícias.',
                 'feedback.close_button': 'Fechar',
                 'nav.home': 'Início',
-                'nav.emergencies': 'Emergências',
-                'nav.ai_assistant': 'Assistente IA',
-                'nav.contacts': 'Contatos',
                 'offline.indicator': 'Modo Offline',
                 'offline.mode_alert': 'Modo Offline ativado. Algumas funcionalidades podem estar limitadas.'
             },
@@ -341,19 +300,12 @@
                 'whatsapp.offline_info_label': 'Llame a:',
                 'whatsapp.copy_btn': 'Copiar Número',
                 'whatsapp.copied_success': '¡Número copiado!',
-                'support.title': 'Apoyo Emocional y Espiritual',
-                'support.desc': '¿Necesitas hablar, oración o un hombro amigo?',
-                'support.email_btn': 'Enviar un Correo Confidencial',
-                'support.offline_info': 'Guarde nuestro correo de apoyo para cuando esté en línea: cuidado@missioncare.plus',
                 'email.title': 'Correo General',
                 'email.desc': 'Para dudas, sugerencias e información general.',
                 'social.title': 'Síganos en redes sociales',
                 'social.offline_info': 'Conéctese con nosotros cuando esté en línea para recibir aliento y noticias.',
                 'feedback.close_button': 'Cerrar',
                 'nav.home': 'Inicio',
-                'nav.emergencies': 'Emergencias',
-                'nav.ai_assistant': 'Asistente IA',
-                'nav.contacts': 'Contactos',
                 'offline.indicator': 'Modo Offline',
                 'offline.mode_alert': 'Modo sin conexión activado. Algunas funcionalidades pueden estar limitadas.'
             },
@@ -368,19 +320,12 @@
                 'whatsapp.offline_info_label': 'Call:',
                 'whatsapp.copy_btn': 'Copy Number',
                 'whatsapp.copied_success': 'Number copied!',
-                'support.title': 'Emotional and Spiritual Support',
-                'support.desc': 'Need to talk, prayer, or a friendly ear?',
-                'support.email_btn': 'Send a Confidential Email',
-                'support.offline_info': 'Save our support email for when you are online: care@missioncare.plus',
                 'email.title': 'General Email',
                 'email.desc': 'For questions, suggestions, and general information.',
                 'social.title': 'Follow us on social media',
                 'social.offline_info': 'Connect with us when you are online to receive encouragement and news.',
                 'feedback.close_button': 'Close',
                 'nav.home': 'Home',
-                'nav.emergencies': 'Emergencies',
-                'nav.ai_assistant': 'AI Assistant',
-                'nav.contacts': 'Contacts',
                 'offline.indicator': 'Offline Mode',
                 'offline.mode_alert': 'Offline mode activated. Some features may be limited.'
             }
@@ -448,9 +393,7 @@
             }
             
             const urls = {
-                // ATUALIZAÇÃO: Link do Facebook corrigido
-                facebook: 'https://www.facebook.com/MissionaryMedicalCare/',
-                instagram: 'https://www.instagram.com/missioncareplus'
+                instagram: 'https://www.instagram.com/missionarymedicalcare/'
             };
             
             const url = urls[redeSocial];
@@ -466,8 +409,8 @@
                 showMessage(translations[currentLang]['offline.mode_alert'], 'error');
                 return;
             }
-            // Link direto para o WhatsApp Business
-            const url = 'https://wa.me/message/DY63DAZ7BSHKL1';
+            // Link para o grupo de WhatsApp
+            const url = 'https://chat.whatsapp.com/EZ4WRQo1dQI7fzsHDk6K0A?mode=ems_share_t';
             window.open(url, '_blank');
         }
         
@@ -530,3 +473,4 @@
     </script>
 </body>
 </html>
+
