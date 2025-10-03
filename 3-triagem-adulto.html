@@ -50,11 +50,8 @@
 </head>
 <body class="bg-gray-50">
 
-    <!-- O INDICADOR DE CONEXÃO FOI PERMANENTEMENTE REMOVIDO -->
-
     <!-- MODAL DE ALERTA DE EMERGÊNCIA (Mantido) -->
     <div id="emergency-alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[60]">
-        <!-- Conteúdo do modal mantido... -->
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8">
             <div class="flex items-start gap-4">
                 <div class="flex-shrink-0 size-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -75,7 +72,7 @@
     
     <!-- Container da Aplicação -->
     <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-gray-50">
-        <!-- MODO ONLINE (Conteúdo mantido) -->
+        <!-- MODO ONLINE -->
         <div id="online-mode">
             <!-- TELA DE FORMULÁRIO (ANAMNESE) -->
             <div id="form-screen-online">
@@ -151,6 +148,18 @@
                         </div>
                     </form>
                 </main>
+                <!-- INÍCIO DA CORREÇÃO: Rodapé com botões de ação adicionado -->
+                <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0 z-20">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button id="generate-analysis-btn" class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-teal-600 hover:bg-teal-700" data-i18n="generateButton">
+                            <i class="fas fa-cogs mr-2"></i> Gerar Análise
+                        </button>
+                        <button id="clear-form-btn" class="w-full sm:w-auto flex items-center justify-center py-3 px-4 border border-gray-300 rounded-full shadow-lg text-lg font-bold text-gray-700 bg-white hover:bg-gray-100" data-i18n="clearButton">
+                            <i class="fas fa-undo mr-2"></i> Limpar
+                        </button>
+                    </div>
+                </footer>
+                <!-- FIM DA CORREÇÃO -->
             </div>
             
             <!-- TELA DE RESULTADOS ONLINE (Mantida) -->
@@ -169,23 +178,29 @@
                     <div id="tab-content">
                         <div id="orientation-content" class="prose max-w-none"></div>
                         <div id="summary-content" class="hidden"></div>
-                    </div>
-                </main>
-                <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0">
-                    <div class="flex gap-4">
-                        <button id="whatsapp-btn" class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-green-500 hover:bg-green-600" disabled>
-                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 14.2c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.2.4-.4.1-.1.2-.2.3-.4.1-.2.1-.3 0-.4-.1-.1-1.7-4.1-1.9-4.5-.2-.4-.4-.4-.6-.4h-.4c-.2 0-.5.2-.6.4-.2.2-.8.8-.8 1.9 0 1.2.8 2.2 1 2.4.1.2 1.5 2.3 3.7 3.2.5.2.9.4 1.2.5.5.2 1 .1 1.3-.1.4-.2.8-.9.9-1.7.1-.8.1-1.5 0-1.7-.1-.2-.3-.3-.5-.4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
-                            WhatsApp
-                        </button>
-                        <button id="pdf-btn" class="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-full shadow-lg text-lg font-bold text-gray-700 bg-white hover:bg-gray-100" data-i18n="pdfButton" disabled>
-                            Gerar PDF
-                        </button>
-                    </div>
-                </footer>
-            </div>
+                </div>
+            </main>
+            <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0 z-50">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <button id="whatsapp-btn" class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-green-500 hover:bg-green-600" disabled>
+                        <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 14.2c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.2.4-.4.1-.1.2-.2.3-.4.1-.2.1-.3 0-.4-.1-.1-1.7-4.1-1.9-4.5-.2-.4-.4-.4-.6-.4h-.4c-.2 0-.5.2-.6.4-.2.2-.8.8-.8 1.9 0 1.2.8 2.2 1 2.4.1.2 1.5 2.3 3.7 3.2.5.2.9.4 1.2.5.5.2 1 .1 1.3-.1.4-.2.8-.9.9-1.7.1-.8.1-1.5 0-1.7-.1-.2-.3-.3-.5-.4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
+                        WhatsApp
+                    </button>
+                    <button id="pdf-btn" class="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-full shadow-lg text-lg font-bold text-gray-700 bg-white hover:bg-gray-100" data-i18n="pdfButton" disabled>
+                        Gerar PDF
+                    </button>
+                    <button id="back-to-home-btn" class="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-full shadow-lg text-lg font-bold text-gray-700 bg-white hover:bg-gray-100" data-i18n="backToHomeButton">
+                        <i class="fas fa-home mr-2"></i> Início
+                    </button>
+                    <button id="new-analysis-btn" class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-teal-600 hover:bg-teal-700" data-i18n="newAnalysisButton">
+                        <i class="fas fa-redo mr-2"></i> Nova Análise
+                    </button>
+                </div>
+            </footer>
         </div>
-        
-        <!-- MODO OFFLINE (Conteúdo mantido) -->
+    </div>
+    
+    <!-- MODO OFFLINE (Conteúdo mantido) -->
         <div id="offline-mode" class="hidden">
             <!-- TELA DE FORMULÁRIO OFFLINE -->
             <div id="form-screen-offline">
@@ -238,6 +253,39 @@
                         </div>
                         <fieldset class="question-block">
                             <legend class="question-title" data-i18n="q3TitleOffline">4. Os sintomas estão:</legend>
-                            <div class="space
+                            <div class="space-y-3">
+                                <label class="choice-label"><input type="radio" name="progressao-sintomas-offline" value="Melhorando" class="choice-input form-radio"/> <span data-i18n="q5Opt1">Melhorando</span></label>
+                                <label class="choice-label"><input type="radio" name="progressao-sintomas-offline" value="Piorando" class="choice-input form-radio"/> <span data-i18n="q5Opt2">Piorando</span></label>
+                                <label class="choice-label"><input type="radio" name="progressao-sintomas-offline" value="Iguais" class="choice-input form-radio"/> <span data-i18n="q5Opt3">Iguais</span></label>
+                            </div>
+                        </fieldset>
+                    </form>
+                </main>
+                <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0 z-20">
+                     <div class="flex gap-4">
+                        <button id="save-offline-btn" class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-teal-600 hover:bg-teal-700" data-i18n="saveOfflineButton">
+                           <i class="fas fa-save mr-2"></i> Salvar para Sincronizar
+                        </button>
+                    </div>
+                </footer>
+            </div>
+
+             <!-- TELA DE RESULTADOS OFFLINE (A ser implementada) -->
+            <div id="results-screen-offline" class="hidden">
+                 <!-- Conteúdo para resultados offline -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Todo o seu JavaScript pode vir aqui.
+        // Por exemplo, a lógica para alternar entre as telas,
+        // gerenciar o estado online/offline, e manipular o formulário.
+    </script>
+
+</body>
+</html>
+
+
 
 
