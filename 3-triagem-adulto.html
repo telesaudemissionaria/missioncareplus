@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="pageTitle">Anamnese Simplificada - MissionCare Plus</title>
     
-    <!-- Importação de Fontes, Tailwind e Font Awesome -->
+    <!-- Fontes, Tailwind, Font Awesome -->
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
@@ -20,14 +20,13 @@
     <script src="/js/sync-manager.js"></script>
     
     <style>
-        /* SEUS ESTILOS ORIGINAIS FORAM MANTIDOS */
+        /* Seus estilos originais foram mantidos */
         body {
             font-family: 'Lexend', 'Noto Sans', sans-serif;
             --primary-color: #0d9488; /* teal-600 */
             --primary-color-light: #ccfbf1; /* teal-100 */
-            padding-bottom: 160px; /* Espaço para os dois rodapés fixos */
+            padding-bottom: 150px; /* Aumentado para garantir espaço para os botões de rodapé */
         }
-        .hidden { display: none; }
         .tab-button.active { border-bottom-color: var(--primary-color); color: var(--primary-color); font-weight: 600; }
         .lang-btn { padding: 0.25rem 0.5rem; border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
         .lang-btn.active { border-color: var(--primary-color); background-color: white; }
@@ -46,189 +45,199 @@
         #orientation-content p { margin-bottom: 1rem; line-height: 1.6; color: #374151;}
         #orientation-content strong { font-weight: 700; }
         .offline-banner { background-color: #fee2e2; color: #991b1b; padding: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body class="bg-gray-50">
-    
+
+    <!-- O INDICADOR DE CONEXÃO FOI PERMANENTEMENTE REMOVIDO -->
+
     <!-- MODAL DE ALERTA DE EMERGÊNCIA (Mantido) -->
     <div id="emergency-alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[60]">
         <!-- Conteúdo do modal mantido... -->
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 size-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-7 h-7 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+                </div>
+                <div class="flex-grow">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2" data-i18n="alertTitle">Aviso Importante</h2>
+                    <p class="text-gray-600" data-i18n="alertText">
+                        Se você estiver apresentando <a href="sintomas-graves.html" class="font-bold text-red-600 underline hover:text-red-700" data-i18n="alertLink">SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.
+                    </p>
+                </div>
+            </div>
+            <button id="close-emergency-alert" class="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-lg font-bold text-white bg-gray-700 hover:bg-gray-800" data-i18n="alertButton">
+                Entendi
+            </button>
+        </div>
     </div>
     
     <!-- Container da Aplicação -->
     <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-gray-50">
-        
-        <!-- MODO ONLINE (Conteúdo original mantido) -->
+        <!-- MODO ONLINE (Conteúdo mantido) -->
         <div id="online-mode">
+            <!-- TELA DE FORMULÁRIO (ANAMNESE) -->
             <div id="form-screen-online">
-                <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-3 backdrop-blur-sm border-b border-gray-200"><!-- Header mantido --></header>
+                <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                    <h1 data-i18n="headerTitle" class="text-[#0e181b] text-xl font-bold leading-tight flex-1 text-center">Anamnese Simplificada</h1>
+                    <div class="absolute top-3 right-3 flex space-x-1 bg-gray-200 p-1 rounded-full">
+                        <button class="lang-btn" data-lang="pt">🇧🇷</button>
+                        <button class="lang-btn" data-lang="es">🇪🇸</button>
+                        <button class="lang-btn" data-lang="en">🇬🇧</button>
+                    </div>
+                </header>
                 <main class="flex-grow">
-                    <div class="m-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-r-lg"><!-- Alerta de emergência mantido --></div>
-                    <form id="anamnesis-form" class="p-4"><!-- Seu formulário online original mantido --></form>
+                    <div class="m-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-r-lg">
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                            <strong class="font-bold" data-i18n="emergencyWarning">ATENÇÃO: EM CASO DE EMERGÊNCIA, PROCURE AJUDA IMEDIATAMENTE.</strong>
+                        </div>
+                    </div>
+                    <form id="anamnesis-form" class="p-4">
+                        <!-- Todo o seu formulário original está aqui -->
+                        <div class="question-block">
+                            <label for="problema-principal" class="question-title" data-i18n="q1Title">1. Qual o principal problema ou sintoma?</label>
+                            <textarea id="problema-principal" data-i18n-placeholder="q1Placeholder" placeholder="Ex: Dor de cabeça forte, febre alta, tosse persistente..." class="input-field" rows="3"></textarea>
+                        </div>
+                        <div class="question-block">
+                            <label for="inicio-sintomas" class="question-title" data-i18n="q2Title">2. Quando exatamente os sintomas começaram?</label>
+                            <input type="text" id="inicio-sintomas" data-i18n-placeholder="q2Placeholder" placeholder="Ex: Há 3 dias, ontem à noite" class="input-field"/>
+                        </div>
+                        <fieldset class="question-block">
+                            <legend class="question-title" data-i18n="q3Title">3. Antes disso, você estava se sentindo perfeitamente bem?</legend>
+                            <div class="space-y-3">
+                                <label class="choice-label"><input type="radio" name="sentindo-bem" value="Sim" class="choice-input form-radio"> <span data-i18n="q3Opt1">Sim</span></label>
+                                <label class="choice-label"><input type="radio" name="sentindo-bem" value="Não" class="choice-input form-radio"> <span data-i18n="q3Opt2">Não</span></label>
+                            </div>
+                        </fieldset>
+                        <div class="question-block">
+                            <label for="fator-desencadeante" class="question-title" data-i18n="q4Title">4. Aconteceu algo que possa ter iniciado o problema?</label>
+                            <textarea id="fator-desencadeante" data-i18n-placeholder="q4Placeholder" placeholder="Descreva qualquer evento, comida, esforço, etc." class="input-field" rows="3"></textarea>
+                        </div>
+                        <fieldset class="question-block">
+                            <legend class="question-title" data-i18n="q5Title">5. Os sintomas estão melhorando, piorando ou iguais?</legend>
+                            <div class="space-y-3">
+                                <label class="choice-label"><input type="radio" name="progressao-sintomas" value="Melhorando" class="choice-input form-radio"> <span data-i18n="q5Opt1">Melhorando</span></label>
+                                <label class="choice-label"><input type="radio" name="progressao-sintomas" value="Piorando" class="choice-input form-radio"> <span data-i18n="q5Opt2">Piorando</span></label>
+                                <label class="choice-label"><input type="radio" name="progressao-sintomas" value="Iguais" class="choice-input form-radio"> <span data-i18n="q5Opt3">Permanecem Iguais</span></label>
+                            </div>
+                        </fieldset>
+                        <div class="question-block">
+                            <label for="melhora-piora" class="question-title" data-i18n="q6Title">6. O que melhora ou piora o sintoma?</label>
+                            <textarea id="melhora-piora" data-i18n-placeholder="q6Placeholder" placeholder="Ex: Repouso melhora, esforço piora..." class="input-field" rows="3"></textarea>
+                        </div>
+                         <div class="question-block">
+                            <label for="tratamento-tentado" class="question-title" data-i18n="q7Title">7. Você já tentou algum tratamento para isso?</label>
+                            <textarea id="tratamento-tentado" data-i18n-placeholder="q7Placeholder" placeholder="Ex: Tomei Paracetamol para a febre" class="input-field" rows="3"></textarea>
+                        </div>
+                        <fieldset class="question-block">
+                            <legend class="question-title" data-i18n="q8Title">8. Possui alguma destas doenças crônicas?</legend>
+                            <div class="space-y-3">
+                                 <label class="choice-label"><input type="checkbox" name="condicoes" value="Hipertensão" class="choice-input form-checkbox"/> <span data-i18n="q8Opt1">Hipertensão (Pressão alta)</span></label>
+                                 <label class="choice-label"><input type="checkbox" name="condicoes" value="Diabetes" class="choice-input form-checkbox"/> <span data-i18n="q8Opt2">Diabetes</span></label>
+                                 <label class="choice-label"><input type="checkbox" name="condicoes" value="Asma" class="choice-input form-checkbox"/> <span data-i18n="q8Opt3">Asma</span></label>
+                                 <label class="choice-label"><input type="checkbox" name="condicoes" value="Doença Cardíaca" class="choice-input form-checkbox"/> <span data-i18n="q8Opt4">Doença Cardíaca</span></label>
+                                 <label class="choice-label"><input type="checkbox" name="condicoes" value="Nenhuma" class="choice-input form-checkbox"/> <span data-i18n="q8Opt5">Nenhuma das opções</span></label>
+                            </div>
+                        </fieldset>
+                        <div class="question-block">
+                            <label for="medicamentos" class="question-title" data-i18n="q9Title">9. Usa algum medicamento de forma contínua?</label>
+                            <textarea id="medicamentos" data-i18n-placeholder="q9Placeholder" placeholder="Ex: Losartana 50mg, Metformina..." class="input-field" rows="3"></textarea>
+                        </div>
+                        <div class="question-block">
+                            <label for="alergias" class="question-title" data-i18n="q10Title">10. Possui alguma alergia conhecida?</label>
+                            <textarea id="alergias" data-i18n-placeholder="q10Placeholder" placeholder="Ex: Alergia a Penicilina, camarão..." class="input-field" rows="3"></textarea>
+                        </div>
+                    </form>
                 </main>
             </div>
-            <div id="loading-screen" class="hidden fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center backdrop-blur-sm"><!-- Loading screen mantido --></div>
-            <div id="results-screen" class="hidden"><!-- Tela de resultados online mantida --></div>
+            
+            <!-- TELA DE RESULTADOS ONLINE (Mantida) -->
+            <div id="results-screen-online" class="hidden">
+                <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-0 backdrop-blur-sm border-b border-gray-200">
+                    <h1 data-i18n='reportTitle' class="text-[#0e181b] text-xl font-bold flex-1 text-center">Relatório da Análise</h1>
+                </header>
+                <main id="report-content" class="flex-grow p-4">
+                    <div id="urgency-level" class="p-4 rounded-lg mb-4 text-center text-white font-bold text-lg"></div>
+                    <div class="border-b border-gray-200 mb-4">
+                        <nav class="flex -mb-px">
+                            <button class="tab-button active py-3 px-4 border-b-2 border-transparent text-gray-500" data-tab="orientation" data-i18n="tabOrientation">Orientação</button>
+                            <button class="tab-button py-3 px-4 border-b-2 border-transparent text-gray-500" data-tab="summary" data-i18n="tabSummary">Tabela Resumo</button>
+                        </nav>
+                    </div>
+                    <div id="tab-content">
+                        <div id="orientation-content" class="prose max-w-none"></div>
+                        <div id="summary-content" class="hidden"></div>
+                    </div>
+                </main>
+                <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0">
+                    <div class="flex gap-4">
+                        <button id="whatsapp-btn" class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-green-500 hover:bg-green-600" disabled>
+                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 14.2c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.2.4-.4.1-.1.2-.2.3-.4.1-.2.1-.3 0-.4-.1-.1-1.7-4.1-1.9-4.5-.2-.4-.4-.4-.6-.4h-.4c-.2 0-.5.2-.6.4-.2.2-.8.8-.8 1.9 0 1.2.8 2.2 1 2.4.1.2 1.5 2.3 3.7 3.2.5.2.9.4 1.2.5.5.2 1 .1 1.3-.1.4-.2.8-.9.9-1.7.1-.8.1-1.5 0-1.7-.1-.2-.3-.3-.5-.4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
+                            WhatsApp
+                        </button>
+                        <button id="pdf-btn" class="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-full shadow-lg text-lg font-bold text-gray-700 bg-white hover:bg-gray-100" data-i18n="pdfButton" disabled>
+                            Gerar PDF
+                        </button>
+                    </div>
+                </footer>
+            </div>
         </div>
         
-        <!-- MODO OFFLINE (Conteúdo original mantido) -->
+        <!-- MODO OFFLINE (Conteúdo mantido) -->
         <div id="offline-mode" class="hidden">
+            <!-- TELA DE FORMULÁRIO OFFLINE -->
             <div id="form-screen-offline">
-                 <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-3 backdrop-blur-sm border-b border-gray-200"><!-- Header offline mantido --></header>
-                 <div class="offline-banner m-4"><!-- Banner offline mantido --></div>
-                 <main class="flex-grow">
-                    <div class="m-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-r-lg"><!-- Alerta de emergência mantido --></div>
-                    <form id="anamnesis-form-offline" class="p-4"><!-- Seu formulário offline original mantido --></form>
-                 </main>
-            </div>
-            <div id="results-screen-offline" class="hidden"><!-- Tela de resultados offline mantida --></div>
-        </div>
-    </div>
-    
-    <!-- =================================================================== -->
-    <!-- |  NOVO BOTÃO DE AÇÃO UNIFICADO (FIXO ACIMA DA NAVEGAÇÃO)          | -->
-    <!-- =================================================================== -->
-    <footer class="fixed bottom-16 left-0 right-0 z-20 bg-white/80 backdrop-blur-sm p-4 border-t border-gray-200">
-        <button id="main-action-button" type="button" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-[var(--primary-color)] hover:opacity-90">
-            Carregando...
-        </button>
-    </footer>
+                <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                    <h1 data-i18n="headerTitleOffline" class="text-[#0e181b] text-xl font-bold leading-tight flex-1 text-center">Triagem Emergencial</h1>
+                    <div class="absolute top-3 right-3 flex space-x-1 bg-gray-200 p-1 rounded-full">
+                        <button class="lang-btn" data-lang="pt">🇧🇷</button>
+                        <button class="lang-btn" data-lang="es">🇪🇸</button>
+                        <button class="lang-btn" data-lang="en">🇬🇧</button>
+                    </div>
+                </header>
+                
+                <div class="offline-banner m-4">
+                    <i class="fas fa-wifi-slash"></i>
+                    <span data-i18n="offlineModeActive">Modo Offline Ativado - Funcionalidades Limitadas</span>
+                </div>
+                
+                <main class="flex-grow">
+                     <div class="m-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-r-lg">
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                            <strong class="font-bold" data-i18n="emergencyWarning">ATENÇÃO: EM CASO DE EMERGÊNCIA, PROCURE AJUDA IMEDIATAMENTE.</strong>
+                        </div>
+                    </div>
+                    <form id="anamnesis-form-offline" class="p-4">
+                        <!-- Seu formulário offline original está aqui -->
+                        <div class="question-block">
+                            <label for="problema-principal-offline" class="question-title" data-i18n="q1TitleOffline">1. Qual o principal problema ou sintoma?</label>
+                            <textarea id="problema-principal-offline" data-i18n-placeholder="q1Placeholder" placeholder="Descreva o sintoma principal" class="input-field" rows="2"></textarea>
+                        </div>
+                        <fieldset class="question-block">
+                            <legend class="question-title" data-i18n="qCriticalTitle">2. Apresenta algum destes sintomas críticos?</legend>
+                            <div class="space-y-3">
+                                <label class="choice-label"><input type="checkbox" name="sintomas-criticos" value="Dor no peito" class="choice-input form-checkbox"/> <span data-i18n="criticalSymptom1">Dor no peito</span></label>
+                                <label class="choice-label"><input type="checkbox" name="sintomas-criticos" value="Falta de ar" class="choice-input form-checkbox"/> <span data-i18n="criticalSymptom2">Falta de ar</span></label>
+                                <label class="choice-label"><input type="checkbox" name="sintomas-criticos" value="Sangramento intenso" class="choice-input form-checkbox"/> <span data-i18n="criticalSymptom3">Sangramento intenso</span></label>
+                                <label class="choice-label"><input type="checkbox" name="sintomas-criticos" value="Perda de consciência" class="choice-input form-checkbox"/> <span data-i18n="criticalSymptom4">Perda de consciência</span></label>
+                                <label class="choice-label"><input type="checkbox" name="sintomas-criticos" value="Nenhum" class="choice-input form-checkbox"/> <span data-i18n="criticalSymptomNone">Nenhum destes</span></label>
+                            </div>
+                        </fieldset>
+                        <div class="question-block">
+                            <label for="inicio-sintomas-offline" class="question-title" data-i18n="q2TitleOffline">3. Quando os sintomas começaram?</label>
+                            <select id="inicio-sintomas-offline" class="input-field">
+                                <option value="" data-i18n="selectOption">Selecione</option>
+                                <option value="Hoje" data-i18n="todayOption">Hoje</option>
+                                <option value="Ontem" data-i18n="yesterdayOption">Ontem</option>
+                                <option value="2-3 dias" data-i18n="fewDaysOption">2-3 dias atrás</option>
+                                <option value="Mais de 3 dias" data-i18n="moreDaysOption">Mais de 3 dias atrás</option>
+                            </select>
+                        </div>
+                        <fieldset class="question-block">
+                            <legend class="question-title" data-i18n="q3TitleOffline">4. Os sintomas estão:</legend>
+                            <div class="space
 
-    <!-- =================================================================== -->
-    <!-- | SUA BARRA DE NAVEGAÇÃO PRINCIPAL (MANTIDA E INTOCADA)              | -->
-    <!-- =================================================================== -->
-    <nav class="fixed bottom-0 left-0 right-0 z-20 border-t border-gray-200 bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
-      <div class="mx-auto flex h-16 max-w-4xl items-center justify-around">
-        <button onclick="location.reload()" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
-          <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0M2.985 10.356h4.992m0 0l-3.181-3.182a8.25 8.25 0 0111.664 0l3.181 3.182m-4.993 0l-2.81 2.81m0 0l-2.81-2.81m2.81 2.81V1.5M13.25 12.75h-2.5" /></svg>
-          <span class="mt-1 text-xs font-bold uppercase tracking-wider" data-i18n="navBack">Novo</span>
-        </button>
-        <div class="h-8 w-px bg-gray-200"></div>
-        <a href="index.html" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
-          <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-          <span class="mt-1 text-xs font-bold uppercase tracking-wider" data-i18n="navHome">Início</span>
-        </a>
-      </div>
-    </nav>
-    
-    <div id="sync-pending-indicator" class="hidden fixed bottom-20 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center z-30"><!-- Indicador de sync mantido --></div>
 
-<!-- =================================================================================== -->
-<!-- | SCRIPT FINAL E CORRIGIDO - LÓGICA UNIFICADA                                      | -->
-<!-- =================================================================================== -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // --- SUA LÓGICA DE TRADUÇÃO ORIGINAL (MANTIDA INTOCADA) ---
-    const translations = { /* ... seu objeto de traduções completo ... */ };
-    const setLanguage = (lang) => { /* ... sua função setLanguage completa ... */ };
-    document.querySelectorAll('.lang-btn').forEach(button => { button.addEventListener('click', () => setLanguage(button.dataset.lang)); });
-    setLanguage(localStorage.getItem('language') || 'pt');
-    
-    // --- REFERÊNCIAS AOS ELEMENTOS DO DOM ---
-    const mainActionButton = document.getElementById('main-action-button');
-    const onlineModeContainer = document.getElementById('online-mode');
-    const offlineModeContainer = document.getElementById('offline-mode');
-    
-    // Referências aos formulários e telas (mantendo suas IDs originais)
-    const formScreenOnline = document.getElementById('form-screen-online');
-    const formScreenOffline = document.getElementById('form-screen-offline');
-    const loadingScreen = document.getElementById('loading-screen');
-    const resultsScreenOnline = document.getElementById('results-screen');
-    const resultsScreenOffline = document.getElementById('results-screen-offline');
-
-    // --- SUA LÓGICA ORIGINAL PARA MODAL, API, RESULTADOS, PDF, WHATSAPP (MANTIDA) ---
-    const emergencyModal = document.getElementById('emergency-alert-modal');
-    if (emergencyModal && !sessionStorage.getItem('emergencyAlertClosed')) { emergencyModal.classList.remove('hidden'); }
-    document.getElementById('close-emergency-alert')?.addEventListener('click', () => { /* ... */ });
-    
-    const backendUrl = "https://missioncare-plus-backend.onrender.com";
-    const fetchWithRetry = async (url, options, retries = 3, backoff = 1000) => { /* ... sua função fetchWithRetry completa ... */ };
-
-    // --- LÓGICA DE AÇÃO REESTRUTURADA ---
-
-    // Função para rodar a análise ONLINE (adaptada da sua lógica original)
-    const runOnlineAnalysis = async () => {
-        // ... (todo o conteúdo da sua função original 'generateBtn.addEventListener') ...
-        // Ex: Coletar dados do form online, validar, mostrar loading, chamar fetchWithRetry, etc.
-        console.log("EXECUTANDO LÓGICA ONLINE...");
-        // Exemplo:
-        const problemaPrincipal = document.getElementById('problema-principal').value;
-        if (!problemaPrincipal.trim()) {
-            alert('Por favor, descreva o principal problema ou sintoma.');
-            return;
-        }
-        formScreenOnline.classList.add('hidden');
-        loadingScreen.classList.remove('hidden');
-        // ... o resto da sua lógica de fetch ...
-    };
-
-    // Função para rodar a avaliação OFFLINE (adaptada da sua lógica original)
-    const runOfflineEvaluation = () => {
-        // ... (todo o conteúdo da sua função original 'generateBtnOffline.addEventListener') ...
-        console.log("EXECUTANDO LÓGICA OFFLINE...");
-        // Exemplo:
-        const problemaPrincipal = document.getElementById('problema-principal-offline').value;
-        if (!problemaPrincipal.trim()) {
-            alert('Por favor, descreva o principal problema ou sintoma.');
-            return;
-        }
-        formScreenOffline.classList.add('hidden');
-        resultsScreenOffline.classList.remove('hidden'); // Exibe a tela de resultado offline
-        // ... o resto da sua lógica de avaliação offline ...
-    };
-
-    // --- O "GATEKEEPER" (PORTEIRO) ---
-    const handleMainButtonClick = () => {
-        const isOnline = navigator.onLine;
-        console.log(`Botão principal clicado. Status da conexão: ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
-        if (isOnline) {
-            // A tela de resultados offline deve estar escondida
-            if(resultsScreenOffline) resultsScreenOffline.classList.add('hidden');
-            runOnlineAnalysis();
-        } else {
-            // A tela de resultados online deve estar escondida
-            if(resultsScreenOnline) resultsScreenOnline.classList.add('hidden');
-            runOfflineEvaluation();
-        }
-    };
-
-    // --- CONTROLE DA INTERFACE DO USUÁRIO ---
-    const updateUserInterface = () => {
-        const isOnline = navigator.onLine;
-        console.log(`Atualizando UI. Status: ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
-
-        const lang = localStorage.getItem('language') || 'pt';
-        const onlineText = translations[lang]?.generateButton || "Gerar Análise";
-        const offlineText = translations[lang]?.generateButtonOffline || "Avaliar Emergência";
-
-        if (isOnline) {
-            onlineModeContainer.classList.remove('hidden');
-            offlineModeContainer.classList.add('hidden');
-            mainActionButton.textContent = onlineText;
-        } else {
-            onlineModeContainer.classList.add('hidden');
-            offlineModeContainer.classList.remove('hidden');
-            mainActionButton.textContent = offlineText;
-        }
-        // Garante que as telas de formulário corretas apareçam ao mudar de modo
-        formScreenOnline.classList.remove('hidden');
-        resultsScreenOnline.classList.add('hidden');
-        formScreenOffline.classList.remove('hidden');
-        resultsScreenOffline.classList.add('hidden');
-        loadingScreen.classList.add('hidden');
-    };
-
-    // --- INICIALIZAÇÃO E VINCULAÇÃO DE EVENTOS ---
-    mainActionButton.addEventListener('click', handleMainButtonClick);
-    window.addEventListener('online', updateUserInterface);
-    window.addEventListener('offline', updateUserInterface);
-
-    // Inicialização no carregamento da página
-    updateUserInterface();
-    // Sua lógica de sync e service worker original
-    // updateSyncIndicator();
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(console.error); }
-});
-</script>
-</body>
-</html>
