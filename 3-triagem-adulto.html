@@ -16,18 +16,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
-    <!-- Script de Sincronização (Mantido) -->
-    <script src="/js/sync-manager.js"></script>
-    
     <style>
-        /* Seus estilos originais foram mantidos */
+        /* Estilos para a aplicação, focados em usabilidade e clareza. */
         body {
             font-family: 'Lexend', 'Noto Sans', sans-serif;
             --primary-color: #0d9488; /* teal-600 */
             --primary-color-light: #ccfbf1; /* teal-100 */
-            padding-bottom: 150px; /* Aumentado para garantir espaço para os botões de rodapé */
+            padding-bottom: 80px; 
         }
-        .tab-button.active { border-bottom-color: var(--primary-color); color: var(--primary-color); font-weight: 600; }
         .lang-btn { padding: 0.25rem 0.5rem; border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
         .lang-btn.active { border-color: var(--primary-color); background-color: white; }
         .question-block { margin-bottom: 2rem; }
@@ -50,11 +46,8 @@
 </head>
 <body class="bg-gray-50">
 
-    <!-- O INDICADOR DE CONEXÃO FOI PERMANENTEMENTE REMOVIDO -->
-
-    <!-- MODAL DE ALERTA DE EMERGÊNCIA (Mantido) -->
+    <!-- MODAL DE ALERTA DE EMERGÊNCIA -->
     <div id="emergency-alert-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[60]">
-        <!-- Conteúdo do modal mantido... -->
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8">
             <div class="flex items-start gap-4">
                 <div class="flex-shrink-0 size-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -63,7 +56,7 @@
                 <div class="flex-grow">
                     <h2 class="text-xl font-bold text-gray-800 mb-2" data-i18n="alertTitle">Aviso Importante</h2>
                     <p class="text-gray-600" data-i18n="alertText">
-                        Se você estiver apresentando <a href="sintomas-graves.html" class="font-bold text-red-600 underline hover:text-red-700" data-i18n="alertLink">SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.
+                        Se você estiver apresentando <a href="#" class="font-bold text-red-600 underline hover:text-red-700" data-i18n="alertLink">SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.
                     </p>
                 </div>
             </div>
@@ -75,7 +68,7 @@
     
     <!-- Container da Aplicação -->
     <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-gray-50">
-        <!-- MODO ONLINE (Conteúdo mantido) -->
+        <!-- MODO ONLINE -->
         <div id="online-mode">
             <!-- TELA DE FORMULÁRIO (ANAMNESE) -->
             <div id="form-screen-online">
@@ -95,7 +88,6 @@
                         </div>
                     </div>
                     <form id="anamnesis-form" class="p-4">
-                        <!-- Todo o seu formulário original está aqui -->
                         <div class="question-block">
                             <label for="problema-principal" class="question-title" data-i18n="q1Title">1. Qual o principal problema ou sintoma?</label>
                             <textarea id="problema-principal" data-i18n-placeholder="q1Placeholder" placeholder="Ex: Dor de cabeça forte, febre alta, tosse persistente..." class="input-field" rows="3"></textarea>
@@ -153,41 +145,37 @@
                 </main>
             </div>
             
-            <!-- TELA DE RESULTADOS ONLINE (Mantida) -->
+            <!-- TELA DE RESULTADOS ONLINE (REESTRUTURADA) -->
             <div id="results-screen-online" class="hidden">
-                <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-0 backdrop-blur-sm border-b border-gray-200">
+                <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                    <button id="back-to-form-btn" class="text-teal-600 hover:text-teal-800 absolute left-4">
+                        <i class="fas fa-arrow-left fa-lg"></i>
+                    </button>
                     <h1 data-i18n='reportTitle' class="text-[#0e181b] text-xl font-bold flex-1 text-center">Relatório da Análise</h1>
                 </header>
-                <main id="report-content" class="flex-grow p-4">
-                    <div id="urgency-level" class="p-4 rounded-lg mb-4 text-center text-white font-bold text-lg"></div>
-                    <div class="border-b border-gray-200 mb-4">
-                        <nav class="flex -mb-px">
-                            <button class="tab-button active py-3 px-4 border-b-2 border-transparent text-gray-500" data-tab="orientation" data-i18n="tabOrientation">Orientação</button>
-                            <button class="tab-button py-3 px-4 border-b-2 border-transparent text-gray-500" data-tab="summary" data-i18n="tabSummary">Tabela Resumo</button>
-                        </nav>
-                    </div>
-                    <div id="tab-content">
-                        <div id="orientation-content" class="prose max-w-none"></div>
-                        <div id="summary-content" class="hidden"></div>
+                <main id="report-content" class="flex-grow p-4 space-y-6">
+                    <!-- Nível de Urgência -->
+                    <div id="urgency-level" class="p-5 rounded-lg text-center text-white font-bold text-xl shadow-md"></div>
+                    
+                    <!-- Orientações -->
+                    <div id="orientation-content" class="prose max-w-none bg-white p-5 rounded-lg shadow-sm border border-gray-200"></div>
+                    
+                    <!-- Resumo das Respostas (Accordion) -->
+                    <div>
+                        <button id="summary-toggle" class="w-full flex justify-between items-center text-left p-4 bg-gray-100 hover:bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors">
+                            <span class="font-semibold text-gray-800" data-i18n="summaryToggle">Ver Resumo das Suas Respostas</span>
+                            <i id="summary-arrow" class="fas fa-chevron-down transition-transform"></i>
+                        </button>
+                        <div id="summary-content" class="hidden mt-2 p-4 bg-white rounded-lg border border-gray-200 shadow-sm overflow-x-auto">
+                            <!-- Tabela será inserida aqui via JS -->
+                        </div>
                     </div>
                 </main>
-                <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0">
-                    <div class="flex gap-4">
-                        <button id="whatsapp-btn" class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-green-500 hover:bg-green-600" disabled>
-                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 14.2c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.2.4-.4.1-.1.2-.2.3-.4.1-.2.1-.3 0-.4-.1-.1-1.7-4.1-1.9-4.5-.2-.4-.4-.4-.6-.4h-.4c-.2 0-.5.2-.6.4-.2.2-.8.8-.8 1.9 0 1.2.8 2.2 1 2.4.1.2 1.5 2.3 3.7 3.2.5.2.9.4 1.2.5.5.2 1 .1 1.3-.1.4-.2.8-.9.9-1.7.1-.8.1-1.5 0-1.7-.1-.2-.3-.3-.5-.4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
-                            WhatsApp
-                        </button>
-                        <button id="pdf-btn" class="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-full shadow-lg text-lg font-bold text-gray-700 bg-white hover:bg-gray-100" data-i18n="pdfButton" disabled>
-                            Gerar PDF
-                        </button>
-                    </div>
-                </footer>
             </div>
         </div>
         
-        <!-- MODO OFFLINE (Conteúdo mantido) -->
+        <!-- MODO OFFLINE -->
         <div id="offline-mode" class="hidden">
-            <!-- TELA DE FORMULÁRIO OFFLINE -->
             <div id="form-screen-offline">
                 <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
                     <h1 data-i18n="headerTitleOffline" class="text-[#0e181b] text-xl font-bold leading-tight flex-1 text-center">Triagem Emergencial</h1>
@@ -211,7 +199,6 @@
                         </div>
                     </div>
                     <form id="anamnesis-form-offline" class="p-4">
-                        <!-- Seu formulário offline original está aqui -->
                         <div class="question-block">
                             <label for="problema-principal-offline" class="question-title" data-i18n="q1TitleOffline">1. Qual o principal problema ou sintoma?</label>
                             <textarea id="problema-principal-offline" data-i18n-placeholder="q1Placeholder" placeholder="Descreva o sintoma principal" class="input-field" rows="2"></textarea>
@@ -238,4 +225,487 @@
                         </div>
                         <fieldset class="question-block">
                             <legend class="question-title" data-i18n="q3TitleOffline">4. Os sintomas estão:</legend>
-                            <div class="space
+                            <div class="space-y-3">
+                                <label class="choice-label"><input type="radio" name="progressao-sintomas-offline" value="Melhorando" class="choice-input form-radio"> <span data-i18n="q5Opt1">Melhorando</span></label>
+                                <label class="choice-label"><input type="radio" name="progressao-sintomas-offline" value="Piorando" class="choice-input form-radio"> <span data-i18n="q5Opt2">Piorando</span></label>
+                                <label class="choice-label"><input type="radio" name="progressao-sintomas-offline" value="Iguais" class="choice-input form-radio"> <span data-i18n="q5Opt3">Iguais</span></label>
+                            </div>
+                        </fieldset>
+                    </form>
+                </main>
+            </div>
+
+            <!-- TELA DE RESULTADOS OFFLINE -->
+            <div id="results-screen-offline" class="hidden">
+                 <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-0 backdrop-blur-sm border-b border-gray-200">
+                     <button id="back-to-form-btn-offline" class="text-teal-600 hover:text-teal-800 absolute left-4"><i class="fas fa-arrow-left fa-lg"></i></button>
+                    <h1 data-i18n='reportTitle' class="text-[#0e181b] text-xl font-bold flex-1 text-center">Relatório da Triagem</h1>
+                </header>
+                <main id="report-content-offline" class="flex-grow p-4">
+                    <div id="orientation-content-offline" class="prose max-w-none"></div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
+    <div id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] h-[70px] flex justify-around items-center px-2">
+        <!-- Botão Início -->
+        <a href="https://telesaudemissionaria.github.io/missioncareplus/" class="flex flex-col items-center justify-center text-gray-500 hover:text-teal-600 transition-colors w-1/4">
+            <i class="fas fa-home text-2xl"></i>
+            <span class="text-xs font-medium" data-i18n="navHome">INÍCIO</span>
+        </a>
+
+        <!-- Botão Gerar Análise (visível nos formulários) -->
+        <button id="nav-generate-report-btn" class="flex flex-col items-center justify-center text-gray-500 hover:text-teal-600 transition-colors w-1/4">
+            <i class="fas fa-file-medical-alt text-2xl"></i>
+            <span class="text-xs font-medium" data-i18n="navAnalyze">Gerar Análise</span>
+        </button>
+        
+        <!-- Botões de Resultado (visíveis na tela de resultados online) -->
+        <button id="nav-whatsapp-btn" class="hidden flex-col items-center justify-center text-gray-500 hover:text-green-500 transition-colors w-1/4">
+            <i class="fab fa-whatsapp text-2xl"></i>
+            <span class="text-xs font-medium">WhatsApp</span>
+        </button>
+        <button id="nav-pdf-btn" class="hidden flex-col items-center justify-center text-gray-500 hover:text-red-500 transition-colors w-1/4">
+            <i class="fas fa-file-pdf text-2xl"></i>
+            <span class="text-xs font-medium" data-i18n="navPDF">Gerar PDF</span>
+        </button>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- LÓGICA DE INTERNACIONALIZAÇÃO (i18n) ---
+            const translations = {
+                en: {
+                    pageTitle: "Simplified Anamnesis - MissionCare Plus",
+                    alertTitle: "Important Notice",
+                    alertText: "If you are experiencing <a href='#' class='font-bold text-red-600 underline hover:text-red-700'>SERIOUS SYMPTOMS</a>, do not use MissionCare Plus. Instead, contact emergency services.",
+                    alertLink: "SERIOUS SYMPTOMS",
+                    alertButton: "I Understand",
+                    headerTitle: "Simplified Anamnesis",
+                    emergencyWarning: "ATTENTION: IN CASE OF EMERGENCY, SEEK HELP IMMEDIATELY.",
+                    q1Title: "1. What is the main problem or symptom?",
+                    q1Placeholder: "Ex: Severe headache, high fever, persistent cough...",
+                    q2Title: "2. When exactly did the symptoms start?",
+                    q2Placeholder: "Ex: 3 days ago, last night",
+                    q3Title: "3. Before this, were you feeling perfectly fine?",
+                    q3Opt1: "Yes",
+                    q3Opt2: "No",
+                    q4Title: "4. Did anything happen that might have started the problem?",
+                    q4Placeholder: "Describe any event, food, effort, etc.",
+                    q5Title: "5. Are the symptoms getting better, worse, or staying the same?",
+                    q5Opt1: "Getting better",
+                    q5Opt2: "Getting worse",
+                    q5Opt3: "Staying the same",
+                    q6Title: "6. What makes the symptom better or worse?",
+                    q6Placeholder: "Ex: Rest improves it, effort worsens it...",
+                    q7Title: "7. Have you tried any treatment for this?",
+                    q7Placeholder: "Ex: I took Paracetamol for the fever",
+                    q8Title: "8. Do you have any of these chronic diseases?",
+                    q8Opt1: "Hypertension (High blood pressure)",
+                    q8Opt2: "Diabetes",
+                    q8Opt3: "Asthma",
+                    q8Opt4: "Heart Disease",
+                    q8Opt5: "None of the above",
+                    q9Title: "9. Do you use any medication continuously?",
+                    q9Placeholder: "Ex: Losartan 50mg, Metformin...",
+                    q10Title: "10. Do you have any known allergies?",
+                    q10Placeholder: "Ex: Allergic to Penicillin, shrimp...",
+                    reportTitle: "Analysis Report",
+                    summaryToggle: "View Summary of Your Answers",
+                    pdfButton: "Generate PDF",
+                    headerTitleOffline: "Emergency Triage",
+                    offlineModeActive: "Offline Mode Active - Limited Features",
+                    q1TitleOffline: "1. What is the main problem or symptom?",
+                    qCriticalTitle: "2. Do you have any of these critical symptoms?",
+                    criticalSymptom1: "Chest pain",
+                    criticalSymptom2: "Shortness of breath",
+                    criticalSymptom3: "Heavy bleeding",
+                    criticalSymptom4: "Loss of consciousness",
+                    criticalSymptomNone: "None of these",
+                    q2TitleOffline: "3. When did the symptoms start?",
+                    selectOption: "Select",
+                    todayOption: "Today",
+                    yesterdayOption: "Yesterday",
+                    fewDaysOption: "2-3 days ago",
+                    moreDaysOption: "More than 3 days ago",
+                    q3TitleOffline: "4. Are the symptoms:",
+                    navHome: "HOME",
+                    navAnalyze: "Analyze",
+                    navPDF: "Generate PDF",
+                },
+                es: {
+                    pageTitle: "Anamnesis Simplificada - MissionCare Plus",
+                    alertTitle: "Aviso Importante",
+                    alertText: "Si está experimentando <a href='#' class='font-bold text-red-600 underline hover:text-red-700'>SÍNTOMAS GRAVES</a>, no use MissionCare Plus. En su lugar, contacte a los servicios de emergencia.",
+                    alertLink: "SÍNTOMAS GRAVES",
+                    alertButton: "Entendido",
+                    headerTitle: "Anamnesis Simplificada",
+                    emergencyWarning: "ATENCIÓN: EN CASO DE EMERGENCIA, BUSQUE AYUDA INMEDIATAMENTE.",
+                    q1Title: "1. ¿Cuál es el principal problema o síntoma?",
+                    q1Placeholder: "Ej: Dolor de cabeza fuerte, fiebre alta, tos persistente...",
+                    q2Title: "2. ¿Cuándo empezaron exactamente los síntomas?",
+                    q2Placeholder: "Ej: Hace 3 días, anoche",
+                    q3Title: "3. ¿Antes de esto, se sentía perfectamente bien?",
+                    q3Opt1: "Sí",
+                    q3Opt2: "No",
+                    q4Title: "4. ¿Sucedió algo que pudiera haber iniciado el problema?",
+                    q4Placeholder: "Describa cualquier evento, comida, esfuerzo, etc.",
+                    q5Title: "5. ¿Los síntomas están mejorando, empeorando o siguen igual?",
+                    q5Opt1: "Mejorando",
+                    q5Opt2: "Empeorando",
+                    q5Opt3: "Siguen Igual",
+                    q6Title: "6. ¿Qué mejora o empeora el síntoma?",
+                    q6Placeholder: "Ej: El reposo mejora, el esfuerzo empeora...",
+                    q7Title: "7. ¿Ha intentado algún tratamiento para esto?",
+                    q7Placeholder: "Ej: Tomé Paracetamol para la fiebre",
+                    q8Title: "8. ¿Tiene alguna de estas enfermedades crónicas?",
+                    q8Opt1: "Hipertensión (Presión alta)",
+                    q8Opt2: "Diabetes",
+                    q8Opt3: "Asma",
+                    q8Opt4: "Enfermedad Cardíaca",
+                    q8Opt5: "Ninguna de las opciones",
+                    q9Title: "9. ¿Usa algún medicamento de forma continua?",
+                    q9Placeholder: "Ej: Losartán 50mg, Metformina...",
+                    q10Title: "10. ¿Tiene alguna alergia conocida?",
+                    q10Placeholder: "Ej: Alergia a la Penicilina, camarones...",
+                    reportTitle: "Informe del Análisis",
+                    summaryToggle: "Ver Resumen de Sus Respuestas",
+                    pdfButton: "Generar PDF",
+                    headerTitleOffline: "Triaje de Emergencia",
+                    offlineModeActive: "Modo Offline Activado - Funciones Limitadas",
+                    q1TitleOffline: "1. ¿Cuál es el principal problema o síntoma?",
+                    qCriticalTitle: "2. ¿Presenta alguno de estos síntomas críticos?",
+                    criticalSymptom1: "Dolor en el pecho",
+                    criticalSymptom2: "Falta de aire",
+                    criticalSymptom3: "Sangrado intenso",
+                    criticalSymptom4: "Pérdida de conocimiento",
+                    criticalSymptomNone: "Ninguno de estos",
+                    q2TitleOffline: "3. ¿Cuándo empezaron los síntomas?",
+                    selectOption: "Seleccione",
+                    todayOption: "Hoy",
+                    yesterdayOption: "Ayer",
+                    fewDaysOption: "Hace 2-3 días",
+                    moreDaysOption: "Hace más de 3 días",
+                    q3TitleOffline: "4. Los síntomas están:",
+                    navHome: "INICIO",
+                    navAnalyze: "Generar Análisis",
+                    navPDF: "Generar PDF",
+                },
+                pt: {
+                    pageTitle: "Anamnese Simplificada - MissionCare Plus",
+                    alertTitle: "Aviso Importante",
+                    alertText: "Se você estiver apresentando <a href='#' class='font-bold text-red-600 underline hover:text-red-700'>SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.",
+                    alertLink: "SINTOMAS GRAVES",
+                    alertButton: "Entendi",
+                    headerTitle: "Anamnese Simplificada",
+                    emergencyWarning: "ATENÇÃO: EM CASO DE EMERGÊNCIA, PROCURE AJUDA IMEDIATAMENTE.",
+                    q1Title: "1. Qual o principal problema ou sintoma?",
+                    q1Placeholder: "Ex: Dor de cabeça forte, febre alta, tosse persistente...",
+                    q2Title: "2. Quando exatamente os sintomas começaram?",
+                    q2Placeholder: "Ex: Há 3 dias, ontem à noite",
+                    q3Title: "3. Antes disso, você estava se sentindo perfeitamente bem?",
+                    q3Opt1: "Sim",
+                    q3Opt2: "Não",
+                    q4Title: "4. Aconteceu algo que possa ter iniciado o problema?",
+                    q4Placeholder: "Descreva qualquer evento, comida, esforço, etc.",
+                    q5Title: "5. Os sintomas estão melhorando, piorando ou iguais?",
+                    q5Opt1: "Melhorando",
+                    q5Opt2: "Piorando",
+                    q5Opt3: "Permanecem Iguais",
+                    q6Title: "6. O que melhora ou piora o sintoma?",
+                    q6Placeholder: "Ex: Repouso melhora, esforço piora...",
+                    q7Title: "7. Você já tentou algum tratamento para isso?",
+                    q7Placeholder: "Ex: Tomei Paracetamol para a febre",
+                    q8Title: "8. Possui alguma destas doenças crônicas?",
+                    q8Opt1: "Hipertensão (Pressão alta)",
+                    q8Opt2: "Diabetes",
+                    q8Opt3: "Asma",
+                    q8Opt4: "Doença Cardíaca",
+                    q8Opt5: "Nenhuma das opções",
+                    q9Title: "9. Usa algum medicamento de forma contínua?",
+                    q9Placeholder: "Ex: Losartana 50mg, Metformina...",
+                    q10Title: "10. Possui alguma alergia conhecida?",
+                    q10Placeholder: "Ex: Alergia a Penicilina, camarão...",
+                    reportTitle: "Relatório da Análise",
+                    summaryToggle: "Ver Resumo das Suas Respostas",
+                    pdfButton: "Gerar PDF",
+                    headerTitleOffline: "Triagem Emergencial",
+                    offlineModeActive: "Modo Offline Ativado - Funcionalidades Limitadas",
+                    q1TitleOffline: "1. Qual o principal problema ou sintoma?",
+                    qCriticalTitle: "2. Apresenta algum destes sintomas críticos?",
+                    criticalSymptom1: "Dor no peito",
+                    criticalSymptom2: "Falta de ar",
+                    criticalSymptom3: "Sangramento intenso",
+                    criticalSymptom4: "Perda de consciência",
+                    criticalSymptomNone: "Nenhum destes",
+                    q2TitleOffline: "3. Quando os sintomas começaram?",
+                    selectOption: "Selecione",
+                    todayOption: "Hoje",
+                    yesterdayOption: "Ontem",
+                    fewDaysOption: "2-3 dias atrás",
+                    moreDaysOption: "Mais de 3 dias atrás",
+                    q3TitleOffline: "4. Os sintomas estão:",
+                    navHome: "INÍCIO",
+                    navAnalyze: "Gerar Análise",
+                    navPDF: "Gerar PDF",
+                }
+            };
+
+            let currentLang = 'pt';
+
+            const setLanguage = (lang) => {
+                currentLang = lang;
+                document.getElementById('html-lang').lang = lang;
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (translations[lang] && translations[lang][key]) {
+                        el.innerHTML = translations[lang][key];
+                    }
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                     const key = el.getAttribute('data-i18n-placeholder');
+                    if (translations[lang] && translations[lang][key]) {
+                        el.placeholder = translations[lang][key];
+                    }
+                });
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                });
+            };
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    setLanguage(e.target.closest('[data-lang]').dataset.lang);
+                });
+            });
+
+            // --- LÓGICA DE DETECÇÃO ONLINE/OFFLINE ---
+            const onlineMode = document.getElementById('online-mode');
+            const offlineMode = document.getElementById('offline-mode');
+
+            const updateOnlineStatus = () => {
+                const isOnline = navigator.onLine;
+                onlineMode.classList.toggle('hidden', !isOnline);
+                offlineMode.classList.toggle('hidden', isOnline);
+                updateNav('form'); 
+            };
+
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            
+            // --- MODAL DE EMERGÊNCIA ---
+            const emergencyModal = document.getElementById('emergency-alert-modal');
+            const closeEmergencyModal = document.getElementById('close-emergency-alert');
+            
+            setTimeout(() => {
+                if (!sessionStorage.getItem('emergencyAlertShown')) {
+                    emergencyModal.classList.remove('hidden');
+                    sessionStorage.setItem('emergencyAlertShown', 'true');
+                }
+            }, 1000);
+
+            closeEmergencyModal.addEventListener('click', () => {
+                emergencyModal.classList.add('hidden');
+            });
+            
+            // --- LÓGICA DO FORMULÁRIO E RESULTADOS ---
+            const formScreenOnline = document.getElementById('form-screen-online');
+            const resultsScreenOnline = document.getElementById('results-screen-online');
+            const backToFormBtn = document.getElementById('back-to-form-btn');
+            
+            const formScreenOffline = document.getElementById('form-screen-offline');
+            const resultsScreenOffline = document.getElementById('results-screen-offline');
+            const backToFormBtnOffline = document.getElementById('back-to-form-btn-offline');
+
+            // --- LÓGICA DA BARRA DE NAVEGAÇÃO ---
+            const navGenerateReportBtn = document.getElementById('nav-generate-report-btn');
+            const navWhatsappBtn = document.getElementById('nav-whatsapp-btn');
+            const navPdfBtn = document.getElementById('nav-pdf-btn');
+
+            const updateNav = (screen) => {
+                navGenerateReportBtn.classList.add('hidden');
+                navWhatsappBtn.classList.add('hidden');
+                navPdfBtn.classList.add('hidden');
+
+                if (screen === 'form') {
+                    navGenerateReportBtn.classList.remove('hidden');
+                } else if (screen === 'results-online') {
+                    navWhatsappBtn.classList.remove('hidden');
+                    navPdfBtn.classList.remove('hidden');
+                }
+            };
+
+            let reportData = {};
+
+            const getSelectedValues = (name) => {
+                return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
+            };
+
+            const generateReport = (isOffline = false) => {
+                if (isOffline) {
+                    reportData = {
+                        'Problema Principal': document.getElementById('problema-principal-offline').value,
+                        'Sintomas Críticos': getSelectedValues('sintomas-criticos'),
+                        'Início dos Sintomas': document.getElementById('inicio-sintomas-offline').value,
+                        'Progressão dos Sintomas': document.querySelector('input[name="progressao-sintomas-offline"]:checked')?.value || 'Não informado',
+                    };
+                    displayOfflineResults(reportData);
+                } else {
+                     reportData = {
+                        'Problema Principal': document.getElementById('problema-principal').value,
+                        'Início dos Sintomas': document.getElementById('inicio-sintomas').value,
+                        'Sentindo-se bem antes?': document.querySelector('input[name="sentindo-bem"]:checked')?.value || 'Não informado',
+                        'Fator Desencadeante': document.getElementById('fator-desencadeante').value,
+                        'Progressão dos Sintomas': document.querySelector('input[name="progressao-sintomas"]:checked')?.value || 'Não informado',
+                        'O que melhora ou piora?': document.getElementById('melhora-piora').value,
+                        'Tratamento Tentado': document.getElementById('tratamento-tentado').value,
+                        'Doenças Crônicas': getSelectedValues('condicoes'),
+                        'Medicamentos Contínuos': document.getElementById('medicamentos').value,
+                        'Alergias': document.getElementById('alergias').value,
+                    };
+                    displayOnlineResults(reportData);
+                }
+            };
+
+            const displayOnlineResults = (data) => {
+                formScreenOnline.classList.add('hidden');
+                resultsScreenOnline.classList.remove('hidden');
+                updateNav('results-online');
+                
+                let urgency = { 
+                    text: 'Baixa Urgência', 
+                    color: 'bg-green-500', 
+                    guidance: `### Orientações\n\n* **Observação:** Monitore seus sintomas. Se piorarem ou novos sintomas aparecerem, reavalie a situação.\n* **Hidratação:** Beba bastante líquido, especialmente água.\n* **Repouso:** Descanse para ajudar seu corpo a se recuperar.\n\n_**Aviso:** Esta é uma orientação preliminar e não substitui uma consulta médica. Se os sintomas persistirem, procure um profissional de saúde._`
+                };
+                
+                if (data['Progressão dos Sintomas'].toLowerCase() === 'piorando' || (data['Problema Principal'] && data['Problema Principal'].toLowerCase().includes('forte'))) {
+                    urgency = { 
+                        text: 'Média Urgência', 
+                        color: 'bg-yellow-500', 
+                        guidance: `### Atenção\n\n* **Monitoramento Atento:** Seus sintomas indicam que a situação pode estar piorando. É importante observar de perto.\n* **Considere Contato Médico:** Recomendamos entrar em contato com um profissional de saúde para uma avaliação mais detalhada, especialmente se não houver melhora nas próximas 24 horas.\n\n_**Aviso:** Esta é uma orientação preliminar. Não hesite em procurar ajuda médica se estiver preocupado._` 
+                    };
+                }
+
+                document.getElementById('urgency-level').className = `p-5 rounded-lg text-center text-white font-bold text-xl shadow-md ${urgency.color}`;
+                document.getElementById('urgency-level').textContent = urgency.text;
+                
+                document.getElementById('orientation-content').innerHTML = marked.parse(urgency.guidance);
+                
+                // Reset e preenche a tabela de resumo
+                const summaryContent = document.getElementById('summary-content');
+                summaryContent.classList.add('hidden');
+                document.getElementById('summary-arrow').classList.remove('rotate-180');
+
+                const summaryTable = document.createElement('table');
+                summaryTable.className = 'min-w-full divide-y divide-gray-200';
+                summaryTable.innerHTML = `
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pergunta</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resposta</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${Object.entries(data).map(([key, value]) => `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${key}</td>
+                                <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${Array.isArray(value) && value.length > 0 ? value.join(', ') : (value || 'Não informado')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+                summaryContent.innerHTML = '';
+                summaryContent.appendChild(summaryTable);
+            };
+            
+            const displayOfflineResults = (data) => {
+                 formScreenOffline.classList.add('hidden');
+                 resultsScreenOffline.classList.remove('hidden');
+                 updateNav('results-offline');
+
+                 let criticalSymptoms = data['Sintomas Críticos'] || [];
+                 let guidance = `### Orientações Básicas\n\n* **Monitore:** Observe atentamente a evolução dos sintomas.\n* **Repouse e Hidrate-se:** O descanso e a ingestão de líquidos são fundamentais.\n* **Busque Conexão:** Tente encontrar um local com conexão à internet para usar a versão completa do aplicativo ou contatar um profissional de saúde.\n\n_**Aviso:** Esta triagem é limitada. A avaliação completa é essencial quando possível._`;
+                 let hasCritical = criticalSymptoms.length > 0 && !criticalSymptoms.includes('Nenhum');
+
+                 if (hasCritical) {
+                     guidance = `<div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-r-lg">
+                                    <h3 class="font-bold text-lg text-red-900">ALERTA DE EMERGÊNCIA</h3>
+                                    <p class="mt-2">Você selecionou um ou mais sintomas críticos (${criticalSymptoms.join(', ')}). **PROCURE AJUDA MÉDICA DE EMERGÊNCIA IMEDIATAMENTE.** Não adie o atendimento.</p>
+                                </div>`;
+                 } else if (data['Progressão dos Sintomas'] === 'Piorando') {
+                     guidance = `<div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-r-lg">
+                                    <h3 class="font-bold text-lg text-yellow-900">ATENÇÃO</h3>
+                                    <p class="mt-2">Seus sintomas estão piorando. É crucial buscar uma avaliação médica assim que possível. Tente se conectar à internet para obter uma orientação mais detalhada.</p>
+                                 </div>`;
+                 }
+
+                 document.getElementById('orientation-content-offline').innerHTML = marked.parse(guidance);
+            };
+
+            backToFormBtn.addEventListener('click', () => {
+                resultsScreenOnline.classList.add('hidden');
+                formScreenOnline.classList.remove('hidden');
+                updateNav('form');
+            });
+            
+            backToFormBtnOffline.addEventListener('click', () => {
+                 resultsScreenOffline.classList.add('hidden');
+                 formScreenOffline.classList.remove('hidden');
+                 updateNav('form');
+            });
+
+            // --- LÓGICA DO ACCORDION DE RESUMO ---
+            const summaryToggle = document.getElementById('summary-toggle');
+            const summaryContent = document.getElementById('summary-content');
+            const summaryArrow = document.getElementById('summary-arrow');
+
+            summaryToggle.addEventListener('click', () => {
+                summaryContent.classList.toggle('hidden');
+                summaryArrow.classList.toggle('rotate-180');
+            });
+
+            // --- LÓGICA DE EXPORTAÇÃO (PDF E WHATSAPP) ---
+            const { jsPDF } = window.jspdf;
+
+            const exportPdf = () => {
+                const doc = new jsPDF();
+                const reportElement = document.getElementById('report-content');
+                
+                html2canvas(reportElement, { scale: 2 }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const imgProps = doc.getImageProperties(imgData);
+                    const pdfWidth = doc.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    
+                    doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    doc.save('relatorio_missioncare.pdf');
+                });
+            };
+
+            const shareOnWhatsapp = () => {
+                let message = `*Relatório MissionCare Plus*\n\n`;
+                message += `*Data:* ${new Date().toLocaleString()}\n\n`;
+                for (const [key, value] of Object.entries(reportData)) {
+                     message += `*${key}:* ${Array.isArray(value) && value.length > 0 ? value.join(', ') : (value || 'Não informado')}\n`;
+                }
+                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            };
+
+            // Event Listeners para os botões
+            navGenerateReportBtn.addEventListener('click', () => generateReport(!navigator.onLine));
+            navPdfBtn.addEventListener('click', exportPdf);
+            navWhatsappBtn.addEventListener('click', shareOnWhatsapp);
+
+            // --- INICIALIZAÇÃO ---
+            setLanguage('pt');
+            updateOnlineStatus();
+        });
+    </script>
+</body>
+</html>
+
