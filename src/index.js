@@ -1,44 +1,43 @@
-
-require('dotenv').config();
 const express = require('express');
+const { OpenAI } = require('openai');
 const cors = require('cors');
-const OpenAI = require('openai');
 
 const app = express();
-const port = process.env.PORT || 3000;
-
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Objeto para mapear nomes de assistentes para seus IDs
-const assistantIds = {
-  'clinica': 'asst_pQf3n1iGfI213a7p4l3l3Zz4',
+const assistantMapping = {
+  'clinica': 'asst_qitIwbREUyPY1GRIYH7vYQx0',
+  'ginecologia': 'asst_abc123DEF456ghi789', // Exemplo de outro assistente
 };
 
-// Rota principal para executar um assistente
-app.post('/api/assistants/run/:assistantName', async (req, res) => {
-  const { assistantName } = req.params;
-  const { message } = req.body;
+let openai;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+} else {
+  console.warn('Chave da API da OpenAI não encontrada. Defina a variável de ambiente OPENAI_API_KEY.');
+  // Lidar com a ausência da chave da API, se necessário
+}
 
-  const assistantId = assistantIds[assistantName];
-
-  if (!assistantId) {
-    return res.status(404).json({ error: 'Assistente não encontrado.' });
+app.post('/api/v1/assistente', async (req, res) => {
+  if (!openai) {
+    return res.status(500).json({ error: 'A API da OpenAI não foi inicializada.' });
   }
 
-  if (!message) {
-    return res.status(400).json({ error: 'A mensagem do usuário é obrigatória.' });
+  const { tipo_assistente, prompt } = req.body;
+  const assistantId = assistantMapping[tipo_assistente];
+
+  if (!assistantId) {
+    return res.status(400).json({ error: 'Tipo de assistente inválido.' });
   }
 
   try {
     const thread = await openai.beta.threads.create();
     await openai.beta.threads.messages.create(thread.id, {
       role: 'user',
-      content: message,
+      content: prompt,
     });
 
     const run = await openai.beta.threads.runs.create(thread.id, {
@@ -47,29 +46,27 @@ app.post('/api/assistants/run/:assistantName', async (req, res) => {
 
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     while (runStatus.status !== 'completed') {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     }
 
     const messages = await openai.beta.threads.messages.list(thread.id);
-    const assistantMessage = messages.data.find(m => m.role === 'assistant');
+    const lastMessage = messages.data.find(
+      (msg) => msg.role === 'assistant' && msg.content[0].type === 'text'
+    );
 
-    if (assistantMessage && assistantMessage.content[0].type === 'text') {
-      res.json({ ok: true, text: assistantMessage.content[0].text.value });
+    if (lastMessage) {
+      res.json({ response: lastMessage.content[0].text.value });
     } else {
       res.status(500).json({ error: 'Nenhuma resposta recebida do assistente.' });
     }
-
   } catch (error) {
-    console.error('Erro ao executar o assistente:', error);
-    res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
+    console.error('Erro ao chamar a API da OpenAI:', error);
+    res.status(500).json({ error: 'Falha ao se comunicar com o assistente.' });
   }
 });
 
-app.get('/', (req, res) => {
-  res.send('Servidor do MissionCarePlus Backend está no ar!');
-});
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
