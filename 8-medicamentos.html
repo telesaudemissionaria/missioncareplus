@@ -226,6 +226,13 @@
     </div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // Load shared translator and initialize with this page's storage key
+    const s = document.createElement('script'); s.src = 'assets/js/translator.js'; s.defer = true; document.head.appendChild(s);
+    s.addEventListener('load', () => {
+        if (window.Translator && typeof window.Translator.init === 'function') {
+            window.Translator.init({ storageKey: 'appLanguage', defaultLang: 'pt' });
+        }
+    });
     // Função para voltar na história do navegador
     window.goBack = function() {
         window.history.back();
@@ -317,97 +324,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, duration);
     }
     
-    // Objeto de traduções para textos estáticos
-    const translations = {
-        'pt': {
-            'medicamentos.titulo': 'Guia de Medicamentos',
-            'main.title': 'Medicamentos Essenciais em Campo',
-            'main.subtitle': 'Guia de referência para adultos.',
-            'safety.note.title': '⚠️ Nota de Segurança: Populações Especiais e Interações',
-            'safety.note.p1': 'Interações Medicamentosas: Combinações inadequadas podem causar efeitos adversos graves. Atenção a interações entre AINEs e anti-hipertensivos; antibióticos e antiácidos; corticoides e hipoglicemiantes.',
-            'safety.note.p2': 'Gestantes e Lactantes: Muitos medicamentos (ex: Doxiciclina, Primaquina, Ciprofloxacino, AINEs) são contraindicados ou requerem extrema precaução. Avalie sempre os riscos versus benefícios.',
-            'safety.note.p3': 'Crianças: Exigem ajuste rigoroso de dose por peso e idade. É obrigatório consultar um profissional habilitado para garantir a segurança.',
-            'safety.note.p4': 'Idosos: População suscetível a efeitos adversos. Atenção especial com sedativos (Diazepam) e diuréticos (Furosemida). Monitoramento clínico é essencial.',
-            'nav_voltar': 'Voltar',
-            'nav_inicio': 'Início',
-            'disclaimer.title': '⚠️ AVISO IMPORTANTE SOBRE O USO DE MEDICAMENTOS',
-            'disclaimer.subtitle': 'DECLARAÇÃO DE ISENÇÃO DE RESPONSABILIDADE',
-            'disclaimer.p1': 'As informações contidas nesta página destinam-se exclusivamente a profissionais de saúde devidamente capacitados e atuantes em missões médicas e contextos clínicos supervisionados.',
-            'disclaimer.p2': 'O uso inadequado de medicamentos pode resultar em efeitos adversos graves, intoxicações, falhas terapêuticas, agravamento de quadros clínicos ou até óbito.',
-            'disclaimer.prohibited': 'É expressamente proibido:',
-            'disclaimer.list1': 'A automedicação ou uso por leigos sem orientação profissional;',
-            'disclaimer.list2': 'A modificação não autorizada de dosagens ou protocolos;',
-            'disclaimer.list3': 'O uso de medicamentos fora de indicações reconhecidas;',
-            'disclaimer.list4': 'A distribuição de medicamentos sem supervisão técnica.',
-            'disclaimer.p3': 'Ao acessar este conteúdo, você declara compreender que estas informações não substituem uma avaliação clínica e que o uso delas é de sua exclusiva responsabilidade.',
-            'disclaimer.security_message': '🔒 SEGURANÇA E RESPONSABILIDADE SALVAM VIDAS.',
-            'disclaimer.accept_button': 'Concordo e Continuar',
-            'offline.mode': 'Modo Offline ativado. Usando dados armazenados localmente.',
-            'update.checking': 'Verificando atualizações...',
-            'update.success': 'Dados atualizados com sucesso!',
-            'update.error': 'Erro ao atualizar dados. Tente novamente mais tarde.',
-            'update.offline': 'Você está offline. Conecte-se à internet para atualizar.'
-        },
-        'es': {
-            'medicamentos.titulo': 'Guía de Medicamentos',
-            'main.title': 'Medicamentos Esenciales en Campo',
-            'main.subtitle': 'Guía de referencia para adultos.',
-            'safety.note.title': '⚠️ Nota de Seguridad: Poblaciones Especiales e Interacciones',
-            'safety.note.p1': 'Interacciones Medicamentosas: Las combinaciones inadecuadas pueden causar efectos adversos graves. Preste atención a las interacciones entre AINE y antihipertensivos; antibióticos y antiácidos; corticosteroides e hipoglucemiantes.',
-            'safety.note.p2': 'Embarazadas y Lactantes: Muchos medicamentos (ej: Doxiciclina, Primaquina, Ciprofloxacino, AINE) están contraindicados o requieren extrema precaución. Evalúe siempre los riesgos versus beneficios.',
-            'safety.note.p3': 'Niños: Requieren un ajuste estricto de la dosis por peso y edad. Es obligatorio consultar a un profesional cualificado para garantizar la seguridad.',
-            'safety.note.p4': 'Ancianos: Población susceptible a efectos adversos. Preste especial atención a los sedantes (Diazepam) y diuréticos (Furosemida). El monitoreo clínico es esencial.',
-            'nav_voltar': 'Volver',
-            'nav_inicio': 'Inicio',
-            'disclaimer.title': '⚠️ AVISO IMPORTANTE SOBRE EL USO DE MEDICAMENTOS',
-            'disclaimer.subtitle': 'DECLARACIÓN DE EXENCIÓN DE RESPONSABILIDAD',
-            'disclaimer.p1': 'La información contenida en esta página está destinada exclusivamente a profesionales de la salud debidamente capacitados y que actúan en misiones médicas y contextos clínicos supervisados.',
-            'disclaimer.p2': 'El uso inadecuado de medicamentos puede resultar en efectos adversos graves, intoxicaciones, fallas terapéuticas, agravamiento de cuadros clínicos o incluso la muerte.',
-            'disclaimer.prohibited': 'Está expresamente prohibido:',
-            'disclaimer.list1': 'La automedicación o el uso por parte de laicos sin orientación profesional;',
-            'disclaimer.list2': 'La modificación no autorizada de dosis o protocolos;',
-            'disclaimer.list3': 'El uso de medicamentos fuera de indicaciones reconocidas;',
-            'disclaimer.list4': 'La distribución de medicamentos sin supervisión técnica.',
-            'disclaimer.p3': 'Al acceder a este contenido, usted declara comprender que esta información no sustituye una evaluación clínica y que su uso es de su exclusiva responsabilidad.',
-            'disclaimer.security_message': '🔒 SEGURIDAD Y RESPONSABILIDAD SALVAN VIDAS.',
-            'disclaimer.accept_button': 'Acepto y Continuar',
-            'offline.mode': 'Modo Offline activado. Usando datos almacenados localmente.',
-            'update.checking': 'Verificando actualizaciones...',
-            'update.success': '¡Datos actualizados con éxito!',
-            'update.error': 'Error al actualizar datos. Inténtelo de nuevo más tarde.',
-            'update.offline': 'Estás offline. Conéctese a internet para actualizar.'
-        },
-        'en': {
-            'medicamentos.titulo': 'Medication Guide',
-            'main.title': 'Essential Field Medications',
-            'main.subtitle': 'Reference guide for adults.',
-            'safety.note.title': '⚠️ Safety Note: Special Populations and Interactions',
-            'safety.note.p1': 'Drug Interactions: Inadequate combinations can cause severe adverse effects. Pay attention to interactions between NSAIDs and antihypertensives; antibiotics and antacids; corticosteroids and hypoglycemic agents.',
-            'safety.note.p2': 'Pregnant and Lactating Women: Many medications (e.g., Doxycycline, Primaquine, Ciprofloxacin, NSAIDs) are contraindicated or require extreme caution. Always weigh risks versus benefits.',
-            'safety.note.p3': 'Children: Require strict dose adjustment by weight and age. It is mandatory to consult a qualified professional to ensure safety.',
-            'safety.note.p4': 'Elderly: Population susceptible to adverse effects. Pay special attention to sedatives (Diazepam) and diuretics (Furosemide). Clinical monitoring is essential.',
-            'nav_voltar': 'Back',
-            'nav_inicio': 'Home',
-            'disclaimer.title': '⚠️ IMPORTANT DISCLAIMER REGARDING MEDICATION USE',
-            'disclaimer.subtitle': 'DISCLAIMER STATEMENT',
-            'disclaimer.p1': 'The information contained on this page is intended exclusively for duly qualified healthcare professionals working in medical missions and supervised clinical contexts.',
-            'disclaimer.p2': 'Improper use of medications can result in severe adverse effects, intoxications, therapeutic failures, worsening clinical conditions, or even death.',
-            'disclaimer.prohibited': 'It is expressly prohibited:',
-            'disclaimer.list1': 'Self-medication or use by laypersons without professional guidance;',
-            'disclaimer.list2': 'Unauthorized modification of dosages or protocols;',
-            'disclaimer.list3': 'Use of medications outside recognized indications;',
-            'disclaimer.list4': 'Distribution of medications without technical supervision.',
-            'disclaimer.p3': 'By accessing this content, you declare that you understand that this information does not replace a clinical evaluation and that its use is your sole responsibility.',
-            'disclaimer.security_message': '🔒 SAFETY AND RESPONSIBILITY SAVE LIVES.',
-            'disclaimer.accept_button': 'Agree and Continue',
-            'offline.mode': 'Offline mode activated. Using locally stored data.',
-            'update.checking': 'Checking for updates...',
-            'update.success': 'Data updated successfully!',
-            'update.error': 'Error updating data. Please try again later.',
-            'update.offline': 'You are offline. Connect to the internet to update.'
-        }
-    };
-    
+    // Prefer shared translations (centralized in assets/js/translator.js)
+    const translations = window.translations || {};
+
     // Mensagem de disclaimer pediátrico traduzida
     const pediatricDoseDisclaimer = {
         pt: 'PARA DOSE PEDIÁTRICA FAVOR CONSULTAR A UM PROFISSIONAL DE SAÚDE',

@@ -52,9 +52,18 @@
         Ferramenta de apoio à decisão. <strong>Não substitui uma consulta médica.</strong>
       </p>
       <div id="lang-switcher" class="flex justify-center gap-4 mt-4">
-        <button onclick="setLanguage('pt')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="pt">🇧🇷 Português</button>
-        <button onclick="setLanguage('es')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="es">🇪🇸 Español</button>
-        <button onclick="setLanguage('en')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="en">🇺🇸 English</button>
+    <button onclick="setLanguage('pt')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="pt" aria-label="Português (Brasil)">
+      <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#009c3b"/><polygon points="10,2 16,7 10,12 4,7" fill="#ffdf00"/><circle cx="10" cy="7" r="2.6" fill="#3e4095"/></svg>
+      <span class="ml-2">Português</span>
+    </button>
+    <button onclick="setLanguage('es')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="es" aria-label="Español (España)">
+      <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#c60b1e"/><rect y="4" width="20" height="6" fill="#ffc400"/></svg>
+      <span class="ml-2">Español</span>
+    </button>
+    <button onclick="setLanguage('en')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="en" aria-label="English (US)">
+      <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#b22234"/><g fill="#fff"><rect y="1" width="20" height="1.5"/><rect y="4" width="20" height="1.5"/><rect y="7" width="20" height="1.5"/><rect y="10" width="20" height="1.5"/></g><rect width="8" height="6" fill="#3c3b6e"/></svg>
+      <span class="ml-2">English</span>
+    </button>
       </div>
     </header>
 
@@ -212,171 +221,60 @@
   </nav>
 
   <script>
+  </script>
+  <script src="assets/js/translator.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.Translator && typeof window.Translator.init === 'function') {
+        window.Translator.init({ storageKey: 'gob_triage_lang', defaultLang: 'pt' });
+      }
+    });
+
+  
     const el = id => document.getElementById(id);
     const state = { profile: null, ig: null, summary: '' };
     let currentPage = 1;
-    const pages = {
-        '1': el('page-1'),
-        '2': el('page-2'),
-        '3': el('page-3'),
-    };
-    const profileLabels = {
-        pt: { gestante: 'Gestante', puerpera: 'Puérpera', nao_gravida: 'Não Grávida' },
-        es: { gestante: 'Embarazada', puerpera: 'Puérpera', nao_gravida: 'No Embarazada' },
-        en: { gestante: 'Pregnant', puerpera: 'Postpartum', nao_gravida: 'Not Pregnant' }
-    };
+  const pages = {
+    '1': el('page-1'),
+    '2': el('page-2'),
+    '3': el('page-3')
+  };
 
-    const translations = {
-        pt: {
-            app_title: "Triagem Gineco-Obstetrícia (GOB) — MissionCare Plus",
-            main_title: "Triagem Gineco-Obstetrícia",
-            subtitle: "Ferramenta de apoio à decisão. <strong>Não substitui uma consulta médica.</strong>",
-            select_profile_title: "1. Selecione o Perfil da Paciente",
-            profile_gestante: "Gestante",
-            profile_puerpera: "Puérpera",
-            profile_puerpera_subtitle: "(até 42 dias pós-parto)",
-            profile_nao_gravida: "Não Grávida",
-            card_profile: "Perfil",
-            card_gestational_age: "Idade Gestacional",
-            change_profile: "Trocar Perfil",
-            gestational_age_title: "Idade Gestacional",
-            dum_label: "DUM (data da última menstruação)",
-            ig_weeks_label: "IG em semanas (se não souber a DUM)",
-            vitals_title: "Sinais Vitais (Opcional)",
-            symptoms_title: "Sinais e Sintomas de Alerta",
-            analyze_button: "Analisar Sinais",
-            result_advice_title: "Aconselhamento e Plano de Ação:",
-            emergency_button: "🚨 COMUNICAR EMERGÊNCIA",
-            guide_hemorrhage: "Ver Guia Rápido: Hemorragia",
-            guide_preeclampsia: "Ver Guia Rápido: Pré-eclâmpsia",
-            summary_title: "Ver resumo para registro",
-            copy_summary_button: "Copiar Resumo",
-            new_triage_button: "Nova Triagem",
-            copied: "Copiado!",
-            nav_back: "Voltar",
-            nav_home: "Início",
-            symptom_bleeding: "Sangramento vaginal intenso/coágulos",
-            symptom_pain: "Dor abdominal forte/contrações regulares",
-            symptom_fluid_loss: "Perda de líquido pela vagina",
-            symptom_headache: "Cefaleia forte/visão turva",
-            symptom_seizure: "Convulsão/desmaio",
-            symptom_breathing: "Falta de ar/dor torácica",
-            symptom_fever: "Febre alta/calafrios",
-            symptom_urinary_pain: "Dor ao urinar/dor lombar",
-            symptom_fetal_mov: "Movimentos fetais reduzidos (se ≥24 sem)",
-            symptom_shoulder_pain: "Dor no ombro/tontura (suspeita de ectópica)",
-            symptom_postpartum_bleeding: "Sangramento anormal no puerpério",
-            symptom_mastitis: "Mama vermelha/dolorosa com febre (mastite)",
-            symptom_vomiting: "Vômitos persistentes/incapaz de ingerir líquidos",
-        },
-        es: {
-            app_title: "Triaje Obstétrico y Ginecológico — MissionCare Plus",
-            main_title: "Triaje Obstétrico y Ginecológico",
-            subtitle: "Herramienta de apoyo a la decisión. <strong>No reemplaza una consulta médica.</strong>",
-            select_profile_title: "1. Seleccione el Perfil de la Paciente",
-            profile_gestante: "Embarazada",
-            profile_puerpera: "Puérpera",
-            profile_puerpera_subtitle: "(hasta 42 días posparto)",
-            profile_nao_gravida: "No Embarazada",
-            card_profile: "Perfil",
-            card_gestational_age: "Edad Gestacional",
-            change_profile: "Cambiar Perfil",
-            gestational_age_title: "Edad Gestacional",
-            dum_label: "FUM (fecha de última menstruación)",
-            ig_weeks_label: "EG en semanas (si no sabe la FUM)",
-            vitals_title: "Signos Vitales (Opcional)",
-            symptoms_title: "Signos y Síntomas de Alerta",
-            analyze_button: "Analizar Signos",
-            result_advice_title: "Recomendación y Plan de Acción:",
-            emergency_button: "🚨 COMUNICAR EMERGENCIA",
-            guide_hemorrhage: "Ver Guía Rápida: Hemorragia",
-            guide_preeclampsia: "Ver Guía Rápida: Preeclampsia",
-            summary_title: "Ver resumen para registro",
-            copy_summary_button: "Copiar Resumen",
-            new_triage_button: "Nuevo Triaje",
-            copied: "¡Copiado!",
-            nav_back: "Volver",
-            nav_home: "Inicio",
-            symptom_bleeding: "Sangrado vaginal intenso/coágulos",
-            symptom_pain: "Dolor abdominal fuerte/contracciones regulares",
-            symptom_fluid_loss: "Pérdida de líquido por la vagina",
-            symptom_headache: "Cefalea fuerte/visión borrosa",
-            symptom_seizure: "Convulsión/desmayo",
-            symptom_breathing: "Falta de aire/dolor torácico",
-            symptom_fever: "Fiebre alta/escalofríos",
-            symptom_urinary_pain: "Dolor al orinar/dolor lumbar",
-            symptom_fetal_mov: "Movimientos fetales reducidos (si ≥24 sem)",
-            symptom_shoulder_pain: "Dolor en el hombro/mareo (sospecha de ectópico)",
-            symptom_postpartum_bleeding: "Sangrado anormal en el puerperio",
-            symptom_mastitis: "Mama roja/dolorosa con fiebre (mastitis)",
-            symptom_vomiting: "Vómitos persistentes/incapaz de ingerir líquidos",
-        },
-        en: {
-            app_title: "Obstetric & Gynecological Triage — MissionCare Plus",
-            main_title: "Obstetric & Gynecological Triage",
-            subtitle: "Decision support tool. <strong>Does not replace a medical consultation.</strong>",
-            select_profile_title: "1. Select Patient Profile",
-            profile_gestante: "Pregnant",
-            profile_puerpera: "Postpartum",
-            profile_puerpera_subtitle: "(up to 42 days postpartum)",
-            profile_nao_gravida: "Not Pregnant",
-            card_profile: "Profile",
-            card_gestational_age: "Gestational Age",
-            change_profile: "Change Profile",
-            gestational_age_title: "Gestational Age",
-            dum_label: "LMP (last menstrual period)",
-            ig_weeks_label: "GA in weeks (if LMP is unknown)",
-            vitals_title: "Vital Signs (Optional)",
-            symptoms_title: "Warning Signs and Symptoms",
-            analyze_button: "Analyze Signs",
-            result_advice_title: "Advice and Action Plan:",
-            emergency_button: "🚨 COMMUNICATE EMERGENCY",
-            guide_hemorrhage: "View Quick Guide: Hemorrhage",
-            guide_preeclampsia: "View Quick Guide: Preeclampsia",
-            summary_title: "View summary for records",
-            copy_summary_button: "Copy Summary",
-            new_triage_button: "New Triage",
-            copied: "Copied!",
-            nav_back: "Back",
-            nav_home: "Home",
-            symptom_bleeding: "Heavy vaginal bleeding/clots",
-            symptom_pain: "Severe abdominal pain/regular contractions",
-            symptom_fluid_loss: "Leaking fluid from vagina",
-            symptom_headache: "Severe headache/blurred vision",
-            symptom_seizure: "Seizure/fainting",
-            symptom_breathing: "Shortness of breath/chest pain",
-            symptom_fever: "High fever/chills",
-            symptom_urinary_pain: "Painful urination/low back pain",
-            symptom_fetal_mov: "Reduced fetal movements (if ≥24 wks)",
-            symptom_shoulder_pain: "Shoulder pain/dizziness (suspected ectopic)",
-            symptom_postpartum_bleeding: "Abnormal postpartum bleeding",
-            symptom_mastitis: "Red, painful breast with fever (mastitis)",
-            symptom_vomiting: "Persistent vomiting/unable to keep liquids down",
+  const profileLabels = {
+    pt: { gestante: 'Gestante', puerpera: 'Puérpera', nao_gravida: 'Não Grávida' },
+    es: { gestante: 'Embarazada', puerpera: 'Puérpera', nao_gravida: 'No Embarazada' },
+    en: { gestante: 'Pregnant', puerpera: 'Postpartum', nao_gravida: 'Not Pregnant' }
+  };
+
+  // Prefer shared translator dictionaries; keep local fallback empty to avoid duplication
+  const translations = window.translations || {};
+
+  let currentLang = localStorage.getItem('gob_triage_lang') || 'pt';
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    try { localStorage.setItem('gob_triage_lang', lang); } catch(e) {}
+    document.documentElement.lang = lang;
+
+    if (window.applyTranslations) {
+      window.applyTranslations(lang);
+    } else {
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          element.innerHTML = translations[lang][key];
         }
-    };
-    
-    let currentLang = 'pt';
-
-    function setLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem('gob_triage_lang', lang);
-        document.documentElement.lang = lang;
-        
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            if (translations[lang] && translations[lang][key]) {
-                element.innerHTML = translations[lang][key];
-            }
-        });
-
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
-        });
-        
-        if (state.profile) {
-            el('card-profile').textContent = profileLabels[currentLang][state.profile];
-        }
+      });
     }
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+
+    if (state.profile) {
+      el('card-profile').textContent = profileLabels[currentLang][state.profile];
+    }
+  }
 
 
     function showPage(pageNumber) {
@@ -666,12 +564,14 @@
 
     el('back-btn').addEventListener('click', handleBack);
 
-    // Initial load
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedLang = localStorage.getItem('gob_triage_lang') || 'pt';
-        setLanguage(savedLang);
-        showPage('1');
-    });
+  // Initial load
+  document.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('gob_triage_lang') || 'pt';
+    // If Translator is available, use it to apply translations; otherwise fallback
+    if (window.applyTranslations) { window.applyTranslations(savedLang); }
+    setLanguage(savedLang);
+    showPage('1');
+  });
   </script>
 </body>
 </html>

@@ -78,9 +78,15 @@
                    <h1 id="header-title" data-i18n="headerTitle" class="text-gray-800 text-lg font-bold">Triagem Pediátrica</h1>
                 </div>
                 <div class="w-1/4 flex justify-end items-center gap-1">
-                     <button data-lang="pt-BR" class="lang-btn p-2 text-xs font-bold rounded-md border">PT</button>
-                     <button data-lang="en" class="lang-btn p-2 text-xs font-bold rounded-md border">EN</button>
-                     <button data-lang="es" class="lang-btn p-2 text-xs font-bold rounded-md border">ES</button>
+                     <button data-lang="pt-BR" class="lang-btn p-2 text-xs font-bold rounded-md border selected" aria-label="Português (Brasil)">
+                         <span class="text-lg" aria-hidden="true">🇧🇷</span>
+                     </button>
+                     <button data-lang="en" class="lang-btn p-2 text-xs font-bold rounded-md border" aria-label="English (US)">
+                         <span class="text-lg" aria-hidden="true">🇺🇸</span>
+                     </button>
+                     <button data-lang="es" class="lang-btn p-2 text-xs font-bold rounded-md border" aria-label="Español (España)">
+                         <span class="text-lg" aria-hidden="true">🇪🇸</span>
+                     </button>
                 </div>
             </div>
         </header>
@@ -112,73 +118,73 @@
 
             <!-- SEÇÃO 2: QUEIXA PRINCIPAL -->
              <div class="form-section space-y-4">
-                <h2 class="text-xl font-bold text-center text-gray-800">2. Queixa Principal</h2>
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_section_title">2. Queixa Principal</h2>
                 <div>
-                    <label for="queixa-principal" class="font-semibold text-gray-700 mb-2 block">Descreva a queixa principal:</label>
-                    <input type="text" id="queixa-principal" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: Febre, tosse, dor de barriga...">
+                    <label for="queixa-principal" class="font-semibold text-gray-700 mb-2 block" data-i18n="chief_complaint_label">Descreva a queixa principal:</label>
+                    <input type="text" id="queixa-principal" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="chief_complaint_placeholder" placeholder="Ex: Febre, tosse, dor de barriga...">
                 </div>
                  <div>
-                    <label for="historia-doenca" class="font-semibold text-gray-700 mb-2 block">Descreva a história da doença:</label>
-                    <textarea id="historia-doenca" rows="4" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: Começou ontem com febre de 38.5°C, tosse seca e não quer comer."></textarea>
+                    <label for="historia-doenca" class="font-semibold text-gray-700 mb-2 block" data-i18n="history_label">Descreva a história da doença:</label>
+                    <textarea id="historia-doenca" rows="4" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="history_placeholder" placeholder="Ex: Começou ontem com febre de 38.5°C, tosse seca e não quer comer."></textarea>
                 </div>
             </div>
 
             <!-- SEÇÃO 3: SINAIS VITAIS -->
             <div class="form-section space-y-6">
-                 <h2 class="text-xl font-bold text-center text-gray-800">3. Sinais Vitais (Opcional)</h2>
+                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_section_title">3. Sinais Vitais (Opcional)</h2>
                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                        <label for="temperatura" class="font-semibold text-gray-700 mb-1 block text-sm">Temperatura (°C)</label>
-                        <input type="text" id="temperatura" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" placeholder="Ex: 38.5">
+                        <label for="temperatura" class="font-semibold text-gray-700 mb-1 block text-sm" data-i18n="label_temperature">Temperatura (°C)</label>
+                        <input type="text" id="temperatura" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" data-i18n="placeholder_temperature" placeholder="Ex: 38.5">
                     </div>
                     <div>
-                        <label for="frequencia-cardiaca" class="font-semibold text-gray-700 mb-1 block text-sm">FC (bpm)</label>
-                        <input type="text" id="frequencia-cardiaca" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" placeholder="Ex: 120">
+                        <label for="frequencia-cardiaca" class="font-semibold text-gray-700 mb-1 block text-sm" data-i18n="label_hr">FC (bpm)</label>
+                        <input type="text" id="frequencia-cardiaca" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" data-i18n="placeholder_hr" placeholder="Ex: 120">
                     </div>
                     <div>
-                        <label for="frequencia-respiratoria" class="font-semibold text-gray-700 mb-1 block text-sm">FR (irpm)</label>
-                        <input type="text" id="frequencia-respiratoria" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" placeholder="Ex: 40">
+                        <label for="frequencia-respiratoria" class="font-semibold text-gray-700 mb-1 block text-sm" data-i18n="label_rr">FR (irpm)</label>
+                        <input type="text" id="frequencia-respiratoria" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" data-i18n="placeholder_rr" placeholder="Ex: 40">
                     </div>
                      <div>
-                        <label for="saturacao-o2" class="font-semibold text-gray-700 mb-1 block text-sm">Sat O₂ (%)</label>
-                        <input type="text" id="saturacao-o2" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" placeholder="Ex: 98">
+                        <label for="saturacao-o2" class="font-semibold text-gray-700 mb-1 block text-sm" data-i18n="label_spo2">Sat O₂ (%)</label>
+                        <input type="text" id="saturacao-o2" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" data-i18n="placeholder_spo2" placeholder="Ex: 98">
                     </div>
                  </div>
             </div>
             
             <!-- SEÇÃO 4: AVALIAÇÃO GERAL -->
              <div class="form-section space-y-6">
-                <h2 class="text-xl font-bold text-center text-gray-800">4. Avaliação Geral</h2>
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_section_title">4. Avaliação Geral</h2>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2">Estado Geral</legend>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="legend_general_state">Estado Geral</legend>
                     <div class="grid grid-cols-3 gap-2" data-form-key="estadoGeral">
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Bom"><span class="text-xl">😊</span><span class="text-xs mt-1">Bom</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Regular"><span class="text-xl">😐</span><span class="text-xs mt-1">Regular</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Ruim"><span class="text-xl">😫</span><span class="text-xs mt-1">Ruim</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Bom"><span class="text-xl">😊</span><span class="text-xs mt-1" data-i18n="state_good">Bom</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Regular"><span class="text-xl">😐</span><span class="text-xs mt-1" data-i18n="state_regular">Regular</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Ruim"><span class="text-xl">😫</span><span class="text-xs mt-1" data-i18n="state_poor">Ruim</span></button>
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2">Nível de Consciência</legend>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="legend_consciousness">Nível de Consciência</legend>
                      <div class="grid grid-cols-3 gap-2" data-form-key="nivelConsciencia">
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-xl">👀</span><span class="text-xs mt-1">Alerta</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Sonolento"><span class="text-xl">😴</span><span class="text-xs mt-1">Sonolento</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Irritado/Inconsolável"><span class="text-xl">😭</span><span class="text-xs mt-1">Irritado</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-xl">👀</span><span class="text-xs mt-1" data-i18n="conscious_alert">Alerta</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Sonolento"><span class="text-xl">😴</span><span class="text-xs mt-1" data-i18n="conscious_drowsy">Sonolento</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Irritado/Inconsolável"><span class="text-xl">😭</span><span class="text-xs mt-1" data-i18n="conscious_irritable">Irritado</span></button>
                     </div>
                 </fieldset>
              </div>
 
             <!-- SEÇÃO 5: INFORMAÇÕES FINAIS -->
             <div class="form-section space-y-6">
-                 <h2 class="text-xl font-bold text-center text-gray-800">5. Informações Adicionais</h2>
+                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step4_section_title">5. Informações Adicionais</h2>
                 <div>
-                    <label for="observacoes-adicionais" class="font-semibold text-gray-700 mb-2 block">Observações adicionais relevantes?</label>
-                    <textarea id="observacoes-adicionais" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: Moleira alta, pele com manchas, recusa líquidos..."></textarea>
+                    <label for="observacoes-adicionais" class="font-semibold text-gray-700 mb-2 block" data-i18n="observations_label">Observações adicionais relevantes?</label>
+                    <textarea id="observacoes-adicionais" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="observations_placeholder" placeholder="Ex: Moleira alta, pele com manchas, recusa líquidos..."></textarea>
                 </div>
             </div>
         </main>
         
         <!-- TELA DE RESULTADOS -->
-        <div id="results-screen" class="hidden p-4 md:p-6 space-y-6">
+            <div id="results-screen" class="hidden p-4 md:p-6 space-y-6">
             <h1 class="text-2xl font-bold text-center text-gray-800" data-i18n="results_title">Análise Preliminar</h1>
             <div id="orientation-content" class="max-w-none bg-white p-1 rounded-lg">
                 <!-- Conteúdo da IA será inserido aqui -->
@@ -242,41 +248,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Função para renderizar os resultados da análise
+    // Função para renderizar os resultados da análise (usando traduções atuais)
     const renderAnalysis = (data) => {
+        const dict = translations[currentLang] || translations['pt'];
         let urgencyClass = 'urgency-low';
-        let urgencyText = 'Baixo Risco';
+        let urgencyText = dict['urgency_low_label'] || 'Baixo Risco';
         if (data.conduta_recomendada && data.conduta_recomendada.urgencia) {
             urgencyClass = 'urgency-high';
-            urgencyText = 'Urgência Alta';
+            urgencyText = dict['urgency_high_label'] || 'Urgência Alta';
         } else if (data.sinais_de_gravidade && data.sinais_de_gravidade.length > 0) {
             urgencyClass = 'urgency-medium';
-            urgencyText = 'Risco Moderado';
+            urgencyText = dict['urgency_medium_label'] || 'Risco Moderado';
         }
 
         const createList = (items) => {
-            if (!items || items.length === 0) return '<p>Nenhuma informação disponível.</p>';
+            if (!items || items.length === 0) return `<p>${dict['no_info_available'] || 'Nenhuma informação disponível.'}</p>`;
             return `<ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
         };
 
         orientationContent.innerHTML = `
             <div class="urgency-card ${urgencyClass}">
                 <h3 class="urgency-title">${urgencyText}</h3>
-                <p class="font-semibold">${data.conduta_recomendada?.justificativa || 'Avaliação geral da IA.'}</p>
+                <p class="font-semibold">${data.conduta_recomendada?.justificativa || dict['ai_default_evaluation'] || 'Avaliação geral da IA.'}</p>
             </div>
 
             ${data.conduta_recomendada?.orientacoes ? `
-                <h4><i class="fas fa-clipboard-list mr-2"></i>Conduta Recomendada</h4>
+                <h4><i class="fas fa-clipboard-list mr-2"></i>${dict['recommended_conduct'] || 'Conduta Recomendada'}</h4>
                 ${createList(data.conduta_recomendada.orientacoes)}
             ` : ''}
 
             ${data.sinais_de_piora ? `
-                <h4><i class="fas fa-exclamation-triangle mr-2"></i>Sinais de Piora a Observar</h4>
+                <h4><i class="fas fa-exclamation-triangle mr-2"></i>${dict['worsening_signs'] || 'Sinais de Piora a Observar'}</h4>
                 ${createList(data.sinais_de_piora)}
             ` : ''}
             
              ${data.sinais_de_gravidade && data.sinais_de_gravidade.length > 0 ? `
-                <h4><i class="fas fa-bolt mr-2"></i>Sinais de Gravidade Identificados</h4>
+                <h4><i class="fas fa-bolt mr-2"></i>${dict['severity_signs'] || 'Sinais de Gravidade Identificados'}</h4>
                 ${createList(data.sinais_de_gravidade)}
             ` : ''}
         `;
@@ -298,11 +305,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // UI para estado de carregamento
-        formContainer.style.display = 'none';
-        submitBtn.style.display = 'none';
-        resultsScreen.classList.remove('hidden');
-        resultsScreen.scrollIntoView({ behavior: 'smooth' });
-        orientationContent.innerHTML = '<div class="loader mx-auto my-4"></div><p class="text-center font-semibold text-gray-600">Analisando informações... Isso pode levar alguns segundos.</p>';
+    formContainer.style.display = 'none';
+    submitBtn.style.display = 'none';
+    resultsScreen.classList.remove('hidden');
+    resultsScreen.scrollIntoView({ behavior: 'smooth' });
+    const dict = translations[currentLang] || translations['pt'];
+    orientationContent.innerHTML = `<div class="loader mx-auto my-4"></div><p class="text-center font-semibold text-gray-600">${dict['analyzing_feedback'] || dict['analyzing_feedback']}</p>`;
 
         try {
             // Chamada para a API
@@ -322,8 +330,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error("Erro ao gerar análise:", error);
+            const dict = translations[currentLang] || translations['pt'];
             orientationContent.innerHTML = `<div class="text-center text-red-600 font-bold">
-                <p>Ocorreu um erro ao buscar a análise.</p>
+                <p>${dict['api_error_label'] || 'Ocorreu um erro ao buscar a análise.'}</p>
                 <p class="text-sm mt-2 text-gray-700">${error.message}</p>
             </div>`;
         } finally {
@@ -336,7 +345,22 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.addEventListener('click', () => { if (!submitBtn.disabled) handleFormSubmit(); });
     restartBtn.addEventListener('click', () => location.reload());
 
-    // Inicialização
+    // Inicialização do tradutor centralizado
+    // O script shared assets/js/translator.js exporta window.Translator
+    // e define window.translations, window.currentLang e window.applyTranslations
+        // Ensure central translator is initialized (kept for compatibility)
+        (function(){
+            const s = document.createElement('script');
+            s.src = 'assets/js/translator.js';
+            s.defer = true;
+            document.head.appendChild(s);
+            s.addEventListener('load', () => {
+                if(window.Translator && typeof window.Translator.init === 'function'){
+                    window.Translator.init({ storageKey: 'triage_pediatric_lang', defaultLang: 'pt' });
+                }
+            });
+        })();
+
     validateForm();
 });
 </script>
