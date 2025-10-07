@@ -213,36 +213,26 @@
   </footer>
   <!-- FIM: Barra de Navegação Inferior Adicionada -->
   
+  <script src="assets/js/translator.js" defer></script>
   <script>
-    const translations = {
-      pt: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Se você estiver apresentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SINTOMAS GRAVES</a>, não use o MissionCare Plus. Em vez disso, entre em contato com os serviços de emergência.", disclaimerTitle:"AVISO DE RESPONSABILIDADE", disclaimerP1:"O MissionCare Plus é uma ferramenta de apoio educacional. As informações aqui contidas <strong>não substituem</strong> uma consulta médica.", disclaimerP2:"Em caso de emergência, procure ajuda médica imediatamente.", mainTitle:"MissionCare Plus", subtitle:"\"Levando cura e esperança aos confins da Terra\"", criticalActions:"Ações Críticas", emergenciesTitle:"Guia de Emergências", emergenciesDesc:"Primeiros socorros e orientação rápida.", mainAttention:"Atenção Principal e Ferramentas", adultsTitle:"ATENÇÃO ADULTOS", adultsDesc:"Avalie sintomas e receba orientação.", pediatricsTitle:"ATENÇÃO PEDIATRIA", pediatricsDesc:"Cuidado especializado para crianças.", gobTitle: "ATENÇÃO OBSTETRÍCIA", gobDesc: "Triagem e suporte para Ginecologia e Obstetrícia.", meds:"MEDICAMENTOS", onlineContent:"Conteúdo atualizado disponível online", offlineContent:"Versão básica offline disponível", navHome:"Início", navEmergencies:"Emergências", navContact:"Contato" },
-      es: { emergencyAlertTitle:"Aviso Importante", emergencyAlertText:"Si está presentando <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SÍNTOMAS GRAVES</a>, no use MissionCare Plus. En su lugar, contacte a los servicios de emergencia.", disclaimerTitle:"AVISO DE RESPONSABILIDAD", disclaimerP1:"MissionCare Plus es una herramienta de apoyo educativo. La información aquí contenida <strong>no reemplaza</strong> una consulta médica.", disclaimerP2:"En caso de emergencia, busque ayuda médica de inmediato.", mainTitle:"MissionCare Plus", subtitle:"\"Llevando sanación y esperanza hasta los confines de la Tierra\"", criticalActions:"Acciones Críticas", emergenciesTitle:"Guía de Emergencias", emergenciesDesc:"Primeros auxilios y orientación rápida.", mainAttention:"Atención Principal y Herramientas", adultsTitle:"ATENCIÓN ADULTOS", adultsDesc:"Evalúe síntomas y reciba orientación.", pediatricsTitle:"ATENCIÓN PEDIATRIA", pediatricsDesc:"Cuidado especializado para niños.", gobTitle: "ATENCIÓN OBSTETRICIA", gobDesc: "Triaje y soporte para Ginecología y Obstetricia.", meds:"MEDICAMENTOS", onlineContent:"Contenido actualizado disponible en línea", offlineContent:"Versão básica sin conexión disponible", navHome:"Inicio", navEmergencies:"Emergencias", navContact:"Contacto" },
-      en: { emergencyAlertTitle:"Important Notice", emergencyAlertText:"If you are experiencing <a href='sintomas-graves.html' class='font-bold text-red-600 underline hover:text-red-700'>SEVERE SYMPTOMS</a>, do not use MissionCare Plus. Instead, contact emergency services.", disclaimerTitle:"DISCLAIMER", disclaimerP1:"MissionCare Plus is an educational support tool. The information herein <strong>does not replace</strong> a medical consultation.", disclaimerP2:"In case of emergency, seek medical help immediately.", mainTitle:"MissionCare Plus", subtitle:"\"Bringing healing and hope to the ends of the Earth\"", criticalActions:"Critical Actions", emergenciesTitle:"Emergency Guide", emergenciesDesc:"First aid and quick guidance.", mainAttention:"Main Care and Tools", adultsTitle:"ADULT CARE", adultsDesc:"Evaluate symptoms and receive guidance.", pediatricsTitle:"PEDIATRIC CARE", pediatricsDesc:"Specialized care for children.", gobTitle: "OBSTETRIC CARE", gobDesc: "Triage and support for Gynecology & Obstetrics.", meds:"MEDICATIONS", onlineContent:"Updated content available online", offlineContent:"Basic offline version available", navHome:"Home", navEmergencies:"Emergencies", navContact:"Contact" }
-    };
-    let currentLang = localStorage.getItem('lang') || 'pt';
-    function updateContent(dict) {
-      const d = dict || translations[currentLang];
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (d && d[key]) el.innerHTML = d[key];
-      });
-      document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.id === `lang-${currentLang}`);
-        btn.classList.toggle('inactive', btn.id !== `lang-${currentLang}`);
-      });
-    }
-    function debounce(fn, wait){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
-    function updateConnectionStatus() {
-      const isOnline = navigator.onLine;
-      document.querySelectorAll('.online-content').forEach(el => el.classList.toggle('hidden', !isOnline));
-      document.querySelectorAll('.offline-content').forEach(el => el.classList.toggle('hidden', isOnline));
-      document.querySelectorAll('.offline-badge').forEach(badge => badge.classList.toggle('hidden', isOnline));
-    }
+    // Initialize shared translator with default storage key 'lang' used site-wide
     document.addEventListener('DOMContentLoaded', () => {
+      if (window.Translator && typeof window.Translator.init === 'function') {
+        window.Translator.init({ storageKey: 'lang', defaultLang: 'pt' });
+      }
+
+      // Hook connection status and modals (kept from original)
+      function debounce(fn, wait){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
+      function updateConnectionStatus() {
+        const isOnline = navigator.onLine;
+        document.querySelectorAll('.online-content').forEach(el => el.classList.toggle('hidden', !isOnline));
+        document.querySelectorAll('.offline-content').forEach(el => el.classList.toggle('hidden', isOnline));
+        document.querySelectorAll('.offline-badge').forEach(badge => badge.classList.toggle('hidden', isOnline));
+      }
+
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(err => console.error('SW reg failed:', err));
       }
-      
       updateConnectionStatus();
       window.addEventListener('online', updateConnectionStatus);
       window.addEventListener('offline', updateConnectionStatus);
@@ -250,12 +240,16 @@
       const langBtns = document.querySelectorAll('.lang-btn');
       langBtns.forEach(btn => {
         btn.addEventListener('click', debounce(() => {
-          currentLang = btn.id.split('-')[1];
-          localStorage.setItem('lang', currentLang);
-          updateContent();
+          const id = btn.id || '';
+          if(id.startsWith('lang-')){
+            const code = id.split('-')[1];
+            try { localStorage.setItem('lang', code); } catch(e) {}
+            window.applyTranslations && window.applyTranslations(code);
+          }
         }, 200));
       });
-      updateContent();
+
+      // existing modal logic
       const emergencyModal = document.getElementById('emergency-alert-modal');
       const closeEmergencyBtn = document.getElementById('close-emergency-alert');
       const disclaimerModal = document.getElementById('disclaimer-modal');

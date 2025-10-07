@@ -189,8 +189,12 @@
       </div>
     </nav>
     
-<script>
+    <script src="assets/js/translator.js" defer></script>
+    <script>
 document.addEventListener('DOMContentLoaded', () => {
+    if (window.Translator && typeof window.Translator.init === 'function') {
+        window.Translator.init({ storageKey: 'lang', defaultLang: 'pt' });
+    }
     // Elementos do DOM
     const appMessage = document.getElementById('app-message');
     const offlineIndicator = document.getElementById('offline-indicator');
@@ -231,63 +235,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // --- INÍCIO DA LÓGICA DE TRADUÇÃO ---
-    const translations = {
-        "pt": {
-            "pageTitle": "Sintomas Graves - MissionCare Plus",
-            "headerTitle": "Informação de Segurança",
-            "mainTitle": "Quando NÃO usar o MissionCare Plus",
-            "subtitle": "O avaliador de sintomas não é adequado se você tiver:",
-            "symptom1": "Qualquer <strong class='font-semibold'>dor forte ou apertada no peito</strong>, especialmente se associada a palidez ou suor (isto pode ser indicativo de um ataque cardíaco).",
-            "symptom2": "<strong class='font-semibold'>Queda de um lado do rosto</strong> e/ou fraqueza nos braços ou dificuldade para falar.",
-            "symptom3": "Súbito início de <strong class='font-semibold'>confusão, sonolência ou desorientação</strong>.",
-            "symptom4": "Grave <strong class='font-semibold'>dificuldade em respirar</strong>.",
-            "symptom5": "Qualquer <strong class='font-semibold'>sangramento não controlado</strong>.",
-            "symptom6": "<strong class='font-semibold'>Convulsões</strong>.",
-            "symptom7": "<strong class='font-semibold'>Inchaço rápido e repentino</strong> de qualquer parte do rosto ou corpo.",
-            "symptom8": "Se você está <strong class='font-semibold'>pensando em se machucar</strong> ou acabar com sua vida.",
-            "symptom9": "<strong class='font-semibold'>Queimaduras e ferimentos graves</strong>, como após um acidente.",
-            "finalWarning": "Se você tiver algum destes sintomas, ligue para o número de emergência local ou visite a unidade de saúde mais próxima.",
-            "navBack": "Voltar",
-            "navHome": "Início",
-            "emergencyNumbers": "Números de Emergência:",
-            "offline.mode": "Modo Offline ativado. Informações de emergência estão disponíveis abaixo."
-        },
-        "es": {
-            "pageTitle": "Síntomas Graves - MissionCare Plus",
-            "headerTitle": "Información de Seguridad",
-            "mainTitle": "Cuándo NO usar MissionCare Plus",
-            "subtitle": "El evaluador de síntomas no es adecuado si usted tiene:",
-            "symptom1": "Cualquier <strong class='font-semibold'>dolor fuerte u opresivo en el pecho</strong>, especialmente si se asocia con palidez o sudor (esto puede ser indicativo de un ataque cardíaco).",
-            "symptom2": "<strong class='font-semibold'>Caída de un lado de la cara</strong> y/o debilidad en los brazos o dificultad para hablar.",
-            "symptom3": "Inicio súbito de <strong class='font-semibold'>confusión, somnolencia o desorientación</strong>.",
-            "symptom4": "Grave <strong class='font-semibold'>dificultad para respirar</strong>.",
-            "symptom5": "Cualquier <strong class='font-semibold'>sangrado no controlado</strong>.",
-            "symptom6": "<strong class='font-semibold'>Convulsiones</strong>.",
-            "symptom7": "<strong class='font-semibold'>Hinchazón rápida y repentina</strong> de cualquier parte de la cara o el cuerpo.",
-            "symptom8": "Si está <strong class='font-semibold'>pensando en hacerse daño</strong> o terminar con su vida.",
-            "symptom9": "<strong class='font-semibold'>Quemaduras y heridas graves</strong>, como después de un accidente.",
-            "finalWarning": "Si tiene alguno de estos síntomas, llame al número de emergencia local o visite el centro de salud más cercano.",
-            "navBack": "Volver",
-            "navHome": "Inicio",
-            "emergencyNumbers": "Números de Emergencia:",
-            "offline.mode": "Modo sin conexión activado. La información de emergencia está disponible abajo."
-        }
-    };
+    // Translations have been centralized into assets/js/translator.js.
+    // We keep a lightweight alias for backward compatibility: prefer window.translations when available.
+    const translations = window.translations || {};
     
     const setLanguage = (lang) => {
         currentLang = lang;
         document.getElementById('html-lang').setAttribute('lang', lang);
-        localStorage.setItem('language', lang);
+        try { localStorage.setItem('language', lang); } catch(e) {}
         
+        if (window.applyTranslations) {
+            window.applyTranslations(lang);
+            return;
+        }
+
         document.querySelectorAll('[data-i18n]').forEach(element => {
             const key = element.getAttribute('data-i18n');
-            const translation = translations[lang][key] || translations['pt'][key];
+            const translation = (translations[lang] && translations[lang][key]) || (translations['pt'] && translations['pt'][key]) || element.innerHTML;
             // Usamos innerHTML para renderizar as tags <strong>
             element.innerHTML = translation;
         });
         
         document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.lang === lang);
+            btn.classList.toggle('active', btn.dataset.lang === lang || btn.id === `lang-${lang}`);
         });
     };
     

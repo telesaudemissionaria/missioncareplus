@@ -1,104 +1,44 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contato e Suporte - MissionCare Plus</title>
-    
-    <!-- PWA Manifest e Configurações de Tema -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0d9488">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/0d9488/FFFFFF?text=MC+">
-    
-    <!-- Importação de Fontes e Tailwind CSS -->
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    
-    <style>
-        body {
-            font-family: 'Lexend', 'Noto Sans', sans-serif;
-            --primary-color: #0d9488; /* Tailwind teal-600 */
-            --text-color-dark: #374151; /* gray-700 */
-            --text-color-light: #6b7280; /* gray-500 */
+        (function(){
+        // Use shared translator (assets/js/translator.js) translations when available
+        const translations = window.translations || {};
+        
+        // Variáveis globais
+        let currentLang = localStorage.getItem('appLang') || 'pt-BR';
+        
+        // Função para atualizar o status online/offline da UI
+        function updateOnlineStatus() {
+            const isOnline = navigator.onLine;
+            const offlineIndicator = document.getElementById('offline-indicator');
+            const offlineInfoElements = document.querySelectorAll('.offline-info');
+            
+            if (isOnline) {
+                offlineIndicator.classList.remove('show');
+                offlineInfoElements.forEach(el => el.classList.remove('show'));
+            } else {
+                offlineIndicator.classList.add('show');
+                // Mostra todas as informações de contexto offline
+                offlineInfoElements.forEach(el => el.classList.add('show'));
+                showMessage((translations[currentLang] && translations[currentLang]['offline.mode_alert']) || 'Modo Offline ativado.', 'info', 5000);
+            }
         }
-        /* Estilos para o foco dos inputs, mantendo a identidade visual */
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
-            --tw-ring-color: rgba(13, 148, 136, 0.4);
-            box-shadow: 0 0 0 1px var(--primary-color), 0 0 0 3px var(--tw-ring-color);
-            border-color: var(--primary-color);
+        
+        // Função para exibir mensagens de notificação
+        function showMessage(message, type = 'info', duration = 3000) {
+            const appMessage = document.getElementById('app-message');
+            if (!appMessage) return;
+
+            appMessage.textContent = message;
+            // Remove classes de tipo anteriores e adiciona a nova
+            appMessage.classList.remove('success', 'error', 'info');
+            appMessage.classList.add(type);
+            appMessage.classList.add('show');
+            
+            setTimeout(() => {
+                appMessage.classList.remove('show');
+            }, duration);
         }
-        /* Estilos para o modal de feedback */
-        .feedback-modal {
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
-        }
-        .feedback-modal.show {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
-        /* Estilos para os botões de idioma */
-        .lang-btn {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.2s, color 0.2s;
-        }
-        .lang-btn.active {
-            background-color: #0d9488;
-            color: white;
-        }
-        .lang-btn.inactive {
-            background-color: #e5e7eb;
-            color: #4b5563;
-        }
-        /* Estilos para a barra de navegação inferior */
-        .bottom-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 0.5rem 0.25rem;
-            flex: 1;
-            color: #6b7280;
-            transition: color 0.2s ease;
-            text-decoration: none;
-            font-size: 0.75rem;
-            font-weight: 500;
-            line-height: 1;
-        }
-        .bottom-nav-item.active {
-            color: #0d9488;
-            font-weight: 700;
-        }
-        .bottom-nav-item:hover {
-            color: #0d9488;
-        }
-        .bottom-nav-item svg {
-            width: 24px;
-            height: 24px;
-            margin-bottom: 0.25rem;
-        }
-        /* Estilos para a mensagem de notificação */
-        #app-message {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 1rem;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            z-index: 1000;
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-            transform: translateY(-100%);
-            opacity: 0;
-        }
+
+        // Função para copiar texto para a área de transferência
         #app-message.show {
             transform: translateY(0);
             opacity: 1;
@@ -289,7 +229,15 @@
         </nav>
     </footer>
     
-    <script>
+        <script src="assets/js/translator.js" defer></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            if (window.Translator && typeof window.Translator.init === 'function') {
+                window.Translator.init({ storageKey: 'lang', defaultLang: 'pt' });
+            }
+        });
+
+        (function(){
         const translations = {
             'pt-BR': {
                 'contatos.titulo': 'Contato e Suporte',
