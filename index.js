@@ -1,4 +1,4 @@
-// index.js - v2
+// index.js - v3 - JSON Extractor
 
 import express from 'express';
 import cors from 'cors';
@@ -29,7 +29,7 @@ app.use(express.json());
 
 // Rota de diagnóstico para verificar se o servidor está online
 app.get('/', (req, res) => {
-  res.send('Servidor MissionCare+ v2 está no ar. Endpoints ativos: /api/v1/assistente, /analise-triagem');
+  res.send('Servidor MissionCare+ v3 está no ar. Endpoints ativos: /api/v1/assistente, /analise-triagem');
 });
 
 // Endpoint genérico para assistentes de chat (GOB, Clínica, etc.)
@@ -125,14 +125,22 @@ app.post('/analise-triagem', async (req, res) => {
       );
 
       if (lastMessage && lastMessage.content[0].type === 'text') {
-        const jsonResponse = lastMessage.content[0].text.value;
-        // Tenta fazer o parse do JSON para garantir que é válido antes de enviar
+        const rawResponse = lastMessage.content[0].text.value;
+        
         try {
-          const parsedJson = JSON.parse(jsonResponse);
+          // Tenta extrair o JSON de dentro de um bloco de código markdown ou da string bruta.
+          const jsonMatch = rawResponse.match(/```json\n([\s\S]*?)\n```|({[\s\S]*})/);
+          if (!jsonMatch) {
+            throw new Error("Nenhum bloco JSON encontrado na resposta da IA.");
+          }
+          // Usa o primeiro grupo de captura que não for nulo.
+          const extractedJson = jsonMatch[1] || jsonMatch[2];
+          const parsedJson = JSON.parse(extractedJson);
           res.json(parsedJson);
+
         } catch (jsonError) {
-          console.error('Erro ao fazer parse do JSON da OpenAI:', jsonError, 'String recebida:', jsonResponse);
-          res.status(500).json({ error: 'A resposta do assistente não é um JSON válido.' });
+          console.error('Erro ao fazer parse do JSON da OpenAI:', jsonError, 'String recebida:', rawResponse);
+          res.status(500).json({ error: 'A resposta do assistente não é um JSON válido.', raw_response: rawResponse });
         }
       } else {
         res.status(500).json({ error: 'Nenhuma resposta de texto do assistente de triagem.' });
@@ -165,6 +173,6 @@ async function waitForRunCompletion(threadId, runId) {
 
 
 app.listen(port, () => {
-  console.log(`Servidor MissionCare+ v2 rodando em http://localhost:${port}`);
+  console.log(`Servidor MissionCare+ v3 rodando em http://localhost:${port}`);
   console.log('Endpoints disponíveis: GET /, POST /api/v1/assistente, POST /analise-triagem');
 });
