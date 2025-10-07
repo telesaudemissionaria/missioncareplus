@@ -1,3 +1,4 @@
+// index.js
 
 import express from 'express';
 import cors from 'cors';
@@ -5,32 +6,24 @@ import OpenAI from 'openai';
 import 'dotenv/config';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const assistantIds = {
-  "primeiros_socorros": "asst_NU2rjoLUZiECJ711IE1pXotZ",
-  "clinica": "asst_re1VWU19CE7rvfMzbdfNQVdm" 
+// IDs dos assistentes da OpenAI
+const assistants = {
+  clinica: 'asst_p3D8is4KCKsPq5YRL4adL5sQ', // Assistente para anamnese clínica
+  triagem: 'asst_qitIwbREUyPY1GRIYH7vYQx0', // Assistente para triagem inicial
 };
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/v1', (req, res) => {
-  res.send('API MissionCare Plus v1 está no ar!');
-});
-
 app.post('/api/v1/assistente', async (req, res) => {
   const { tipo_assistente, prompt } = req.body;
-
-  if (!tipo_assistente || !prompt) {
-    return res.status(400).json({ error: 'Parâmetros "tipo_assistente" e "prompt" são obrigatórios.' });
-  }
-
-  const assistantId = assistantIds[tipo_assistente];
+  const assistantId = assistants[tipo_assistente];
 
   if (!assistantId) {
     return res.status(400).json({ error: 'Tipo de assistente inválido.' });
@@ -38,9 +31,8 @@ app.post('/api/v1/assistente', async (req, res) => {
 
   try {
     const thread = await openai.beta.threads.create();
-
     await openai.beta.threads.messages.create(thread.id, {
-      role: "user",
+      role: 'user',
       content: prompt,
     });
 
@@ -48,32 +40,33 @@ app.post('/api/v1/assistente', async (req, res) => {
       assistant_id: assistantId,
     });
 
-    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-    while (runStatus.status !== "completed") {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-      
-      if (['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
-        console.error('Run failed with status:', runStatus.status, runStatus.last_error);
-        return res.status(500).json({ error: `A execução falhou com o status: ${runStatus.status}` });
+    let runStatus;
+    do {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const runCheck = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      runStatus = runCheck.status;
+    } while (runStatus === 'in_progress' || runStatus === 'queued');
+
+    if (runStatus === 'completed') {
+      const messages = await openai.beta.threads.messages.list(thread.id);
+      const lastMessage = messages.data.find(
+        (message) => message.run_id === run.id && message.role === 'assistant'
+      );
+
+      if (lastMessage) {
+        // Extrai o conteúdo de texto da mensagem
+        const textContent = lastMessage.content[0].text.value;
+        res.json({ response: textContent });
+      } else {
+        res.status(500).json({ error: 'Nenhuma resposta do assistente.' });
       }
-    }
-
-    const messages = await openai.beta.threads.messages.list(thread.id);
-
-    const lastMessageForRun = messages.data
-      .filter(message => message.run_id === run.id && message.role === "assistant")
-      .pop();
-
-    if (lastMessageForRun && lastMessageForRun.content[0].type === 'text') {
-      res.json({ response: lastMessageForRun.content[0].text.value });
     } else {
-      res.status(500).json({ error: "Nenhuma resposta do assistente encontrada." });
+      console.error(`O status da execução é: ${runStatus}`);
+      res.status(500).json({ error: 'Falha na execução do assistente.' });
     }
-
   } catch (error) {
-    console.error("Erro ao processar a requisição do assistente:", error);
-    res.status(500).json({ error: "Falha ao se comunicar com o assistente." });
+    console.error('Erro ao processar a requisição do assistente:', error);
+    res.status(500).json({ error: 'Falha ao se comunicar com o assistente.' });
   }
 });
 
