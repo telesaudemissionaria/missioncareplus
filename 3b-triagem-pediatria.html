@@ -11,16 +11,14 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Biblioteca para gerar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Biblioteca para renderizar Markdown -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
     <style>
         :root {
             --primary-color: #0d9488; /* teal-600 */
             --primary-color-light: #ccfbf1; /* teal-100 */
+            --danger-color: #dc2626; /* red-600 */
+            --danger-color-light: #fee2e2; /* red-100 */
+            --warning-color: #f59e0b; /* amber-500 */
+            --warning-color-light: #fef3c7; /* amber-100 */
         }
         body {
             font-family: 'Lexend', 'Noto Sans', sans-serif;
@@ -32,11 +30,6 @@
             color: var(--primary-color);
             font-weight: 600;
         }
-        #orientation-content h3, #orientation-content h4 { font-size: 1.1rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; color: #1f2937;}
-        #orientation-content ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; color: #4b5563;}
-        #orientation-content li { margin-bottom: 0.5rem; }
-        #orientation-content p { margin-bottom: 1rem; line-height: 1.6; color: #374151;}
-        #orientation-content strong { font-weight: 700; color: #111827; }
         .loader {
             width: 50px; aspect-ratio: 1; border-radius: 50%;
             border: 8px solid #0d9488;
@@ -50,6 +43,21 @@
             border-radius: 0.75rem;
             box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         }
+        /* Estilos para a tela de resultados */
+        #orientation-content h3 { font-size: 1.25rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1f2937; }
+        #orientation-content h4 { font-size: 1.1rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; color: #1f2937; border-left: 4px solid var(--primary-color); padding-left: 0.75rem; }
+        #orientation-content ul { list-style-type: none; padding-left: 0; margin-bottom: 1rem; }
+        #orientation-content li { background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; color: #374151; display: flex; align-items: start; }
+        #orientation-content li::before { content: '🔹'; margin-right: 0.75rem; }
+        #orientation-content p { margin-bottom: 1rem; line-height: 1.6; color: #4b5563;}
+        .urgency-card { border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem; border: 2px solid; }
+        .urgency-high { background-color: var(--danger-color-light); border-color: var(--danger-color); }
+        .urgency-medium { background-color: var(--warning-color-light); border-color: var(--warning-color); }
+        .urgency-low { background-color: #f0fdf4; border-color: #22c55e; }
+        .urgency-title { font-size: 1.5rem; font-weight: 800; }
+        .urgency-high .urgency-title { color: var(--danger-color); }
+        .urgency-medium .urgency-title { color: var(--warning-color); }
+        .urgency-low .urgency-title { color: #16a34a; }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -102,71 +110,69 @@
                 </div>
             </div>
 
-            <!-- SEÇÃO 2: SINTOMA PRINCIPAL -->
-            <div class="form-section space-y-4">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_section_title">2. Queixa Principal</h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4" data-form-key="problemaPrincipal">
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Febre"><span class="text-4xl">🌡️</span><span class="mt-2 font-semibold" data-i18n="fever">Febre</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Tosse ou Dificuldade para Respirar"><span class="text-4xl">💨</span><span class="mt-2 font-semibold" data-i18n="cough_breathing">Tosse/Respiração</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Vômito ou Diarreia"><span class="text-4xl">🤢</span><span class="mt-2 font-semibold" data-i18n="vomit_diarrhea">Vômito/Diarreia</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Manchas ou Alergia na Pele"><span class="text-4xl">🎨</span><span class="mt-2 font-semibold" data-i18n="rash_allergy">Manchas/Alergia</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Dor ou Irritabilidade"><span class="text-4xl">😥</span><span class="mt-2 font-semibold" data-i18n="pain_irritability">Dor/Irritabilidade</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Outro"><span class="text-4xl">❓</span><span class="mt-2 font-semibold" data-i18n="other">Outro</span></button>
+            <!-- SEÇÃO 2: QUEIXA PRINCIPAL -->
+             <div class="form-section space-y-4">
+                <h2 class="text-xl font-bold text-center text-gray-800">2. Queixa Principal</h2>
+                <div>
+                    <label for="queixa-principal" class="font-semibold text-gray-700 mb-2 block">Descreva a queixa principal:</label>
+                    <input type="text" id="queixa-principal" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: Febre, tosse, dor de barriga...">
+                </div>
+                 <div>
+                    <label for="historia-doenca" class="font-semibold text-gray-700 mb-2 block">Descreva a história da doença:</label>
+                    <textarea id="historia-doenca" rows="4" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: Começou ontem com febre de 38.5°C, tosse seca e não quer comer."></textarea>
                 </div>
             </div>
+
+            <!-- SEÇÃO 3: SINAIS VITAIS -->
+            <div class="form-section space-y-6">
+                 <h2 class="text-xl font-bold text-center text-gray-800">3. Sinais Vitais (Opcional)</h2>
+                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="temperatura" class="font-semibold text-gray-700 mb-1 block text-sm">Temperatura (°C)</label>
+                        <input type="text" id="temperatura" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" placeholder="Ex: 38.5">
+                    </div>
+                    <div>
+                        <label for="frequencia-cardiaca" class="font-semibold text-gray-700 mb-1 block text-sm">FC (bpm)</label>
+                        <input type="text" id="frequencia-cardiaca" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" placeholder="Ex: 120">
+                    </div>
+                    <div>
+                        <label for="frequencia-respiratoria" class="font-semibold text-gray-700 mb-1 block text-sm">FR (irpm)</label>
+                        <input type="text" id="frequencia-respiratoria" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" placeholder="Ex: 40">
+                    </div>
+                     <div>
+                        <label for="saturacao-o2" class="font-semibold text-gray-700 mb-1 block text-sm">Sat O₂ (%)</label>
+                        <input type="text" id="saturacao-o2" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" placeholder="Ex: 98">
+                    </div>
+                 </div>
+            </div>
             
-            <!-- SEÇÃO 3: AVALIAÇÃO RÁPIDA -->
+            <!-- SEÇÃO 4: AVALIAÇÃO GERAL -->
              <div class="form-section space-y-6">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_section_title">3. Avaliação Rápida do Estado Geral</h2>
+                <h2 class="text-xl font-bold text-center text-gray-800">4. Avaliação Geral</h2>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="appearance_label">Como a criança parece?</legend>
-                    <div class="grid grid-cols-3 gap-2" data-form-key="tepAppearance">
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-3xl">😀</span><span class="text-xs mt-1" data-i18n="alert">Alerta</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Muito Sonolenta"><span class="text-3xl">😴</span><span class="text-xs mt-1" data-i18n="sleepy">Sonolenta</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Irritada/Inconsolável"><span class="text-3xl">😭</span><span class="text-xs mt-1" data-i18n="irritable">Irritada</span></button>
+                    <legend class="font-semibold text-gray-700 mb-2">Estado Geral</legend>
+                    <div class="grid grid-cols-3 gap-2" data-form-key="estadoGeral">
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Bom"><span class="text-xl">😊</span><span class="text-xs mt-1">Bom</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Regular"><span class="text-xl">😐</span><span class="text-xs mt-1">Regular</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Ruim"><span class="text-xl">😫</span><span class="text-xs mt-1">Ruim</span></button>
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="breathing_label">Como está a respiração?</legend>
-                     <div class="grid grid-cols-3 gap-2" data-form-key="tepBreathing">
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Normal"><span class="text-3xl">🟢</span><span class="text-xs mt-1" data-i18n="normal">Normal</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Rápida ou com esforço"><span class="text-3xl">🟡</span><span class="text-xs mt-1" data-i18n="fast_effort">Rápida/Esforço</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Muito cansada para respirar"><span class="text-3xl">🔴</span><span class="text-xs mt-1" data-i18n="exhausted">Exausta</span></button>
+                    <legend class="font-semibold text-gray-700 mb-2">Nível de Consciência</legend>
+                     <div class="grid grid-cols-3 gap-2" data-form-key="nivelConsciencia">
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-xl">👀</span><span class="text-xs mt-1">Alerta</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Sonolento"><span class="text-xl">😴</span><span class="text-xs mt-1">Sonolento</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Irritado/Inconsolável"><span class="text-xl">😭</span><span class="text-xs mt-1">Irritado</span></button>
                     </div>
                 </fieldset>
              </div>
 
-            <!-- SEÇÃO 4: DETALHES ADICIONAIS -->
-            <div class="form-section space-y-6">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_section_title">4. Detalhes Adicionais</h2>
-                <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="feeding_label">Está se alimentando (mamando) ou aceitando líquidos?</legend>
-                    <div class="flex gap-4" data-form-key="alimentacao">
-                        <button class="choice-btn w-full p-3 rounded-lg border-2" data-value="Sim" data-i18n="yes">Sim</button>
-                        <button class="choice-btn w-full p-3 rounded-lg border-2" data-value="Não" data-i18n="no">Não</button>
-                    </div>
-                </fieldset>
-                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="onset_label">Quando o quadro começou?</legend>
-                    <div class="grid grid-cols-2 gap-4" data-form-key="inicioSintomas">
-                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Hoje" data-i18n="today">Hoje</button>
-                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Ontem" data-i18n="yesterday">Ontem</button>
-                        <button class="choice-btn p-3 rounded-lg border-2" data-value="2-3 dias atrás" data-i18n="two_three_days">2-3 dias</button>
-                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Mais de 3 dias" data-i18n="more_than_three_days">Mais de 3 dias</button>
-                    </div>
-                </fieldset>
-            </div>
-
             <!-- SEÇÃO 5: INFORMAÇÕES FINAIS -->
             <div class="form-section space-y-6">
-                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step4_section_title">5. Informações Finais (Opcional)</h2>
+                 <h2 class="text-xl font-bold text-center text-gray-800">5. Informações Adicionais</h2>
                 <div>
-                    <label for="doencas-alergias" class="font-semibold text-gray-700 mb-2 block" data-i18n="allergies_label">A criança possui alguma doença ou alergia conhecida?</label>
-                    <textarea id="doencas-alergias" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="allergies_placeholder" placeholder="Descreva aqui..."></textarea>
-                </div>
-                 <div>
-                    <label for="medicamentos-continuos" class="font-semibold text-gray-700 mb-2 block" data-i18n="meds_label">Faz uso de algum medicamento contínuo?</label>
-                    <textarea id="medicamentos-continuos" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="meds_placeholder" placeholder="Descreva aqui..."></textarea>
+                    <label for="observacoes-adicionais" class="font-semibold text-gray-700 mb-2 block">Observações adicionais relevantes?</label>
+                    <textarea id="observacoes-adicionais" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: Moleira alta, pele com manchas, recusa líquidos..."></textarea>
                 </div>
             </div>
         </main>
@@ -174,7 +180,7 @@
         <!-- TELA DE RESULTADOS -->
         <div id="results-screen" class="hidden p-4 md:p-6 space-y-6">
             <h1 class="text-2xl font-bold text-center text-gray-800" data-i18n="results_title">Análise Preliminar</h1>
-            <div id="orientation-content" class="prose max-w-none bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <div id="orientation-content" class="max-w-none bg-white p-1 rounded-lg">
                 <!-- Conteúdo da IA será inserido aqui -->
             </div>
         </div>
@@ -193,267 +199,146 @@
     
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // Objeto para armazenar os dados do formulário
     const formData = {};
 
-    const translations = {
-        'pt-BR': {
-            pageTitle: 'Triagem Pediátrica - MissionCare Plus',
-            headerTitle: 'Triagem Pediátrica',
-            step0_section_title: '1. Dados da Criança',
-            step0_subtitle: 'Comece com as informações básicas.',
-            step0_age_label: 'Qual a idade da criança?',
-            child_age_placeholder: 'Ex: 2 anos, 6 meses',
-            sexo_label: 'Qual o sexo da criança?',
-            male: 'Masculino',
-            female: 'Feminino',
-            step1_section_title: '2. Queixa Principal',
-            fever: 'Febre',
-            cough_breathing: 'Tosse/Respiração',
-            vomit_diarrhea: 'Vômito/Diarreia',
-            rash_allergy: 'Manchas/Alergia',
-            pain_irritability: 'Dor/Irritabilidade',
-            other: 'Outro',
-            step2_section_title: '3. Avaliação Rápida do Estado Geral',
-            appearance_label: 'Como a criança parece?',
-            alert: 'Alerta',
-            sleepy: 'Sonolenta',
-            irritable: 'Irritada',
-            breathing_label: 'Como está a respiração?',
-            normal: 'Normal',
-            fast_effort: 'Rápida/Esforço',
-            exhausted: 'Exausta',
-            step3_section_title: '4. Detalhes Adicionais',
-            feeding_label: 'Está se alimentando (mamando) ou aceitando líquidos?',
-            yes: 'Sim',
-            no: 'Não',
-            onset_label: 'Quando o quadro começou?',
-            today: 'Hoje',
-            yesterday: 'Ontem',
-            two_three_days: '2-3 dias',
-            more_than_three_days: 'Mais de 3 dias',
-            step4_section_title: '5. Informações Finais (Opcional)',
-            allergies_label: 'A criança possui alguma doença ou alergia conhecida?',
-            allergies_placeholder: 'Descreva aqui...',
-            meds_label: 'Faz uso de algum medicamento contínuo?',
-            meds_placeholder: 'Descreva aqui...',
-            submit_btn_text: 'Gerar Análise',
-            results_title: 'Análise Preliminar',
-            restart_btn_text: 'Nova Avaliação'
-        },
-        'en': {
-            pageTitle: 'Pediatric Triage - MissionCare Plus',
-            headerTitle: 'Pediatric Triage',
-            step0_section_title: '1. Child\'s Information',
-            step0_subtitle: 'Start with the basic information.',
-            step0_age_label: 'What is the child\'s age?',
-            child_age_placeholder: 'Ex: 2 years, 6 months',
-            sexo_label: 'What is the child\'s gender?',
-            male: 'Male',
-            female: 'Female',
-            step1_section_title: '2. Main Complaint',
-            fever: 'Fever',
-            cough_breathing: 'Cough/Breathing',
-            vomit_diarrhea: 'Vomit/Diarrhea',
-            rash_allergy: 'Rash/Allergy',
-            pain_irritability: 'Pain/Irritability',
-            other: 'Other',
-            step2_section_title: '3. Quick Assessment',
-            appearance_label: 'How does the child look?',
-            alert: 'Alert',
-            sleepy: 'Sleepy',
-            irritable: 'Irritable',
-            breathing_label: 'How is the breathing?',
-            normal: 'Normal',
-            fast_effort: 'Fast/With Effort',
-            exhausted: 'Exhausted',
-            step3_section_title: '4. Additional Details',
-            feeding_label: 'Is the child feeding or accepting liquids?',
-            yes: 'Yes',
-            no: 'No',
-            onset_label: 'When did it start?',
-            today: 'Today',
-            yesterday: 'Yesterday',
-            two_three_days: '2-3 days ago',
-            more_than_three_days: 'More than 3 days ago',
-            step4_section_title: '5. Final Information (Optional)',
-            allergies_label: 'Does the child have any known diseases or allergies?',
-            allergies_placeholder: 'Describe here...',
-            meds_label: 'Does the child use any continuous medication?',
-            meds_placeholder: 'Describe here...',
-            submit_btn_text: 'Generate Analysis',
-            results_title: 'Preliminary Analysis',
-            restart_btn_text: 'New Assessment'
-        },
-        'es': {
-            pageTitle: 'Triaje Pediátrico - MissionCare Plus',
-            headerTitle: 'Triaje Pediátrico',
-            step0_section_title: '1. Datos del Niño/a',
-            step0_subtitle: 'Comience con la información básica.',
-            step0_age_label: '¿Cuál es la edad del niño/a?',
-            child_age_placeholder: 'Ej: 2 años, 6 meses',
-            sexo_label: '¿Cuál es el sexo del niño/a?',
-            male: 'Masculino',
-            female: 'Femenino',
-            step1_section_title: '2. Queja Principal',
-            fever: 'Fiebre',
-            cough_breathing: 'Tos/Respiración',
-            vomit_diarrhea: 'Vómito/Diarrea',
-            rash_allergy: 'Manchas/Alergia',
-            pain_irritability: 'Dolor/Irritabilidad',
-            other: 'Otro',
-            step2_section_title: '3. Evaluación Rápida',
-            appearance_label: '¿Cómo se ve el niño/a?',
-            alert: 'Alerta',
-            sleepy: 'Somnoliento/a',
-            irritable: 'Irritable',
-            breathing_label: '¿Cómo está la respiración?',
-            normal: 'Normal',
-            fast_effort: 'Rápida/Con Esfuerzo',
-            exhausted: 'Exhausto/a',
-            step3_section_title: '4. Detalles Adicionales',
-            feeding_label: '¿Está comiendo o aceptando líquidos?',
-            yes: 'Sí',
-            no: 'No',
-            onset_label: '¿Cuándo comenzó?',
-            today: 'Hoy',
-            yesterday: 'Ayer',
-            two_three_days: 'Hace 2-3 días',
-            more_than_three_days: 'Hace más de 3 días',
-            step4_section_title: '5. Información Final (Opcional)',
-            allergies_label: '¿Tiene el niño/a alguna enfermedad o alergia conocida?',
-            allergies_placeholder: 'Describa aquí...',
-            meds_label: '¿Usa algún medicamento de forma continua?',
-            meds_placeholder: 'Describa aquí...',
-            submit_btn_text: 'Generar Análisis',
-            results_title: 'Análisis Preliminar',
-            restart_btn_text: 'Nueva Evaluación'
-        }
-    };
-
-    const setLanguage = (lang) => {
-        document.documentElement.lang = lang;
-        const langStrings = translations[lang] || translations['pt-BR'];
-
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.dataset.i18n;
-            if (langStrings[key]) {
-                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                    el.placeholder = langStrings[key];
-                } else {
-                    el.innerHTML = langStrings[key];
-                }
-            }
-        });
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.toggle('selected', btn.dataset.lang === lang);
-        });
-    };
-
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            setLanguage(e.currentTarget.dataset.lang);
-        });
-    });
-
-
+    // Elementos da UI
     const submitBtn = document.getElementById('submit-btn');
     const formContainer = document.getElementById('form-container');
     const resultsScreen = document.getElementById('results-screen');
-    const mainFooter = document.getElementById('main-footer');
     const resultsFooter = document.getElementById('results-footer');
     const restartBtn = document.getElementById('restart-btn');
     const orientationContent = document.getElementById('orientation-content');
+    
+    // URL da API
+    const API_URL = 'https://missioncareplus-jca0.onrender.com/analise-triagem';
 
+    // Função para validar o formulário e habilitar/desabilitar o botão de envio
     const validateForm = () => {
         const isAgeValid = document.getElementById('child-age').value.trim() !== '';
-        const isSexoValid = !!formData.sexo;
-        const isProblemaPrincipalValid = !!formData.problemaPrincipal;
-        const isTepAppearanceValid = !!formData.tepAppearance;
-        const isTepBreathingValid = !!formData.tepBreathing;
-        const isAlimentacaoValid = !!formData.alimentacao;
-        const isInicioSintomasValid = !!formData.inicioSintomas;
-
-        const isFormValid = isAgeValid && isSexoValid && isProblemaPrincipalValid && isTepAppearanceValid && isTepBreathingValid && isAlimentacaoValid && isInicioSintomasValid;
+        const isQueixaValid = document.getElementById('queixa-principal').value.trim() !== '';
+        const isHistoriaValid = document.getElementById('historia-doenca').value.trim() !== '';
         
+        const isFormValid = isAgeValid && isQueixaValid && isHistoriaValid;
         submitBtn.disabled = !isFormValid;
     };
 
+    // Adiciona listeners aos campos de texto para validação em tempo real
     document.getElementById('child-age').addEventListener('input', validateForm);
-    
+    document.getElementById('queixa-principal').addEventListener('input', validateForm);
+    document.getElementById('historia-doenca').addEventListener('input', validateForm);
+
+    // Lógica para os botões de múltipla escolha
     document.querySelectorAll('.choice-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const group = btn.closest('[data-form-key]');
-            const key = group.dataset.formKey;
-            
-            group.querySelectorAll('.choice-btn').forEach(b => {
-                b.classList.remove('selected');
-            });
-            
-            btn.classList.add('selected');
-            
-            formData[key] = btn.dataset.value;
-            
-            validateForm();
+            if (group) {
+                const key = group.dataset.formKey;
+                group.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                formData[key] = btn.dataset.value;
+                validateForm();
+            }
         });
     });
 
-    const handleFormSubmit = async () => {
-        formData.idade = document.getElementById('child-age').value;
-        formData.doencasAlergias = document.getElementById('doencas-alergias').value;
-        formData.medicamentosContinuos = document.getElementById('medicamentos-continuos').value;
+    // Função para renderizar os resultados da análise
+    const renderAnalysis = (data) => {
+        let urgencyClass = 'urgency-low';
+        let urgencyText = 'Baixo Risco';
+        if (data.conduta_recomendada && data.conduta_recomendada.urgencia) {
+            urgencyClass = 'urgency-high';
+            urgencyText = 'Urgência Alta';
+        } else if (data.sinais_de_gravidade && data.sinais_de_gravidade.length > 0) {
+            urgencyClass = 'urgency-medium';
+            urgencyText = 'Risco Moderado';
+        }
 
+        const createList = (items) => {
+            if (!items || items.length === 0) return '<p>Nenhuma informação disponível.</p>';
+            return `<ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
+        };
+
+        orientationContent.innerHTML = `
+            <div class="urgency-card ${urgencyClass}">
+                <h3 class="urgency-title">${urgencyText}</h3>
+                <p class="font-semibold">${data.conduta_recomendada?.justificativa || 'Avaliação geral da IA.'}</p>
+            </div>
+
+            ${data.conduta_recomendada?.orientacoes ? `
+                <h4><i class="fas fa-clipboard-list mr-2"></i>Conduta Recomendada</h4>
+                ${createList(data.conduta_recomendada.orientacoes)}
+            ` : ''}
+
+            ${data.sinais_de_piora ? `
+                <h4><i class="fas fa-exclamation-triangle mr-2"></i>Sinais de Piora a Observar</h4>
+                ${createList(data.sinais_de_piora)}
+            ` : ''}
+            
+             ${data.sinais_de_gravidade && data.sinais_de_gravidade.length > 0 ? `
+                <h4><i class="fas fa-bolt mr-2"></i>Sinais de Gravidade Identificados</h4>
+                ${createList(data.sinais_de_gravidade)}
+            ` : ''}
+        `;
+    };
+
+    // Função para lidar com a submissão do formulário
+    const handleFormSubmit = async () => {
+        // Coleta todos os dados num único objeto
+        const payload = {
+            ...formData,
+            idade: document.getElementById('child-age').value,
+            queixaPrincipal: document.getElementById('queixa-principal').value,
+            historiaDoenca: document.getElementById('historia-doenca').value,
+            temperatura: document.getElementById('temperatura').value,
+            frequenciaCardiaca: document.getElementById('frequencia-cardiaca').value,
+            frequenciaRespiratoria: document.getElementById('frequencia-respiratoria').value,
+            saturacaoO2: document.getElementById('saturacao-o2').value,
+            observacoesAdicionais: document.getElementById('observacoes-adicionais').value,
+        };
+
+        // UI para estado de carregamento
         formContainer.style.display = 'none';
         submitBtn.style.display = 'none';
-        
         resultsScreen.classList.remove('hidden');
         resultsScreen.scrollIntoView({ behavior: 'smooth' });
         orientationContent.innerHTML = '<div class="loader mx-auto my-4"></div><p class="text-center font-semibold text-gray-600">Analisando informações... Isso pode levar alguns segundos.</p>';
 
-        const promptLines = [
-            `Análise Pediátrica:`,
-            `- Idade: ${formData.idade || 'Não informado'}`,
-            `- Sexo: ${formData.sexo || 'Não informado'}`,
-            `- Queixa Principal: ${formData.problemaPrincipal || 'Não informado'}`,
-            `- Início: ${formData.inicioSintomas || 'Não informado'}`,
-            `- Aparência: ${formData.tepAppearance || 'Não informado'}`,
-            `- Respiração: ${formData.tepBreathing || 'Não informado'}`,
-            `- Alimentação/Hidratação: ${formData.alimentacao || 'Não informado'}`,
-            `- Doenças/Alergias Prévias: ${formData.doencasAlergias || 'Nenhuma'}`,
-            `- Medicamentos Contínuos: ${formData.medicamentosContinuos || 'Nenhum'}`
-        ];
-        const prompt = promptLines.join('\n');
-
         try {
-            const response = await fetch('https://missioncareplus-jca0.onrender.com/api/v1/assistente', {
+            // Chamada para a API
+            const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    tipo_assistente: 'pediatria',
-                    prompt: prompt
-                })
+                body: JSON.stringify(payload)
             });
 
-            if (!response.ok) throw new Error(`Erro na API: ${response.statusText}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Erro na API: ${response.statusText}`);
+            }
             
             const result = await response.json();
-            orientationContent.innerHTML = marked.parse(result.response);
+            renderAnalysis(result); // Renderiza o resultado JSON
             
-            resultsFooter.style.display = 'flex';
-
         } catch (error) {
             console.error("Erro ao gerar análise:", error);
-            orientationContent.innerHTML = '<p class="text-center text-red-600 font-bold">Ocorreu um erro ao buscar a análise. Tente novamente.</p>';
-            resultsFooter.style.display = 'flex';
+            orientationContent.innerHTML = `<div class="text-center text-red-600 font-bold">
+                <p>Ocorreu um erro ao buscar a análise.</p>
+                <p class="text-sm mt-2 text-gray-700">${error.message}</p>
+            </div>`;
+        } finally {
+            // Mostra o botão de reiniciar
+            resultsFooter.classList.remove('hidden');
         }
     };
 
+    // Listeners dos botões principais
     submitBtn.addEventListener('click', () => { if (!submitBtn.disabled) handleFormSubmit(); });
     restartBtn.addEventListener('click', () => location.reload());
 
-    setLanguage('pt-BR');
+    // Inicialização
     validateForm();
 });
 </script>
 </body>
 </html>
-
