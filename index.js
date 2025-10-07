@@ -13,7 +13,7 @@ const openai = new OpenAI({
 
 // IDs dos assistentes da OpenAI
 const assistants = {
-  clinica: 'asst_p3D8is4KCKsPq5YRL4adL5sQ', // Assistente para anamnese clínica
+  clinica: 'asst_qitIwbREUyPY1GRIYH7vYQx0', // Assistente para anamnese clínica
   triagem: 'asst_qitIwbREUyPY1GRIYH7vYQx0', // Assistente para triagem inicial
 };
 
