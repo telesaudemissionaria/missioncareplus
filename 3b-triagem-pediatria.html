@@ -26,7 +26,7 @@
             font-family: 'Lexend', 'Noto Sans', sans-serif;
             padding-bottom: 80px; 
         }
-        .choice-btn.selected {
+        .choice-btn.selected, .lang-btn.selected {
             background-color: var(--primary-color-light);
             border-color: var(--primary-color);
             color: var(--primary-color);
@@ -58,7 +58,7 @@
         
         <header id="main-header" class="sticky top-0 z-20 bg-white/90 backdrop-blur-sm border-b border-gray-200">
             <div class="p-4 flex items-center justify-between">
-                <div class="flex items-center gap-2">
+                <div class="w-1/4 flex justify-start">
                     <a href="https://telesaudemissionaria.github.io/missioncareplus/index.html" class="text-gray-600 hover:text-teal-600 w-10 h-10 flex items-center justify-center" title="Início">
                         <i class="fas fa-home fa-lg"></i>
                     </a>
@@ -66,8 +66,14 @@
                         <i class="fas fa-arrow-left fa-lg"></i>
                     </button>
                 </div>
-                <h1 id="header-title" data-i18n='headerTitle' class="text-gray-800 text-lg font-bold flex-1 text-center">Triagem Pediátrica</h1>
-                <div class="w-[5.5rem]"></div> <!-- Spacer to balance the left side buttons -->
+                <div class="w-1/2 text-center">
+                   <h1 id="header-title" data-i18n="headerTitle" class="text-gray-800 text-lg font-bold">Triagem Pediátrica</h1>
+                </div>
+                <div class="w-1/4 flex justify-end items-center gap-1">
+                     <button data-lang="pt-BR" class="lang-btn p-2 text-xs font-bold rounded-md border">PT</button>
+                     <button data-lang="en" class="lang-btn p-2 text-xs font-bold rounded-md border">EN</button>
+                     <button data-lang="es" class="lang-btn p-2 text-xs font-bold rounded-md border">ES</button>
+                </div>
             </div>
         </header>
 
@@ -76,21 +82,21 @@
             <!-- SEÇÃO 1: DADOS INICIAIS -->
             <div class="form-section space-y-6">
                 <div class="text-center">
-                    <h2 class="text-xl font-bold text-gray-800" data-i18n="step0_title_female">1. Dados da Criança</h2>
+                    <h2 class="text-xl font-bold text-gray-800" data-i18n="step0_section_title">1. Dados da Criança</h2>
                     <p class="text-gray-600 mt-1" data-i18n="step0_subtitle">Comece com as informações básicas.</p>
                 </div>
                 <div>
                     <label for="child-age" class="font-semibold text-gray-700 mb-2 block" data-i18n="step0_age_label">Qual a idade da criança?</label>
-                    <input type="text" id="child-age" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: 2 anos, 6 meses">
+                    <input type="text" id="child-age" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="child_age_placeholder" placeholder="Ex: 2 anos, 6 meses">
                 </div>
                 <div>
-                    <label class="font-semibold text-gray-700 mb-2 block">Qual o sexo da criança?</label>
+                    <label class="font-semibold text-gray-700 mb-2 block" data-i18n="sexo_label">Qual o sexo da criança?</label>
                     <div class="grid grid-cols-2 gap-4" data-form-key="sexo">
                         <button class="choice-btn flex items-center justify-center p-3 rounded-lg border-2" data-value="Masculino">
-                            <span class="text-2xl mr-2">♂️</span><span>Masculino</span>
+                            <span class="text-2xl mr-2">♂️</span><span data-i18n="male">Masculino</span>
                         </button>
                         <button class="choice-btn flex items-center justify-center p-3 rounded-lg border-2" data-value="Feminino">
-                            <span class="text-2xl mr-2">♀️</span><span>Feminino</span>
+                            <span class="text-2xl mr-2">♀️</span><span data-i18n="female">Feminino</span>
                         </button>
                     </div>
                 </div>
@@ -98,76 +104,76 @@
 
             <!-- SEÇÃO 2: SINTOMA PRINCIPAL -->
             <div class="form-section space-y-4">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_title">2. Queixa Principal</h2>
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_section_title">2. Queixa Principal</h2>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4" data-form-key="problemaPrincipal">
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Febre"><span class="text-4xl">🌡️</span><span class="mt-2 font-semibold">Febre</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Tosse ou Dificuldade para Respirar"><span class="text-4xl">💨</span><span class="mt-2 font-semibold">Tosse/Respiração</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Vômito ou Diarreia"><span class="text-4xl">🤢</span><span class="mt-2 font-semibold">Vômito/Diarreia</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Manchas ou Alergia na Pele"><span class="text-4xl">🎨</span><span class="mt-2 font-semibold">Manchas/Alergia</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Dor ou Irritabilidade"><span class="text-4xl">😥</span><span class="mt-2 font-semibold">Dor/Irritabilidade</span></button>
-                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Outro"><span class="text-4xl">❓</span><span class="mt-2 font-semibold">Outro</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Febre"><span class="text-4xl">🌡️</span><span class="mt-2 font-semibold" data-i18n="fever">Febre</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Tosse ou Dificuldade para Respirar"><span class="text-4xl">💨</span><span class="mt-2 font-semibold" data-i18n="cough_breathing">Tosse/Respiração</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Vômito ou Diarreia"><span class="text-4xl">🤢</span><span class="mt-2 font-semibold" data-i18n="vomit_diarrhea">Vômito/Diarreia</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Manchas ou Alergia na Pele"><span class="text-4xl">🎨</span><span class="mt-2 font-semibold" data-i18n="rash_allergy">Manchas/Alergia</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Dor ou Irritabilidade"><span class="text-4xl">😥</span><span class="mt-2 font-semibold" data-i18n="pain_irritability">Dor/Irritabilidade</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Outro"><span class="text-4xl">❓</span><span class="mt-2 font-semibold" data-i18n="other">Outro</span></button>
                 </div>
             </div>
             
             <!-- SEÇÃO 3: AVALIAÇÃO RÁPIDA -->
              <div class="form-section space-y-6">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_title">3. Avaliação Rápida do Estado Geral</h2>
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_section_title">3. Avaliação Rápida do Estado Geral</h2>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2">Como a criança parece?</legend>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="appearance_label">Como a criança parece?</legend>
                     <div class="grid grid-cols-3 gap-2" data-form-key="tepAppearance">
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-3xl">😀</span><span class="text-xs mt-1">Alerta</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Muito Sonolenta"><span class="text-3xl">😴</span><span class="text-xs mt-1">Sonolenta</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Irritada/Inconsolável"><span class="text-3xl">😭</span><span class="text-xs mt-1">Irritada</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-3xl">😀</span><span class="text-xs mt-1" data-i18n="alert">Alerta</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Muito Sonolenta"><span class="text-3xl">😴</span><span class="text-xs mt-1" data-i18n="sleepy">Sonolenta</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Irritada/Inconsolável"><span class="text-3xl">😭</span><span class="text-xs mt-1" data-i18n="irritable">Irritada</span></button>
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2">Como está a respiração?</legend>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="breathing_label">Como está a respiração?</legend>
                      <div class="grid grid-cols-3 gap-2" data-form-key="tepBreathing">
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Normal"><span class="text-3xl">🟢</span><span class="text-xs mt-1">Normal</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Rápida ou com esforço"><span class="text-3xl">🟡</span><span class="text-xs mt-1">Rápida/Esforço</span></button>
-                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Muito cansada para respirar"><span class="text-3xl">🔴</span><span class="text-xs mt-1">Exausta</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Normal"><span class="text-3xl">🟢</span><span class="text-xs mt-1" data-i18n="normal">Normal</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Rápida ou com esforço"><span class="text-3xl">🟡</span><span class="text-xs mt-1" data-i18n="fast_effort">Rápida/Esforço</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Muito cansada para respirar"><span class="text-3xl">🔴</span><span class="text-xs mt-1" data-i18n="exhausted">Exausta</span></button>
                     </div>
                 </fieldset>
              </div>
 
             <!-- SEÇÃO 4: DETALHES ADICIONAIS -->
             <div class="form-section space-y-6">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_title">4. Detalhes Adicionais</h2>
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_section_title">4. Detalhes Adicionais</h2>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2">Está se alimentando (mamando) ou aceitando líquidos?</legend>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="feeding_label">Está se alimentando (mamando) ou aceitando líquidos?</legend>
                     <div class="flex gap-4" data-form-key="alimentacao">
-                        <button class="choice-btn w-full p-3 rounded-lg border-2" data-value="Sim">Sim</button>
-                        <button class="choice-btn w-full p-3 rounded-lg border-2" data-value="Não">Não</button>
+                        <button class="choice-btn w-full p-3 rounded-lg border-2" data-value="Sim" data-i18n="yes">Sim</button>
+                        <button class="choice-btn w-full p-3 rounded-lg border-2" data-value="Não" data-i18n="no">Não</button>
                     </div>
                 </fieldset>
                  <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2">Quando o quadro começou?</legend>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="onset_label">Quando o quadro começou?</legend>
                     <div class="grid grid-cols-2 gap-4" data-form-key="inicioSintomas">
-                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Hoje">Hoje</button>
-                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Ontem">Ontem</button>
-                        <button class="choice-btn p-3 rounded-lg border-2" data-value="2-3 dias atrás">2-3 dias</button>
-                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Mais de 3 dias">Mais de 3 dias</button>
+                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Hoje" data-i18n="today">Hoje</button>
+                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Ontem" data-i18n="yesterday">Ontem</button>
+                        <button class="choice-btn p-3 rounded-lg border-2" data-value="2-3 dias atrás" data-i18n="two_three_days">2-3 dias</button>
+                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Mais de 3 dias" data-i18n="more_than_three_days">Mais de 3 dias</button>
                     </div>
                 </fieldset>
             </div>
 
             <!-- SEÇÃO 5: INFORMAÇÕES FINAIS -->
             <div class="form-section space-y-6">
-                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step4_title">5. Informações Finais (Opcional)</h2>
+                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step4_section_title">5. Informações Finais (Opcional)</h2>
                 <div>
-                    <label for="doencas-alergias" class="font-semibold text-gray-700 mb-2 block">A criança possui alguma doença ou alergia conhecida?</label>
-                    <textarea id="doencas-alergias" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Descreva aqui..."></textarea>
+                    <label for="doencas-alergias" class="font-semibold text-gray-700 mb-2 block" data-i18n="allergies_label">A criança possui alguma doença ou alergia conhecida?</label>
+                    <textarea id="doencas-alergias" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="allergies_placeholder" placeholder="Descreva aqui..."></textarea>
                 </div>
                  <div>
-                    <label for="medicamentos-continuos" class="font-semibold text-gray-700 mb-2 block">Faz uso de algum medicamento contínuo?</label>
-                    <textarea id="medicamentos-continuos" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Descreva aqui..."></textarea>
+                    <label for="medicamentos-continuos" class="font-semibold text-gray-700 mb-2 block" data-i18n="meds_label">Faz uso de algum medicamento contínuo?</label>
+                    <textarea id="medicamentos-continuos" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="meds_placeholder" placeholder="Descreva aqui..."></textarea>
                 </div>
             </div>
         </main>
         
         <!-- TELA DE RESULTADOS -->
         <div id="results-screen" class="hidden p-4 md:p-6 space-y-6">
-            <h1 class="text-2xl font-bold text-center text-gray-800">Análise Preliminar</h1>
+            <h1 class="text-2xl font-bold text-center text-gray-800" data-i18n="results_title">Análise Preliminar</h1>
             <div id="orientation-content" class="prose max-w-none bg-white p-5 rounded-lg shadow-sm border border-gray-200">
                 <!-- Conteúdo da IA será inserido aqui -->
             </div>
@@ -175,10 +181,10 @@
 
         <footer id="main-footer" class="bg-white border-t border-gray-200 sticky bottom-0 z-10 p-4">
               <button id="submit-btn" class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 rounded-full shadow-lg text-lg font-bold text-white hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
-                  <i class="fas fa-check mr-2"></i> <span>Gerar Análise</span>
+                  <i class="fas fa-check mr-2"></i> <span data-i18n="submit_btn_text">Gerar Análise</span>
               </button>
               <div id="results-footer" class="hidden flex flex-col sm:flex-row gap-4">
-                   <button id="restart-btn" class="w-full flex items-center justify-center py-3 px-4 border-2 border-gray-300 rounded-full shadow-sm text-lg font-bold text-gray-600 bg-transparent hover:bg-gray-100 transition">
+                   <button id="restart-btn" class="w-full flex items-center justify-center py-3 px-4 border-2 border-gray-300 rounded-full shadow-sm text-lg font-bold text-gray-600 bg-transparent hover:bg-gray-100 transition" data-i18n="restart_btn_text">
                        Nova Avaliação
                    </button>
               </div>
@@ -188,6 +194,167 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const formData = {};
+
+    const translations = {
+        'pt-BR': {
+            pageTitle: 'Triagem Pediátrica - MissionCare Plus',
+            headerTitle: 'Triagem Pediátrica',
+            step0_section_title: '1. Dados da Criança',
+            step0_subtitle: 'Comece com as informações básicas.',
+            step0_age_label: 'Qual a idade da criança?',
+            child_age_placeholder: 'Ex: 2 anos, 6 meses',
+            sexo_label: 'Qual o sexo da criança?',
+            male: 'Masculino',
+            female: 'Feminino',
+            step1_section_title: '2. Queixa Principal',
+            fever: 'Febre',
+            cough_breathing: 'Tosse/Respiração',
+            vomit_diarrhea: 'Vômito/Diarreia',
+            rash_allergy: 'Manchas/Alergia',
+            pain_irritability: 'Dor/Irritabilidade',
+            other: 'Outro',
+            step2_section_title: '3. Avaliação Rápida do Estado Geral',
+            appearance_label: 'Como a criança parece?',
+            alert: 'Alerta',
+            sleepy: 'Sonolenta',
+            irritable: 'Irritada',
+            breathing_label: 'Como está a respiração?',
+            normal: 'Normal',
+            fast_effort: 'Rápida/Esforço',
+            exhausted: 'Exausta',
+            step3_section_title: '4. Detalhes Adicionais',
+            feeding_label: 'Está se alimentando (mamando) ou aceitando líquidos?',
+            yes: 'Sim',
+            no: 'Não',
+            onset_label: 'Quando o quadro começou?',
+            today: 'Hoje',
+            yesterday: 'Ontem',
+            two_three_days: '2-3 dias',
+            more_than_three_days: 'Mais de 3 dias',
+            step4_section_title: '5. Informações Finais (Opcional)',
+            allergies_label: 'A criança possui alguma doença ou alergia conhecida?',
+            allergies_placeholder: 'Descreva aqui...',
+            meds_label: 'Faz uso de algum medicamento contínuo?',
+            meds_placeholder: 'Descreva aqui...',
+            submit_btn_text: 'Gerar Análise',
+            results_title: 'Análise Preliminar',
+            restart_btn_text: 'Nova Avaliação'
+        },
+        'en': {
+            pageTitle: 'Pediatric Triage - MissionCare Plus',
+            headerTitle: 'Pediatric Triage',
+            step0_section_title: '1. Child\'s Information',
+            step0_subtitle: 'Start with the basic information.',
+            step0_age_label: 'What is the child\'s age?',
+            child_age_placeholder: 'Ex: 2 years, 6 months',
+            sexo_label: 'What is the child\'s gender?',
+            male: 'Male',
+            female: 'Female',
+            step1_section_title: '2. Main Complaint',
+            fever: 'Fever',
+            cough_breathing: 'Cough/Breathing',
+            vomit_diarrhea: 'Vomit/Diarrhea',
+            rash_allergy: 'Rash/Allergy',
+            pain_irritability: 'Pain/Irritability',
+            other: 'Other',
+            step2_section_title: '3. Quick Assessment',
+            appearance_label: 'How does the child look?',
+            alert: 'Alert',
+            sleepy: 'Sleepy',
+            irritable: 'Irritable',
+            breathing_label: 'How is the breathing?',
+            normal: 'Normal',
+            fast_effort: 'Fast/With Effort',
+            exhausted: 'Exhausted',
+            step3_section_title: '4. Additional Details',
+            feeding_label: 'Is the child feeding or accepting liquids?',
+            yes: 'Yes',
+            no: 'No',
+            onset_label: 'When did it start?',
+            today: 'Today',
+            yesterday: 'Yesterday',
+            two_three_days: '2-3 days ago',
+            more_than_three_days: 'More than 3 days ago',
+            step4_section_title: '5. Final Information (Optional)',
+            allergies_label: 'Does the child have any known diseases or allergies?',
+            allergies_placeholder: 'Describe here...',
+            meds_label: 'Does the child use any continuous medication?',
+            meds_placeholder: 'Describe here...',
+            submit_btn_text: 'Generate Analysis',
+            results_title: 'Preliminary Analysis',
+            restart_btn_text: 'New Assessment'
+        },
+        'es': {
+            pageTitle: 'Triaje Pediátrico - MissionCare Plus',
+            headerTitle: 'Triaje Pediátrico',
+            step0_section_title: '1. Datos del Niño/a',
+            step0_subtitle: 'Comience con la información básica.',
+            step0_age_label: '¿Cuál es la edad del niño/a?',
+            child_age_placeholder: 'Ej: 2 años, 6 meses',
+            sexo_label: '¿Cuál es el sexo del niño/a?',
+            male: 'Masculino',
+            female: 'Femenino',
+            step1_section_title: '2. Queja Principal',
+            fever: 'Fiebre',
+            cough_breathing: 'Tos/Respiración',
+            vomit_diarrhea: 'Vómito/Diarrea',
+            rash_allergy: 'Manchas/Alergia',
+            pain_irritability: 'Dolor/Irritabilidad',
+            other: 'Otro',
+            step2_section_title: '3. Evaluación Rápida',
+            appearance_label: '¿Cómo se ve el niño/a?',
+            alert: 'Alerta',
+            sleepy: 'Somnoliento/a',
+            irritable: 'Irritable',
+            breathing_label: '¿Cómo está la respiración?',
+            normal: 'Normal',
+            fast_effort: 'Rápida/Con Esfuerzo',
+            exhausted: 'Exhausto/a',
+            step3_section_title: '4. Detalles Adicionales',
+            feeding_label: '¿Está comiendo o aceptando líquidos?',
+            yes: 'Sí',
+            no: 'No',
+            onset_label: '¿Cuándo comenzó?',
+            today: 'Hoy',
+            yesterday: 'Ayer',
+            two_three_days: 'Hace 2-3 días',
+            more_than_three_days: 'Hace más de 3 días',
+            step4_section_title: '5. Información Final (Opcional)',
+            allergies_label: '¿Tiene el niño/a alguna enfermedad o alergia conocida?',
+            allergies_placeholder: 'Describa aquí...',
+            meds_label: '¿Usa algún medicamento de forma continua?',
+            meds_placeholder: 'Describa aquí...',
+            submit_btn_text: 'Generar Análisis',
+            results_title: 'Análisis Preliminar',
+            restart_btn_text: 'Nueva Evaluación'
+        }
+    };
+
+    const setLanguage = (lang) => {
+        document.documentElement.lang = lang;
+        const langStrings = translations[lang] || translations['pt-BR'];
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            if (langStrings[key]) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.placeholder = langStrings[key];
+                } else {
+                    el.innerHTML = langStrings[key];
+                }
+            }
+        });
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('selected', btn.dataset.lang === lang);
+        });
+    };
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            setLanguage(e.currentTarget.dataset.lang);
+        });
+    });
+
 
     const submitBtn = document.getElementById('submit-btn');
     const formContainer = document.getElementById('form-container');
@@ -218,15 +385,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const group = btn.closest('[data-form-key]');
             const key = group.dataset.formKey;
             
-            // Remove a classe 'selected' de todos os botões no mesmo grupo
             group.querySelectorAll('.choice-btn').forEach(b => {
                 b.classList.remove('selected');
             });
             
-            // Adiciona a classe 'selected' apenas ao botão clicado
             btn.classList.add('selected');
             
-            // Atualiza o formData com o novo valor
             formData[key] = btn.dataset.value;
             
             validateForm();
@@ -279,14 +443,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Erro ao gerar análise:", error);
             orientationContent.innerHTML = '<p class="text-center text-red-600 font-bold">Ocorreu um erro ao buscar a análise. Tente novamente.</p>';
-            resultsFooter.style.display = 'flex'; // Mostra o botão de reiniciar mesmo em caso de erro
+            resultsFooter.style.display = 'flex';
         }
     };
 
     submitBtn.addEventListener('click', () => { if (!submitBtn.disabled) handleFormSubmit(); });
     restartBtn.addEventListener('click', () => location.reload());
 
-    // Validação inicial para desabilitar o botão
+    setLanguage('pt-BR');
     validateForm();
 });
 </script>
