@@ -87,9 +87,31 @@
   <div id="app-container" class="max-w-4xl mx-auto">
     <header class="hero-section p-4 md:p-6 relative">
       <div id="language-selector" class="absolute top-4 right-4 flex space-x-2 bg-white/80 backdrop-blur-sm p-1 rounded-full z-10 shadow-md">
-        <button id="lang-pt" class="lang-btn" aria-label="Português">🇧🇷</button>
-        <button id="lang-es" class="lang-btn" aria-label="Español">🇪🇸</button>
-        <button id="lang-en" class="lang-btn" aria-label="English">🇬🇧</button>
+        <button id="lang-pt" class="lang-btn" aria-label="Português">
+          <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="20" height="14" fill="#009c3b"/>
+            <polygon points="10,2 16,7 10,12 4,7" fill="#ffdf00"/>
+            <circle cx="10" cy="7" r="2.6" fill="#3e4095"/>
+          </svg>
+        </button>
+        <button id="lang-en" class="lang-btn" aria-label="English">
+          <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="20" height="14" fill="#b22234"/>
+            <g fill="#fff">
+              <rect y="1" width="20" height="1.5"/>
+              <rect y="4" width="20" height="1.5"/>
+              <rect y="7" width="20" height="1.5"/>
+              <rect y="10" width="20" height="1.5"/>
+            </g>
+            <rect width="8" height="6" fill="#3c3b6e"/>
+          </svg>
+        </button>
+        <button id="lang-es" class="lang-btn" aria-label="Español">
+          <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="20" height="14" fill="#c60b1e"/>
+            <rect y="4" width="20" height="6" fill="#ffc400"/>
+          </svg>
+        </button>
       </div>
         <!-- Cabeçalho simplificado -->
       <div class="pt-16 pb-8 text-center">

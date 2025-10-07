@@ -52,9 +52,18 @@
         Ferramenta de apoio à decisão. <strong>Não substitui uma consulta médica.</strong>
       </p>
       <div id="lang-switcher" class="flex justify-center gap-4 mt-4">
-        <button onclick="setLanguage('pt')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="pt">🇧🇷 Português</button>
-        <button onclick="setLanguage('es')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="es">🇪🇸 Español</button>
-        <button onclick="setLanguage('en')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="en">🇺🇸 English</button>
+    <button onclick="setLanguage('pt')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="pt" aria-label="Português (Brasil)">
+      <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#009c3b"/><polygon points="10,2 16,7 10,12 4,7" fill="#ffdf00"/><circle cx="10" cy="7" r="2.6" fill="#3e4095"/></svg>
+      <span class="ml-2">Português</span>
+    </button>
+    <button onclick="setLanguage('es')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="es" aria-label="Español (España)">
+      <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#c60b1e"/><rect y="4" width="20" height="6" fill="#ffc400"/></svg>
+      <span class="ml-2">Español</span>
+    </button>
+    <button onclick="setLanguage('en')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="en" aria-label="English (US)">
+      <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#b22234"/><g fill="#fff"><rect y="1" width="20" height="1.5"/><rect y="4" width="20" height="1.5"/><rect y="7" width="20" height="1.5"/><rect y="10" width="20" height="1.5"/></g><rect width="8" height="6" fill="#3c3b6e"/></svg>
+      <span class="ml-2">English</span>
+    </button>
       </div>
     </header>
 
