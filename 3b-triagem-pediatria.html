@@ -26,13 +26,6 @@
             font-family: 'Lexend', 'Noto Sans', sans-serif;
             padding-bottom: 80px; 
         }
-        .form-step { display: none; animation: fadeIn 0.5s; }
-        .form-step.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        #progress-bar-inner { transition: width 0.3s ease-in-out; }
         .choice-btn.selected {
             background-color: var(--primary-color-light);
             border-color: var(--primary-color);
@@ -51,6 +44,12 @@
             animation: l2 1s infinite linear;
         }
         @keyframes l2 {to{transform: rotate(1turn)}}
+        .form-section {
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -59,37 +58,48 @@
         
         <header id="main-header" class="sticky top-0 z-20 bg-white/90 backdrop-blur-sm border-b border-gray-200">
             <div class="p-4 flex items-center justify-between">
-                <button id="back-btn" class="text-gray-600 hover:text-teal-600 hidden w-10 h-10">
-                    <i class="fas fa-arrow-left fa-lg"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <a href="https://telesaudemissionaria.github.io/missioncareplus/index.html" class="text-gray-600 hover:text-teal-600 w-10 h-10 flex items-center justify-center" title="Início">
+                        <i class="fas fa-home fa-lg"></i>
+                    </a>
+                    <button onclick="history.back()" class="text-gray-600 hover:text-teal-600 w-10 h-10 flex items-center justify-center" title="Voltar">
+                        <i class="fas fa-arrow-left fa-lg"></i>
+                    </button>
+                </div>
                 <h1 id="header-title" data-i18n='headerTitle' class="text-gray-800 text-lg font-bold flex-1 text-center">Triagem Pediátrica</h1>
-                <div class="w-10 h-10"></div>
-            </div>
-            <div id="progress-bar" class="h-1.5 bg-gray-200 hidden">
-                <div id="progress-bar-inner" class="h-full bg-teal-500" style="width: 0%;"></div>
+                <div class="w-[5.5rem]"></div> <!-- Spacer to balance the left side buttons -->
             </div>
         </header>
 
-        <main id="form-container" class="flex-grow p-4 md:p-6">
+        <main id="form-container" class="flex-grow p-4 md:p-6 space-y-8">
             
-            <!-- PASSO 0: DADOS INICIAIS -->
-            <div id="step-0" class="form-step active space-y-6">
+            <!-- SEÇÃO 1: DADOS INICIAIS -->
+            <div class="form-section space-y-6">
                 <div class="text-center">
-                    <h2 class="text-2xl font-bold text-gray-800" data-i18n="step0_title_female">Primeiro, alguns dados sobre a criança</h2>
-                    <p class="text-gray-600 mt-2" data-i18n="step0_subtitle">Isso nos ajuda a dar uma orientação mais precisa.</p>
+                    <h2 class="text-xl font-bold text-gray-800" data-i18n="step0_title_female">1. Dados da Criança</h2>
+                    <p class="text-gray-600 mt-1" data-i18n="step0_subtitle">Comece com as informações básicas.</p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="child-age" class="font-semibold text-gray-700 mb-2 block" data-i18n="step0_age_label">Qual a idade da criança?</label>
-                        <input type="text" id="child-age" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: 2 anos, 6 meses">
+                <div>
+                    <label for="child-age" class="font-semibold text-gray-700 mb-2 block" data-i18n="step0_age_label">Qual a idade da criança?</label>
+                    <input type="text" id="child-age" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: 2 anos, 6 meses">
+                </div>
+                <div>
+                    <label class="font-semibold text-gray-700 mb-2 block">Qual o sexo da criança?</label>
+                    <div class="grid grid-cols-2 gap-4" data-form-key="sexo">
+                        <button class="choice-btn flex items-center justify-center p-3 rounded-lg border-2" data-value="Masculino">
+                            <span class="text-2xl mr-2">♂️</span><span>Masculino</span>
+                        </button>
+                        <button class="choice-btn flex items-center justify-center p-3 rounded-lg border-2" data-value="Feminino">
+                            <span class="text-2xl mr-2">♀️</span><span>Feminino</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- PASSO 1: SINTOMA PRINCIPAL -->
-            <div id="step-1" class="form-step space-y-4">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_title">Qual é a principal queixa da criança hoje?</h2>
-                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4" data-form-key="problemaPrincipal">
+            <!-- SEÇÃO 2: SINTOMA PRINCIPAL -->
+            <div class="form-section space-y-4">
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_title">2. Queixa Principal</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4" data-form-key="problemaPrincipal">
                     <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Febre"><span class="text-4xl">🌡️</span><span class="mt-2 font-semibold">Febre</span></button>
                     <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Tosse ou Dificuldade para Respirar"><span class="text-4xl">💨</span><span class="mt-2 font-semibold">Tosse/Respiração</span></button>
                     <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Vômito ou Diarreia"><span class="text-4xl">🤢</span><span class="mt-2 font-semibold">Vômito/Diarreia</span></button>
@@ -99,11 +109,11 @@
                 </div>
             </div>
             
-            <!-- PASSO 2: DETALHES DOS SINTOMAS -->
-             <div id="step-2" class="form-step space-y-6">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_title">Como a criança parece? (Avaliação Rápida)</h2>
+            <!-- SEÇÃO 3: AVALIAÇÃO RÁPIDA -->
+             <div class="form-section space-y-6">
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_title">3. Avaliação Rápida do Estado Geral</h2>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2">Aparência</legend>
+                    <legend class="font-semibold text-gray-700 mb-2">Como a criança parece?</legend>
                     <div class="grid grid-cols-3 gap-2" data-form-key="tepAppearance">
                         <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-3xl">😀</span><span class="text-xs mt-1">Alerta</span></button>
                         <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Muito Sonolenta"><span class="text-3xl">😴</span><span class="text-xs mt-1">Sonolenta</span></button>
@@ -111,7 +121,7 @@
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2">Respiração</legend>
+                    <legend class="font-semibold text-gray-700 mb-2">Como está a respiração?</legend>
                      <div class="grid grid-cols-3 gap-2" data-form-key="tepBreathing">
                         <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Normal"><span class="text-3xl">🟢</span><span class="text-xs mt-1">Normal</span></button>
                         <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Rápida ou com esforço"><span class="text-3xl">🟡</span><span class="text-xs mt-1">Rápida/Esforço</span></button>
@@ -120,9 +130,9 @@
                 </fieldset>
              </div>
 
-            <!-- PASSO 3: SINAIS DE ALERTA -->
-            <div id="step-3" class="form-step space-y-6">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_title">Mais alguns detalhes...</h2>
+            <!-- SEÇÃO 4: DETALHES ADICIONAIS -->
+            <div class="form-section space-y-6">
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_title">4. Detalhes Adicionais</h2>
                 <fieldset>
                     <legend class="font-semibold text-gray-700 mb-2">Está se alimentando (mamando) ou aceitando líquidos?</legend>
                     <div class="flex gap-4" data-form-key="alimentacao">
@@ -141,15 +151,15 @@
                 </fieldset>
             </div>
 
-            <!-- PASSO 4: INFORMAÇÕES ADICIONAIS -->
-            <div id="step-4" class="form-step space-y-6">
-                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step4_title">Informações Finais</h2>
+            <!-- SEÇÃO 5: INFORMAÇÕES FINAIS -->
+            <div class="form-section space-y-6">
+                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step4_title">5. Informações Finais (Opcional)</h2>
                 <div>
-                    <label for="doencas-alergias" class="font-semibold text-gray-700 mb-2 block">A criança possui alguma doença ou alergia conhecida? (Opcional)</label>
+                    <label for="doencas-alergias" class="font-semibold text-gray-700 mb-2 block">A criança possui alguma doença ou alergia conhecida?</label>
                     <textarea id="doencas-alergias" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Descreva aqui..."></textarea>
                 </div>
                  <div>
-                    <label for="medicamentos-continuos" class="font-semibold text-gray-700 mb-2 block">Faz uso de algum medicamento contínuo? (Opcional)</label>
+                    <label for="medicamentos-continuos" class="font-semibold text-gray-700 mb-2 block">Faz uso de algum medicamento contínuo?</label>
                     <textarea id="medicamentos-continuos" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Descreva aqui..."></textarea>
                 </div>
             </div>
@@ -164,29 +174,22 @@
         </div>
 
         <footer id="main-footer" class="bg-white border-t border-gray-200 sticky bottom-0 z-10 p-4">
-             <button id="next-btn" class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 rounded-full shadow-lg text-lg font-bold text-white hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
-                <span>Avançar</span> <i class="fas fa-arrow-right ml-2"></i>
-            </button>
-            <div id="results-footer" class="hidden flex flex-col sm:flex-row gap-4">
-                 <button id="restart-btn" class="w-full flex items-center justify-center py-3 px-4 border-2 border-gray-300 rounded-full shadow-sm text-lg font-bold text-gray-600 bg-transparent hover:bg-gray-100 transition">
-                    Nova Avaliação
-                </button>
-            </div>
+              <button id="submit-btn" class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 rounded-full shadow-lg text-lg font-bold text-white hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                  <i class="fas fa-check mr-2"></i> <span>Gerar Análise</span>
+              </button>
+              <div id="results-footer" class="hidden flex flex-col sm:flex-row gap-4">
+                   <button id="restart-btn" class="w-full flex items-center justify-center py-3 px-4 border-2 border-gray-300 rounded-full shadow-sm text-lg font-bold text-gray-600 bg-transparent hover:bg-gray-100 transition">
+                       Nova Avaliação
+                   </button>
+              </div>
         </footer>
     </div>
     
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-
-    let currentStep = 0;
-    const totalSteps = 5;
     const formData = {};
 
-    const steps = document.querySelectorAll('.form-step');
-    const nextBtn = document.getElementById('next-btn');
-    const backBtn = document.getElementById('back-btn');
-    const progressBar = document.getElementById('progress-bar');
-    const progressBarInner = document.getElementById('progress-bar-inner');
+    const submitBtn = document.getElementById('submit-btn');
     const formContainer = document.getElementById('form-container');
     const resultsScreen = document.getElementById('results-screen');
     const mainFooter = document.getElementById('main-footer');
@@ -194,82 +197,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const restartBtn = document.getElementById('restart-btn');
     const orientationContent = document.getElementById('orientation-content');
 
-    const updateUIForStep = () => {
-        steps.forEach((step, index) => step.classList.toggle('active', index === currentStep));
+    const validateForm = () => {
+        const isAgeValid = document.getElementById('child-age').value.trim() !== '';
+        const isSexoValid = !!formData.sexo;
+        const isProblemaPrincipalValid = !!formData.problemaPrincipal;
+        const isTepAppearanceValid = !!formData.tepAppearance;
+        const isTepBreathingValid = !!formData.tepBreathing;
+        const isAlimentacaoValid = !!formData.alimentacao;
+        const isInicioSintomasValid = !!formData.inicioSintomas;
 
-        const isFirstStep = currentStep === 0;
-        const isLastStep = currentStep === totalSteps - 1;
-
-        backBtn.classList.toggle('hidden', isFirstStep);
-        progressBar.classList.toggle('hidden', isFirstStep);
+        const isFormValid = isAgeValid && isSexoValid && isProblemaPrincipalValid && isTepAppearanceValid && isTepBreathingValid && isAlimentacaoValid && isInicioSintomasValid;
         
-        if (!isFirstStep) {
-            const progress = (currentStep / (totalSteps - 1)) * 100;
-            progressBarInner.style.width = `${progress}%`;
-        }
-
-        nextBtn.innerHTML = isLastStep 
-            ? `<i class="fas fa-check mr-2"></i> Gerar Análise` 
-            : `Avançar <i class="fas fa-arrow-right ml-2"></i>`;
-
-        validateStep();
+        submitBtn.disabled = !isFormValid;
     };
 
-    const nextStep = () => {
-        if (currentStep < totalSteps - 1) {
-            currentStep++;
-            updateUIForStep();
-        } else {
-            handleFormSubmit();
-        }
-    };
-
-    const prevStep = () => {
-        if (currentStep > 0) {
-            currentStep--;
-            updateUIForStep();
-        }
-    };
-    
-    nextBtn.addEventListener('click', () => { if (!nextBtn.disabled) nextStep(); });
-    backBtn.addEventListener('click', prevStep);
-    restartBtn.addEventListener('click', () => location.reload());
-
-    const validateStep = () => {
-        let isValid = false;
-        if (currentStep === 0) {
-            isValid = document.getElementById('child-age').value.trim() !== '';
-        } else if (currentStep === 1) {
-            isValid = !!formData.problemaPrincipal;
-        } else if (currentStep === 2) {
-             isValid = formData.tepAppearance && formData.tepBreathing;
-        } else if (currentStep === 3) {
-            isValid = formData.alimentacao && formData.inicioSintomas;
-        } else if (currentStep === 4) {
-            isValid = true; // Campos opcionais
-        }
-        nextBtn.disabled = !isValid;
-    };
-    
-    document.getElementById('child-age').addEventListener('input', validateStep);
+    document.getElementById('child-age').addEventListener('input', validateForm);
     
     document.querySelectorAll('.choice-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const group = btn.closest('[data-form-key]');
             const key = group.dataset.formKey;
             
-            group.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+            // Remove a classe 'selected' de todos os botões no mesmo grupo
+            group.querySelectorAll('.choice-btn').forEach(b => {
+                b.classList.remove('selected');
+            });
+            
+            // Adiciona a classe 'selected' apenas ao botão clicado
             btn.classList.add('selected');
+            
+            // Atualiza o formData com o novo valor
             formData[key] = btn.dataset.value;
             
-            validateStep();
-            
-            // Auto-avança em passos de seleção única
-            if (currentStep === 1 || currentStep === 3) {
-                 if (formData.alimentacao && formData.inicioSintomas) setTimeout(nextStep, 200);
-            }
-             if (currentStep === 1 && formData.problemaPrincipal) setTimeout(nextStep, 200);
-
+            validateForm();
         });
     });
 
@@ -279,14 +239,16 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.medicamentosContinuos = document.getElementById('medicamentos-continuos').value;
 
         formContainer.style.display = 'none';
-        mainFooter.style.display = 'none';
+        submitBtn.style.display = 'none';
         
         resultsScreen.classList.remove('hidden');
-        orientationContent.innerHTML = '<div class="loader mx-auto my-4"></div><p class="text-center font-semibold text-gray-600">Analisando informações...</p>';
+        resultsScreen.scrollIntoView({ behavior: 'smooth' });
+        orientationContent.innerHTML = '<div class="loader mx-auto my-4"></div><p class="text-center font-semibold text-gray-600">Analisando informações... Isso pode levar alguns segundos.</p>';
 
         const promptLines = [
             `Análise Pediátrica:`,
             `- Idade: ${formData.idade || 'Não informado'}`,
+            `- Sexo: ${formData.sexo || 'Não informado'}`,
             `- Queixa Principal: ${formData.problemaPrincipal || 'Não informado'}`,
             `- Início: ${formData.inicioSintomas || 'Não informado'}`,
             `- Aparência: ${formData.tepAppearance || 'Não informado'}`,
@@ -312,18 +274,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             orientationContent.innerHTML = marked.parse(result.response);
             
-            mainFooter.style.display = 'block';
-            nextBtn.style.display = 'none';
             resultsFooter.style.display = 'flex';
 
         } catch (error) {
             console.error("Erro ao gerar análise:", error);
             orientationContent.innerHTML = '<p class="text-center text-red-600 font-bold">Ocorreu um erro ao buscar a análise. Tente novamente.</p>';
+            resultsFooter.style.display = 'flex'; // Mostra o botão de reiniciar mesmo em caso de erro
         }
     };
 
-    updateUIForStep();
+    submitBtn.addEventListener('click', () => { if (!submitBtn.disabled) handleFormSubmit(); });
+    restartBtn.addEventListener('click', () => location.reload());
+
+    // Validação inicial para desabilitar o botão
+    validateForm();
 });
 </script>
 </body>
 </html>
+
