@@ -1,51 +1,134 @@
 <!DOCTYPE html>
 <html lang="pt-BR" id="html-lang">
-    // Prefer shared translator dictionaries; local fallback removed to centralize translations
-    const translations = window.translations || {};
-
-    // --- LÓGICA DE INTERNACIONALIZAÇÃO (i18n) ---
-    let currentLang = localStorage.getItem('lang') || 'pt';
-
-    const setLanguage = (lang) => {
-        if (!lang) return;
-        currentLang = lang;
-        document.documentElement.lang = lang;
-
-        // Prefer central translator when available
-        if (window.applyTranslations) {
-            window.applyTranslations(lang);
-            return;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="pageTitle">Anamnese Simplificada - MissionCare Plus</title>
+    
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
+            --primary-color: #0d9488;
+            --primary-color-light: #ccfbf1;
+            padding-bottom: 80px; 
         }
-
-        if (translations[lang]) {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.innerHTML = translations[lang][key] || el.innerHTML;
-            });
-
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                el.placeholder = translations[lang][key] || el.placeholder;
-            });
-
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
+        .lang-btn { padding: 0.25rem 0.5rem; border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+        .lang-btn.active { border-color: var(--primary-color); background-color: white; }
+        .question-block { margin-bottom: 2rem; }
+        .question-title { font-size: 1.25rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; }
+        .input-field { width: 100%; padding: 1rem; font-size: 1.125rem; border-radius: 0.75rem; border: 1px solid #d1d5db; background-color: white; transition: border-color 0.2s, box-shadow 0.2s; }
+        .input-field:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.3); }
+        .choice-label { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.75rem; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+        .choice-label:has(input:checked) { background-color: var(--primary-color-light); border-color: var(--primary-color); }
+        .choice-input { color: var(--primary-color); }
+        #orientation-content h1, #orientation-content h2, #orientation-content h3 { font-weight: 700; color: #0f766e; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        #orientation-content ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; color: #4b5563;}
+        .loader {
+            width: 50px; aspect-ratio: 1; border-radius: 50%;
+            border: 8px solid var(--primary-color); border-right-color: var(--primary-color-light);
+            animation: l2 1s infinite linear;
         }
-    };
+        @keyframes l2 {to{transform: rotate(1turn)}}
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    
+    <div id="app-container" class="relative flex size-full min-h-screen flex-col max-w-4xl mx-auto bg-gray-50 shadow-lg">
+        <div id="form-screen">
+            <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                <h1 data-i18n="headerTitle" class="text-[#0e181b] text-xl font-bold leading-tight flex-1 text-center">Anamnese Adulto</h1>
+                <div class="absolute top-3 right-3 flex space-x-1 bg-gray-200 p-1 rounded-full">
+                    <button class="lang-btn" data-lang="pt" aria-label="Português (Brasil)">
+                        <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#009c3b"/><polygon points="10,2 16,7 10,12 4,7" fill="#ffdf00"/><circle cx="10" cy="7" r="2.6" fill="#3e4095"/></svg>
+                    </button>
+                    <button class="lang-btn" data-lang="es" aria-label="Español (España)">
+                        <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#c60b1e"/><rect y="4" width="20" height="6" fill="#ffc400"/></svg>
+                    </button>
+                    <button class="lang-btn" data-lang="en" aria-label="English (US)">
+                        <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#b22234"/><g fill="#fff"><rect y="1" width="20" height="1.5"/><rect y="4" width="20" height="1.5"/><rect y="7" width="20" height="1.5"/><rect y="10" width="20" height="1.5"/></g><rect width="8" height="6" fill="#3c3b6e"/></svg>
+                    </button>
+                </div>
+            </header>
+            <main class="flex-grow p-4">
+                <div class="m-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-r-lg">
+                    <strong data-i18n="emergencyWarning" class="font-bold">ATENÇÃO: EM CASO DE EMERGÊNCIA, PROCURE AJUDA IMEDIATAMENTE.</strong>
+                </div>
+                <form id="anamnesis-form" class="p-4">
+                    <div class="question-block">
+                        <label for="problema-principal" class="question-title" data-i18n="q1Title">1. Qual o principal problema ou sintoma?</label>
+                        <textarea id="problema-principal" data-i18n-placeholder="q1Placeholder" placeholder="Ex: Dor de cabeça forte, febre alta..." class="input-field" rows="3"></textarea>
+                    </div>
+                    <div class="question-block">
+                        <label for="inicio-sintomas" class="question-title" data-i18n="q2Title">2. Quando exatamente os sintomas começaram?</label>
+                        <input type="text" id="inicio-sintomas" data-i18n-placeholder="q2Placeholder" placeholder="Ex: Há 3 dias, ontem à noite" class="input-field"/>
+                    </div>
+                    <fieldset class="question-block">
+                        <legend class="question-title" data-i18n="q3Title">3. Os sintomas estão melhorando, piorando ou iguais?</legend>
+                        <div class="space-y-3">
+                            <label class="choice-label"><input type="radio" name="progressao-sintomas" value="Melhorando" class="choice-input form-radio"> <span data-i18n="q3Opt1">Melhorando</span></label>
+                            <label class="choice-label"><input type="radio" name="progressao-sintomas" value="Piorando" class="choice-input form-radio"> <span data-i18n="q3Opt2">Piorando</span></label>
+                            <label class="choice-label"><input type="radio" name="progressao-sintomas" value="Iguais" class="choice-input form-radio"> <span data-i18n="q3Opt3">Permanecem Iguais</span></label>
+                        </div>
+                    </fieldset>
+                    <div class="question-block">
+                        <label for="melhora-piora" class="question-title" data-i18n="q4Title">4. O que melhora ou piora o sintoma?</label>
+                        <textarea id="melhora-piora" data-i18n-placeholder="q4Placeholder" placeholder="Ex: Repouso melhora, esforço piora..." class="input-field" rows="3"></textarea>
+                    </div>
+                     <fieldset class="question-block">
+                        <legend class="question-title" data-i18n="q5Title">5. Possui alguma destas doenças crônicas?</legend>
+                        <div class="space-y-3">
+                             <label class="choice-label"><input type="checkbox" name="condicoes" value="Hipertensão" class="choice-input form-checkbox"/> <span data-i18n="q5Opt1">Hipertensão (Pressão alta)</span></label>
+                             <label class="choice-label"><input type="checkbox" name="condicoes" value="Diabetes" class="choice-input form-checkbox"/> <span data-i18n="q5Opt2">Diabetes</span></label>
+                             <label class="choice-label"><input type="checkbox" name="condicoes" value="Asma" class="choice-input form-checkbox"/> <span data-i18n="q5Opt3">Asma</span></label>
+                             <label class="choice-label"><input type="checkbox" name="condicoes" value="Doença Cardíaca" class="choice-input form-checkbox"/> <span data-i18n="q5Opt4">Doença Cardíaca</span></label>
+                             <label class="choice-label"><input type="checkbox" name="condicoes" value="Nenhuma" class="choice-input form-checkbox"/> <span data-i18n="q5Opt5">Nenhuma das opções</span></label>
+                        </div>
+                    </fieldset>
+                    <div class="question-block">
+                        <label for="medicamentos" class="question-title" data-i18n="q6Title">6. Usa algum medicamento de forma contínua?</label>
+                        <textarea id="medicamentos" data-i18n-placeholder="q6Placeholder" placeholder="Ex: Losartana 50mg, Metformina..." class="input-field" rows="3"></textarea>
+                    </div>
+                    <div class="question-block">
+                        <label for="alergias" class="question-title" data-i18n="q7Title">7. Possui alguma alergia conhecida?</label>
+                        <textarea id="alergias" data-i18n-placeholder="q7Placeholder" placeholder="Ex: Alergia a Penicilina, camarão..." class="input-field" rows="3"></textarea>
+                    </div>
+                </form>
+            </main>
+        </div>
+        
+        <div id="results-screen" class="hidden">
+            <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
+                <button id="back-to-form-btn" class="text-teal-600 hover:text-teal-800 absolute left-4">
+                    <i class="fas fa-arrow-left fa-lg"></i>
+                </button>
+                <h1 data-i18n="resultsTitle" class="text-[#0e181b] text-xl font-bold flex-1 text-center">Recomendações da Análise</h1>
+            </header>
+            <main id="report-content" class="flex-grow p-4 space-y-6">
+                <div id="orientation-content" class="prose max-w-none bg-white p-5 rounded-lg shadow-sm border border-gray-200"></div>
+            </main>
+        </div>
+    </div>
+
+    <div id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 h-[70px] flex justify-around items-center px-2 max-w-4xl mx-auto shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        <a href="index.html" class="flex flex-col items-center justify-center text-gray-500 hover:text-teal-600 w-1/4">
+            <i class="fas fa-home text-2xl"></i>
+            <span data-i18n="navHome" class="text-xs font-medium">INÍCIO</span>
+        </a>
+        <button id="nav-generate-report-btn" class="flex flex-col items-center justify-center text-gray-500 hover:text-teal-600 w-1/4">
+            <i class="fas fa-file-medical-alt text-2xl"></i>
             <span data-i18n="navAnalyze" class="text-xs font-medium">Gerar Análise</span>
         </button>
     </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // load shared translator if available
-    const s = document.createElement('script'); s.src = 'assets/js/translator.js'; s.defer = true; document.head.appendChild(s);
-    s.addEventListener('load', () => {
-        if (window.Translator && typeof window.Translator.init === 'function') {
-            window.Translator.init({ storageKey: 'lang', defaultLang: 'pt' });
-        }
-    });
 
     // --- DEFINIÇÃO DAS TRADUÇÕES ---
     const translations = {
@@ -152,24 +235,19 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLang = lang;
         document.documentElement.lang = lang;
 
-        // If shared translator is available, prefer it to update the DOM
-        if (window.applyTranslations) {
-            window.applyTranslations(lang);
-        } else {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.innerHTML = translations[lang][key] || el.innerHTML;
-            });
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.innerHTML = translations[lang][key] || el.innerHTML;
+        });
 
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                el.placeholder = translations[lang][key] || el.placeholder;
-            });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            el.placeholder = translations[lang][key] || el.placeholder;
+        });
 
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
-        }
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
     };
 
     document.querySelectorAll('.lang-btn').forEach(btn => {
