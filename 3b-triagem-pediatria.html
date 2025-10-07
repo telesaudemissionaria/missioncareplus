@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Biblioteca para gerar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -16,1378 +17,312 @@
     <!-- Biblioteca para renderizar Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
-    <!-- Scripts para modo offline -->
-    <script src="/js/connection-manager.js"></script>
-    <script src="/js/mode-switcher.js"></script>
-    <script src="/js/sync-manager.js"></script>
-    
     <style>
-        body {
-            font-family: 'Lexend', 'Noto Sans', sans-serif;
+        :root {
             --primary-color: #0d9488; /* teal-600 */
             --primary-color-light: #ccfbf1; /* teal-100 */
         }
-        .tab-button.active {
-            border-bottom-color: var(--primary-color);
+        body {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
+            padding-bottom: 80px; 
+        }
+        .form-step { display: none; animation: fadeIn 0.5s; }
+        .form-step.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #progress-bar-inner { transition: width 0.3s ease-in-out; }
+        .choice-btn.selected {
+            background-color: var(--primary-color-light);
+            border-color: var(--primary-color);
             color: var(--primary-color);
             font-weight: 600;
         }
-        .lang-btn {
-            padding: 0.25rem 0.5rem; border-radius: 9999px;
-            cursor: pointer; transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-        .lang-btn.active {
-            border-color: var(--primary-color);
-            background-color: white;
-        }
-        body { padding-bottom: 80px; }
-        .custom-input { display: none; }
-        .custom-label {
-            border: 2px solid #e5e7eb; /* gray-200 */
-            background-color: #f9fafb; /* gray-50 */
-        }
-        .custom-input:checked + .custom-label {
-            background-color: #ccfbf1; /* teal-100 */
-            border-color: #0d9488; /* teal-600 */
-            color: #0d9488; /* teal-600 */
-            font-weight: 600;
-        }
-        /* Estilos para o conteúdo renderizado do Markdown */
-        #orientation-content h3 { font-size: 1.25rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1f2937;}
+        #orientation-content h3, #orientation-content h4 { font-size: 1.1rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; color: #1f2937;}
         #orientation-content ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; color: #4b5563;}
         #orientation-content li { margin-bottom: 0.5rem; }
         #orientation-content p { margin-bottom: 1rem; line-height: 1.6; color: #374151;}
-        #orientation-content strong { font-weight: 700; }
-        
-        /* Estilos para o indicador de conexão */
-        .connection-indicator {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 100;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        #orientation-content strong { font-weight: 700; color: #111827; }
+        .loader {
+            width: 50px; aspect-ratio: 1; border-radius: 50%;
+            border: 8px solid #0d9488;
+            border-right-color: #ccfbf1;
+            animation: l2 1s infinite linear;
         }
-        .connection-indicator.online {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-        .connection-indicator.offline {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-        .connection-indicator i {
-            margin-right: 5px;
-        }
-        
-        /* Estilos para notificações */
-        .mode-notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            max-width: 80%;
-            text-align: center;
-        }
-        .mode-notification.online {
-            background-color: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid #10b981;
-        }
-        .mode-notification.offline {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid #ef4444;
-        }
-        .mode-notification-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .mode-notification-text {
-            display: flex;
-            flex-direction: column;
-        }
-        .mode-notification-text strong {
-            font-weight: 700;
-        }
-        .mode-notification-text small {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-        .fade-out {
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-        
-        /* Estilos para modo offline */
-        .offline-banner {
-            background-color: #fee2e2;
-            color: #991b1b;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+        @keyframes l2 {to{transform: rotate(1turn)}}
     </style>
 </head>
-<body class="bg-white">
-    <!-- Indicador de Conexão -->
-    <div id="connection-indicator" class="connection-indicator online">
-        <i class="fas fa-wifi"></i> Online
-    </div>
+<body class="bg-gray-50">
 
-    <!-- Container da Aplicação -->
-    <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-white">
-        <!-- MODO ONLINE -->
-        <div id="online-mode">
-            <!-- TELA DE FORMULÁRIO (ANAMNESE PEDIÁTRICA) -->
-            <div id="form-screen">
-                <header class="sticky top-0 z-10 flex items-center bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
-                    <h1 data-i18n='headerTitle' class="text-gray-800 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Triagem Pediátrica</h1>
-                    <!-- SELETOR DE IDIOMA -->
-                    <div class="absolute top-3 right-3 flex space-x-1 bg-gray-200 p-1 rounded-full">
-                        <button class="lang-btn" data-lang="pt">🇧🇷</button>
-                        <button class="lang-btn" data-lang="es">🇪🇸</button>
-                        <button class="lang-btn" data-lang="en">🇬🇧</button>
-                    </div>
-                </header>
-                <main class="flex-grow">
-                    <div class="m-4 p-4 bg-red-50 border-l-4 border-red-400 text-red-700 rounded-lg">
-                        <div class="flex items-center">
-                            <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
-                            <strong class="font-bold" data-i18n="emergencyWarning">ATENÇÃO: EM CASO DE EMERGÊNCIA, PROCURE AJUDA IMEDIATAMENTE.</strong>
-                        </div>
-                    </div>
-                    <form id="pediatric-anamnesis-form" class="space-y-8 p-4">
-                        <!-- Seção de Informações Básicas -->
-                        <div class="space-y-5">
-                            <h2 class="text-gray-800 text-xl font-bold" data-i18n="section1Title">Informações Básicas</h2>
-                            <div>
-                                <label for="doencas-alergias" class="block text-base font-medium text-gray-800 mb-2" data-i18n="q1Title">1. A criança possui alguma doença ou alergia conhecida?</label>
-                                <textarea id="doencas-alergias" data-i18n-placeholder="q1Placeholder" placeholder="Se sim, descreva aqui..." class="form-textarea w-full rounded-xl border-gray-300 bg-gray-50 transition p-3"></textarea>
-                            </div>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="q2Title">2. A carteira de vacinação está em dia?</legend>
-                                <div class="flex items-center gap-x-3">
-                                    <input type="radio" name="vacinacao" value="Sim" id="vac-sim" class="custom-input">
-                                    <label for="vac-sim" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionYes">Sim</label>
-                                    <input type="radio" name="vacinacao" value="Não" id="vac-nao" class="custom-input">
-                                    <label for="vac-nao" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionNo">Não</label>
-                                </div>
-                            </fieldset>
-                            <div>
-                                <label for="medicamentos-continuos" class="block text-base font-medium text-gray-800 mb-2" data-i18n="q3Title">3. A criança faz uso de algum medicamento contínuo?</label>
-                                <textarea id="medicamentos-continuos" data-i18n-placeholder="q3Placeholder" placeholder="Se sim, quais?" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-50 transition p-3" rows="2"></textarea>
-                            </div>
-                        </div>
-                        <!-- Seção de Sintomas Atuais -->
-                        <div class="space-y-5">
-                            <h2 class="text-gray-800 text-xl font-bold" data-i18n="section2Title">Sintomas Atuais</h2>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="q4Title">4. Qual o principal problema ou sintoma?</legend>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <input type="radio" name="problema-principal" value="Febre" id="sintoma-febre" class="custom-input"><label for="sintoma-febre" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt1">Febre</label>
-                                    <input type="radio" name="problema-principal" value="Tosse" id="sintoma-tosse" class="custom-input"><label for="sintoma-tosse" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt2">Tosse</label>
-                                    <input type="radio" name="problema-principal" value="Vômito ou Diarreia" id="sintoma-vomito" class="custom-input"><label for="sintoma-vomito" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt3">Vômito / Diarreia</label>
-                                    <input type="radio" name="problema-principal" value="Manchas na Pele" id="sintoma-pele" class="custom-input"><label for="sintoma-pele" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt4">Manchas na Pele</label>
-                                    <input type="radio" name="problema-principal" value="Dificuldade para Respirar" id="sintoma-resp" class="custom-input"><label for="sintoma-resp" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt5">Dificuldade para Respirar</label>
-                                    <input type="radio" name="problema-principal" value="Outro" id="sintoma-outro" class="custom-input"><label for="sintoma-outro" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt6">Outro</label>
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="q5Title">5. Quando os sintomas começaram?</legend>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <input type="radio" name="inicio-sintomas" value="Hoje" id="inicio-hoje" class="custom-input"><label for="inicio-hoje" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q5Opt1">Hoje</label>
-                                    <input type="radio" name="inicio-sintomas" value="Ontem" id="inicio-ontem" class="custom-input"><label for="inicio-ontem" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q5Opt2">Ontem</label>
-                                    <input type="radio" name="inicio-sintomas" value="2-3 dias atrás" id="inicio-dias" class="custom-input"><label for="inicio-dias" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q5Opt3">2-3 dias atrás</label>
-                                    <input type="radio" name="inicio-sintomas" value="Mais de 3 dias" id="inicio-mais" class="custom-input"><label for="inicio-mais" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q5Opt4">Há mais de 3 dias</label>
-                                </div>
-                            </fieldset>
-                        </div>
-                        <!-- Seção de Sinais de Alerta -->
-                        <div class="space-y-5">
-                            <h2 class="text-gray-800 text-xl font-bold" data-i18n="section3Title">Sinais de Alerta na Criança</h2>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="q6Title">6. Tem febre?</legend>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <input type="radio" name="febre" value="Não" id="febre-nao" class="custom-input"><label for="febre-nao" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="optionNo">Não</label>
-                                    <input type="radio" name="febre" value="Febre Baixa (até 38.4°C)" id="febre-baixa" class="custom-input"><label for="febre-baixa" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q6Opt2">Febre Baixa (até 38.4°C)</label>
-                                    <input type="radio" name="febre" value="Febre Alta (38.5°C ou mais)" id="febre-alta" class="custom-input"><label for="febre-alta" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q6Opt3">Febre Alta (≥ 38.5°C)</label>
-                                    <input type="radio" name="febre" value="Não verificado" id="febre-saber" class="custom-input"><label for="febre-saber" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q6Opt4">Não verifiquei</label>
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="q7Title">7. Está mais sonolenta ou mais irritada que o normal?</legend>
-                                <div class="flex items-center gap-x-3">
-                                    <input type="radio" name="estado-geral" value="Sim" id="eg-sim" class="custom-input"><label for="eg-sim" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionYes">Sim</label>
-                                    <input type="radio" name="estado-geral" value="Não" id="eg-nao" class="custom-input"><label for="eg-nao" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionNo">Não</label>
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="q8Title">8. Está se alimentando (mamando) bem? Aceita líquidos?</legend>
-                                <div class="flex items-center gap-x-3">
-                                    <input type="radio" name="alimentacao" value="Sim" id="ali-sim" class="custom-input"><label for="ali-sim" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionYes">Sim</label>
-                                    <input type="radio" name="alimentacao" value="Não" id="ali-nao" class="custom-input"><label for="ali-nao" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionNo">Não</label>
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="q9Title">9. Está com dificuldade para respirar?</legend>
-                                <div class="flex items-center gap-x-3">
-                                    <input type="radio" name="respiracao" value="Sim" id="resp-sim" class="custom-input"><label for="resp-sim" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionYes">Sim</label>
-                                    <input type="radio" name="respiracao" value="Não" id="resp-nao" class="custom-input"><label for="resp-nao" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionNo">Não</label>
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="q10Title">10. Apresenta vômitos ou diarreia?</legend>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <input type="radio" name="vomito-diarreia" value="Não" id="vd-nao" class="custom-input"><label for="vd-nao" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="optionNo">Não</label>
-                                    <input type="radio" name="vomito-diarreia" value="Apenas Vômitos" id="vd-vomito" class="custom-input"><label for="vd-vomito" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q10Opt2">Apenas Vômitos</label>
-                                    <input type="radio" name="vomito-diarreia" value="Apenas Diarreia" id="vd-diarreia" class="custom-input"><label for="vd-diarreia" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q10Opt3">Apenas Diarreia</label>
-                                    <input type="radio" name="vomito-diarreia" value="Ambos" id="vd-ambos" class="custom-input"><label for="vd-ambos" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q10Opt4">Ambos</label>
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="q11Title">11. Apareceu alguma mancha ou lesão na pele?</legend>
-                                <div class="flex items-center gap-x-3">
-                                    <input type="radio" name="lesoes-pele" value="Sim" id="pele-sim" class="custom-input"><label for="pele-sim" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionYes">Sim</label>
-                                    <input type="radio" name="lesoes-pele" value="Não" id="pele-nao" class="custom-input"><label for="pele-nao" class="custom-label w-full text-center p-3 rounded-lg cursor-pointer" data-i18n="optionNo">Não</label>
-                                </div>
-                            </fieldset>
-                        </div>
-                    </form>
-                </main>
-                <footer class="bg-white border-t border-gray-200 sticky bottom-0">
-                    <div class="p-4">
-                        <button id="generate-pediatric-analysis-btn" type="button" class="w-full flex justify-center py-3 px-4 border-2 border-teal-600 rounded-full shadow-sm text-lg font-bold text-teal-600 bg-transparent hover:bg-teal-600 hover:text-white transition-colors" data-i18n="generateButton">
-                            Gerar Análise Pediátrica
-                        </button>
-                    </div>
-                </footer>
-            </div>
-            
-            <!-- TELA DE CARREGAMENTO -->
-            <div id="loading-screen" class="hidden fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
-                <svg class="animate-spin h-10 w-10 text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                <p id="loading-text" class="mt-4 text-lg font-semibold text-gray-700" data-i18n="loadingText">Analisando dados...</p>
-            </div>
-            
-            <!-- TELA DE RESULTADOS -->
-            <div id="results-screen" class="hidden">
-                <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-0 backdrop-blur-sm border-b border-gray-200">
-                    <h1 data-i18n='reportTitle' class="text-[#0e181b] text-xl font-bold flex-1 text-center">Relatório da Análise</h1>
-                </header>
-                <main id="report-content" class="flex-grow p-4">
-                    <div id="urgency-level" class="p-4 rounded-lg mb-4 text-center text-white font-bold text-lg"></div>
-                    <div class="border-b border-gray-200 mb-4">
-                        <nav class="flex -mb-px">
-                            <button class="tab-button active py-3 px-4 border-b-2 border-transparent text-gray-500" data-tab="orientation" data-i18n="tabOrientation">Orientação</button>
-                            <button class="tab-button py-3 px-4 border-b-2 border-transparent text-gray-500" data-tab="summary" data-i18n="tabSummary">Tabela Resumo</button>
-                        </nav>
-                    </div>
-                    <div id="tab-content">
-                        <div id="orientation-content" class="prose max-w-none"></div>
-                        <div id="summary-content" class="hidden"></div>
-                    </div>
-                </main>
-                <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0">
-                    <div class="flex gap-4">
-                        <button id="whatsapp-btn" class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-green-500 hover:bg-green-600" disabled>
-                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 14.2c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.2.4-.4.1-.1.2-.2.3-.4.1-.2.1-.3 0-.4-.1-.1-1.7-4.1-1.9-4.5-.2-.4-.4-.4-.6-.4h-.4c-.2 0-.5.2-.6.4-.2.2-.8.8-.8 1.9 0 1.2.8 2.2 1 2.4.1.2 1.5 2.3 3.7 3.2.5.2.9.4 1.2.5.5.2 1 .1 1.3-.1.4-.2.8-.9.9-1.7.1-.8.1-1.5 0-1.7-.1-.2-.3-.3-.5-.4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
-                            WhatsApp
-                        </button>
-                        <button id="pdf-btn" class="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-full shadow-lg text-lg font-bold text-gray-700 bg-white hover:bg-gray-100" data-i18n="pdfButton" disabled>
-                            Gerar PDF
-                        </button>
-                    </div>
-                </footer>
-            </div>
-        </div>
+    <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-white max-w-2xl mx-auto shadow-lg">
         
-        <!-- MODO OFFLINE -->
-        <div id="offline-mode" class="hidden">
-            <!-- TELA DE FORMULÁRIO (ANAMNESE PEDIÁTRICA) - VERSÃO SIMPLIFICADA -->
-            <div id="form-screen-offline">
-                <header class="sticky top-0 z-10 flex items-center bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200">
-                    <h1 data-i18n='headerTitleOffline' class="text-gray-800 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Triagem Pediátrica Emergencial</h1>
-                    <!-- SELETOR DE IDIOMA -->
-                    <div class="absolute top-3 right-3 flex space-x-1 bg-gray-200 p-1 rounded-full">
-                        <button class="lang-btn" data-lang="pt">🇧🇷</button>
-                        <button class="lang-btn" data-lang="es">🇪🇸</button>
-                        <button class="lang-btn" data-lang="en">🇬🇧</button>
-                    </div>
-                </header>
-                
-                <div class="offline-banner m-4">
-                    <i class="fas fa-wifi-slash"></i>
-                    <span data-i18n="offlineModeActive">Modo Offline Ativado - Funcionalidades Limitadas</span>
+        <header id="main-header" class="sticky top-0 z-20 bg-white/90 backdrop-blur-sm border-b border-gray-200">
+            <div class="p-4 flex items-center justify-between">
+                <button id="back-btn" class="text-gray-600 hover:text-teal-600 hidden w-10 h-10">
+                    <i class="fas fa-arrow-left fa-lg"></i>
+                </button>
+                <h1 id="header-title" data-i18n='headerTitle' class="text-gray-800 text-lg font-bold flex-1 text-center">Triagem Pediátrica</h1>
+                <div class="w-10 h-10"></div>
+            </div>
+            <div id="progress-bar" class="h-1.5 bg-gray-200 hidden">
+                <div id="progress-bar-inner" class="h-full bg-teal-500" style="width: 0%;"></div>
+            </div>
+        </header>
+
+        <main id="form-container" class="flex-grow p-4 md:p-6">
+            
+            <!-- PASSO 0: DADOS INICIAIS -->
+            <div id="step-0" class="form-step active space-y-6">
+                <div class="text-center">
+                    <h2 class="text-2xl font-bold text-gray-800" data-i18n="step0_title_female">Primeiro, alguns dados sobre a criança</h2>
+                    <p class="text-gray-600 mt-2" data-i18n="step0_subtitle">Isso nos ajuda a dar uma orientação mais precisa.</p>
                 </div>
-                
-                <main class="flex-grow">
-                    <div class="m-4 p-4 bg-red-50 border-l-4 border-red-400 text-red-700 rounded-lg">
-                        <div class="flex items-center">
-                            <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
-                            <strong class="font-bold" data-i18n="emergencyWarning">ATENÇÃO: EM CASO DE EMERGÊNCIA, PROCURE AJUDA IMEDIATAMENTE.</strong>
-                        </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="child-age" class="font-semibold text-gray-700 mb-2 block" data-i18n="step0_age_label">Qual a idade da criança?</label>
+                        <input type="text" id="child-age" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Ex: 2 anos, 6 meses">
                     </div>
-                    
-                    <form id="pediatric-anamnesis-form-offline" class="space-y-6 p-4">
-                        <!-- Seção de Sintomas Críticos -->
-                        <div class="space-y-4">
-                            <h2 class="text-gray-800 text-lg font-bold" data-i18n="criticalSymptomsTitle">Sintomas Críticos</h2>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="qCriticalTitle">1. A criança apresenta algum destes sintomas críticos?</legend>
-                                <div class="grid grid-cols-1 gap-2">
-                                    <input type="checkbox" name="sintomas-criticos" value="Dificuldade para Respirar" id="critico-respirar" class="custom-input">
-                                    <label for="critico-respirar" class="custom-label p-3 rounded-lg cursor-pointer flex items-center" data-i18n="criticalSymptom1">
-                                        <i class="fas fa-lungs mr-2 text-red-500"></i> Dificuldade para Respirar
-                                    </label>
-                                    
-                                    <input type="checkbox" name="sintomas-criticos" value="Lábios ou Pele Azulada" id="critico-azul" class="custom-input">
-                                    <label for="critico-azul" class="custom-label p-3 rounded-lg cursor-pointer flex items-center" data-i18n="criticalSymptom2">
-                                        <i class="fas fa-tint mr-2 text-blue-500"></i> Lábios ou Pele Azulada
-                                    </label>
-                                    
-                                    <input type="checkbox" name="sintomas-criticos" value="Convulsões" id="critico-convulsao" class="custom-input">
-                                    <label for="critico-convulsao" class="custom-label p-3 rounded-lg cursor-pointer flex items-center" data-i18n="criticalSymptom3">
-                                        <i class="fas fa-brain mr-2 text-purple-500"></i> Convulsões
-                                    </label>
-                                    
-                                    <input type="checkbox" name="sintomas-criticos" value="Desidratação Grave" id="critico-desidratacao" class="custom-input">
-                                    <label for="critico-desidratacao" class="custom-label p-3 rounded-lg cursor-pointer flex items-center" data-i18n="criticalSymptom4">
-                                        <i class="fas fa-tint-slash mr-2 text-yellow-500"></i> Desidratação Grave
-                                    </label>
-                                    
-                                    <input type="checkbox" name="sintomas-criticos" value="Nenhum" id="critico-nenhum" class="custom-input">
-                                    <label for="critico-nenhum" class="custom-label p-3 rounded-lg cursor-pointer flex items-center" data-i18n="criticalSymptomNone">
-                                        <i class="fas fa-check-circle mr-2 text-green-500"></i> Nenhum destes sintomas
-                                    </label>
-                                </div>
-                            </fieldset>
-                        </div>
-                        
-                        <!-- Seção de Sintomas Gerais -->
-                        <div class="space-y-4">
-                            <h2 class="text-gray-800 text-lg font-bold" data-i18n="generalSymptomsTitle">Sintomas Gerais</h2>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="qGeneralTitle">2. Qual o principal problema ou sintoma?</legend>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="radio" name="problema-principal-offline" value="Febre" id="sintoma-febre-offline" class="custom-input">
-                                    <label for="sintoma-febre-offline" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt1">Febre</label>
-                                    
-                                    <input type="radio" name="problema-principal-offline" value="Tosse" id="sintoma-tosse-offline" class="custom-input">
-                                    <label for="sintoma-tosse-offline" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt2">Tosse</label>
-                                    
-                                    <input type="radio" name="problema-principal-offline" value="Vômito/Diarreia" id="sintoma-vomito-offline" class="custom-input">
-                                    <label for="sintoma-vomito-offline" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt3">Vômito/Diarreia</label>
-                                    
-                                    <input type="radio" name="problema-principal-offline" value="Manchas na Pele" id="sintoma-pele-offline" class="custom-input">
-                                    <label for="sintoma-pele-offline" class="custom-label text-center p-3 rounded-lg cursor-pointer" data-i18n="q4Opt4">Manchas na Pele</label>
-                                </div>
-                            </fieldset>
-                            
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="qFeverTitle">3. Tem febre?</legend>
-                                <div class="flex items-center gap-x-2">
-                                    <input type="radio" name="febre-offline" value="Não" id="febre-nao-offline" class="custom-input">
-                                    <label for="febre-nao-offline" class="custom-label w-full text-center p-2 rounded-lg cursor-pointer text-sm" data-i18n="optionNo">Não</label>
-                                    
-                                    <input type="radio" name="febre-offline" value="Sim" id="febre-sim-offline" class="custom-input">
-                                    <label for="febre-sim-offline" class="custom-label w-full text-center p-2 rounded-lg cursor-pointer text-sm" data-i18n="optionYes">Sim</label>
-                                </div>
-                            </fieldset>
-                        </div>
-                        
-                        <!-- Seção de Estado Geral -->
-                        <div class="space-y-4">
-                            <h2 class="text-gray-800 text-lg font-bold" data-i18n="generalStateTitle">Estado Geral</h2>
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="qBehaviorTitle">4. Como está o comportamento da criança?</legend>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="radio" name="comportamento-offline" value="Normal" id="comp-normal" class="custom-input">
-                                    <label for="comp-normal" class="custom-label text-center p-2 rounded-lg cursor-pointer text-sm" data-i18n="behaviorNormal">Normal</label>
-                                    
-                                    <input type="radio" name="comportamento-offline" value="Irritada" id="comp-irritada" class="custom-input">
-                                    <label for="comp-irritada" class="custom-label text-center p-2 rounded-lg cursor-pointer text-sm" data-i18n="behaviorIrritable">Irritada</label>
-                                    
-                                    <input type="radio" name="comportamento-offline" value="Sonolenta" id="comp-sonolenta" class="custom-input">
-                                    <label for="comp-sonolenta" class="custom-label text-center p-2 rounded-lg cursor-pointer text-sm" data-i18n="behaviorSleepy">Sonolenta</label>
-                                    
-                                    <input type="radio" name="comportamento-offline" value="Muito Doente" id="comp-doenca" class="custom-input">
-                                    <label for="comp-doenca" class="custom-label text-center p-2 rounded-lg cursor-pointer text-sm" data-i18n="behaviorVeryIll">Muito Doente</label>
-                                </div>
-                            </fieldset>
-                            
-                            <fieldset>
-                                <legend class="text-base font-medium text-gray-800 mb-2" data-i18n="qHydrationTitle">5. Está se alimentando e aceitando líquidos?</legend>
-                                <div class="flex items-center gap-x-2">
-                                    <input type="radio" name="hidratacao-offline" value="Sim" id="hid-sim-offline" class="custom-input">
-                                    <label for="hid-sim-offline" class="custom-label w-full text-center p-2 rounded-lg cursor-pointer text-sm" data-i18n="optionYes">Sim</label>
-                                    
-                                    <input type="radio" name="hidratacao-offline" value="Não" id="hid-nao-offline" class="custom-input">
-                                    <label for="hid-nao-offline" class="custom-label w-full text-center p-2 rounded-lg cursor-pointer text-sm" data-i18n="optionNo">Não</label>
-                                </div>
-                            </fieldset>
-                        </div>
-                    </form>
-                </main>
-                
-                <footer class="bg-white border-t border-gray-200 sticky bottom-0">
-                    <div class="p-4">
-                        <button id="generate-pediatric-analysis-btn-offline" type="button" class="w-full flex justify-center py-3 px-4 border-2 border-teal-600 rounded-full shadow-sm text-lg font-bold text-teal-600 bg-transparent hover:bg-teal-600 hover:text-white transition-colors" data-i18n="generateButtonOffline">
-                            Avaliar Emergência
-                        </button>
-                    </div>
-                </footer>
+                </div>
+            </div>
+
+            <!-- PASSO 1: SINTOMA PRINCIPAL -->
+            <div id="step-1" class="form-step space-y-4">
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_title">Qual é a principal queixa da criança hoje?</h2>
+                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4" data-form-key="problemaPrincipal">
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Febre"><span class="text-4xl">🌡️</span><span class="mt-2 font-semibold">Febre</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Tosse ou Dificuldade para Respirar"><span class="text-4xl">💨</span><span class="mt-2 font-semibold">Tosse/Respiração</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Vômito ou Diarreia"><span class="text-4xl">🤢</span><span class="mt-2 font-semibold">Vômito/Diarreia</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Manchas ou Alergia na Pele"><span class="text-4xl">🎨</span><span class="mt-2 font-semibold">Manchas/Alergia</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Dor ou Irritabilidade"><span class="text-4xl">😥</span><span class="mt-2 font-semibold">Dor/Irritabilidade</span></button>
+                    <button class="choice-btn flex flex-col items-center justify-center p-4 rounded-xl text-center border-2 bg-gray-50" data-value="Outro"><span class="text-4xl">❓</span><span class="mt-2 font-semibold">Outro</span></button>
+                </div>
             </div>
             
-            <!-- TELA DE RESULTADOS OFFLINE -->
-            <div id="results-screen-offline" class="hidden">
-                <header class="sticky top-0 z-10 flex items-center bg-gray-50/80 p-4 pb-0 backdrop-blur-sm border-b border-gray-200">
-                    <h1 data-i18n='reportTitleOffline' class="text-[#0e181b] text-xl font-bold flex-1 text-center">Avaliação Pediátrica Emergencial</h1>
-                </header>
-                
-                <main id="report-content-offline" class="flex-grow p-4">
-                    <div id="urgency-level-offline" class="p-4 rounded-lg mb-4 text-center text-white font-bold text-lg"></div>
-                    
-                    <div class="bg-white p-4 rounded-lg shadow mb-4">
-                        <h3 class="font-bold text-lg mb-2" data-i18n="recommendationsTitle">Recomendações Imediatas</h3>
-                        <ul id="recommendations-list" class="list-disc pl-5 space-y-2">
-                            <!-- Recomendações serão inseridas aqui -->
-                        </ul>
+            <!-- PASSO 2: DETALHES DOS SINTOMAS -->
+             <div id="step-2" class="form-step space-y-6">
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_title">Como a criança parece? (Avaliação Rápida)</h2>
+                <fieldset>
+                    <legend class="font-semibold text-gray-700 mb-2">Aparência</legend>
+                    <div class="grid grid-cols-3 gap-2" data-form-key="tepAppearance">
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-3xl">😀</span><span class="text-xs mt-1">Alerta</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Muito Sonolenta"><span class="text-3xl">😴</span><span class="text-xs mt-1">Sonolenta</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Irritada/Inconsolável"><span class="text-3xl">😭</span><span class="text-xs mt-1">Irritada</span></button>
                     </div>
-                    
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="font-bold text-lg mb-2" data-i18n="warningSignsTitle">Sinais de Alerta</h3>
-                        <p id="warning-signs" class="text-gray-700">
-                            <!-- Sinais de alerta serão inseridos aqui -->
-                        </p>
+                </fieldset>
+                <fieldset>
+                    <legend class="font-semibold text-gray-700 mb-2">Respiração</legend>
+                     <div class="grid grid-cols-3 gap-2" data-form-key="tepBreathing">
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Normal"><span class="text-3xl">🟢</span><span class="text-xs mt-1">Normal</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Rápida ou com esforço"><span class="text-3xl">🟡</span><span class="text-xs mt-1">Rápida/Esforço</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Muito cansada para respirar"><span class="text-3xl">🔴</span><span class="text-xs mt-1">Exausta</span></button>
                     </div>
-                </main>
-                
-                <footer class="bg-gray-50 border-t border-gray-200 p-4 sticky bottom-0">
-                    <div class="flex gap-4">
-                        <button id="save-offline-btn" class="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-blue-500 hover:bg-blue-600">
-                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-                            Salvar Localmente
-                        </button>
-                        <button id="new-form-btn" class="w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-full shadow-lg text-lg font-bold text-gray-700 bg-white hover:bg-gray-100" data-i18n="newFormButton">
-                            Nova Avaliação
-                        </button>
+                </fieldset>
+             </div>
+
+            <!-- PASSO 3: SINAIS DE ALERTA -->
+            <div id="step-3" class="form-step space-y-6">
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_title">Mais alguns detalhes...</h2>
+                <fieldset>
+                    <legend class="font-semibold text-gray-700 mb-2">Está se alimentando (mamando) ou aceitando líquidos?</legend>
+                    <div class="flex gap-4" data-form-key="alimentacao">
+                        <button class="choice-btn w-full p-3 rounded-lg border-2" data-value="Sim">Sim</button>
+                        <button class="choice-btn w-full p-3 rounded-lg border-2" data-value="Não">Não</button>
                     </div>
-                </footer>
+                </fieldset>
+                 <fieldset>
+                    <legend class="font-semibold text-gray-700 mb-2">Quando o quadro começou?</legend>
+                    <div class="grid grid-cols-2 gap-4" data-form-key="inicioSintomas">
+                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Hoje">Hoje</button>
+                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Ontem">Ontem</button>
+                        <button class="choice-btn p-3 rounded-lg border-2" data-value="2-3 dias atrás">2-3 dias</button>
+                        <button class="choice-btn p-3 rounded-lg border-2" data-value="Mais de 3 dias">Mais de 3 dias</button>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- PASSO 4: INFORMAÇÕES ADICIONAIS -->
+            <div id="step-4" class="form-step space-y-6">
+                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step4_title">Informações Finais</h2>
+                <div>
+                    <label for="doencas-alergias" class="font-semibold text-gray-700 mb-2 block">A criança possui alguma doença ou alergia conhecida? (Opcional)</label>
+                    <textarea id="doencas-alergias" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Descreva aqui..."></textarea>
+                </div>
+                 <div>
+                    <label for="medicamentos-continuos" class="font-semibold text-gray-700 mb-2 block">Faz uso de algum medicamento contínuo? (Opcional)</label>
+                    <textarea id="medicamentos-continuos" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" placeholder="Descreva aqui..."></textarea>
+                </div>
+            </div>
+        </main>
+        
+        <!-- TELA DE RESULTADOS -->
+        <div id="results-screen" class="hidden p-4 md:p-6 space-y-6">
+            <h1 class="text-2xl font-bold text-center text-gray-800">Análise Preliminar</h1>
+            <div id="orientation-content" class="prose max-w-none bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                <!-- Conteúdo da IA será inserido aqui -->
             </div>
         </div>
-    </div>
-    
-    <!-- BARRA DE NAVEGAÇÃO GLOBAL -->
-    <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
-      <div class="mx-auto flex h-16 max-w-4xl items-center justify-around">
-        <button onclick="location.reload()" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
-          <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0M2.985 10.356h4.992m0 0l-3.181-3.182a8.25 8.25 0 0111.664 0l3.181 3.182m-4.993 0l-2.81 2.81m0 0l-2.81-2.81m2.81 2.81V1.5M13.25 12.75h-2.5" /></svg>
-          <span class="mt-1 text-xs font-bold uppercase tracking-wider" data-i18n="navBack">Novo</span>
-        </button>
-        <div class="h-8 w-px bg-gray-200"></div>
-        <a href="index.html" class="flex h-full w-1/2 flex-col items-center justify-center text-gray-600 transition-colors hover:bg-gray-50 hover:text-teal-600">
-          <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-          <span class="mt-1 text-xs font-bold uppercase tracking-wider" data-i18n="navHome">Início</span>
-        </a>
-      </div>
-    </nav>
-    
-    <!-- Indicador de sincronização pendente -->
-    <div id="sync-pending-indicator" class="hidden fixed bottom-20 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center z-30">
-        <i class="fas fa-clock mr-1"></i>
-        <span>0 itens pendentes</span>
-    </div>
 
+        <footer id="main-footer" class="bg-white border-t border-gray-200 sticky bottom-0 z-10 p-4">
+             <button id="next-btn" class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 rounded-full shadow-lg text-lg font-bold text-white hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                <span>Avançar</span> <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+            <div id="results-footer" class="hidden flex flex-col sm:flex-row gap-4">
+                 <button id="restart-btn" class="w-full flex items-center justify-center py-3 px-4 border-2 border-gray-300 rounded-full shadow-sm text-lg font-bold text-gray-600 bg-transparent hover:bg-gray-100 transition">
+                    Nova Avaliação
+                </button>
+            </div>
+        </footer>
+    </div>
+    
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- LÓGICA DE TRADUÇÃO ---
-    const translations = {
-        "pt": {
-            "pageTitle": "Triagem Pediátrica - MissionCare Plus",
-            "headerTitle": "Triagem Pediátrica",
-            "headerTitleOffline": "Triagem Pediátrica Emergencial",
-            "emergencyWarning": "ATENÇÃO: EM CASO DE EMERGÊNCIA, PROCURE AJUDA IMEDIATAMENTE.",
-            "section1Title": "Informações Básicas",
-            "q1Title": "1. A criança possui alguma doença ou alergia conhecida?",
-            "q1Placeholder": "Se sim, descreva aqui...",
-            "q2Title": "2. A carteira de vacinação está em dia?",
-            "optionYes": "Sim",
-            "optionNo": "Não",
-            "q3Title": "3. A criança faz uso de algum medicamento contínuo?",
-            "q3Placeholder": "Se sim, quais?",
-            "section2Title": "Sintomas Atuais",
-            "q4Title": "4. Qual o principal problema ou sintoma?",
-            "q4Opt1": "Febre", "q4Opt2": "Tosse", "q4Opt3": "Vômito / Diarreia", "q4Opt4": "Manchas na Pele", "q4Opt5": "Dificuldade para Respirar", "q4Opt6": "Outro",
-            "q5Title": "5. Quando os sintomas começaram?",
-            "q5Opt1": "Hoje", "q5Opt2": "Ontem", "q5Opt3": "2-3 dias atrás", "q5Opt4": "Há mais de 3 dias",
-            "section3Title": "Sinais de Alerta na Criança",
-            "q6Title": "6. Tem febre?",
-            "q6Opt2": "Febre Baixa (até 38.4°C)", "q6Opt3": "Febre Alta (≥ 38.5°C)", "q6Opt4": "Não verifiquei",
-            "q7Title": "7. Está mais sonolenta ou mais irritada que o normal?",
-            "q8Title": "8. Está se alimentando (mamando) bem? Aceita líquidos?",
-            "q9Title": "9. Está com dificuldade para respirar?",
-            "q10Title": "10. Apresenta vômitos ou diarreia?",
-            "q10Opt2": "Apenas Vômitos", "q10Opt3": "Apenas Diarreia", "q10Opt4": "Ambos",
-            "q11Title": "11. Apareceu alguma mancha ou lesão na pele?",
-            "generateButton": "Gerar Análise Pediátrica",
-            "generateButtonOffline": "Avaliar Emergência",
-            "loadingText": "Analisando dados...",
-            "retryText": "Servidor ocupado. Tentando novamente...",
-            "reportTitle": "Relatório da Análise",
-            "reportTitleOffline": "Avaliação Pediátrica Emergencial",
-            "tabOrientation": "Orientação",
-            "tabSummary": "Tabela Resumo",
-            "pdfButton": "Gerar PDF",
-            "navBack": "Novo", "navHome": "Início",
-            "offlineModeActive": "Modo Offline Ativado - Funcionalidades Limitadas",
-            "criticalSymptomsTitle": "Sintomas Críticos",
-            "qCriticalTitle": "1. A criança apresenta algum destes sintomas críticos?",
-            "criticalSymptom1": "Dificuldade para Respirar",
-            "criticalSymptom2": "Lábios ou Pele Azulada",
-            "criticalSymptom3": "Convulsões",
-            "criticalSymptom4": "Desidratação Grave",
-            "criticalSymptomNone": "Nenhum destes sintomas",
-            "generalSymptomsTitle": "Sintomas Gerais",
-            "qGeneralTitle": "2. Qual o principal problema ou sintoma?",
-            "qFeverTitle": "3. Tem febre?",
-            "generalStateTitle": "Estado Geral",
-            "qBehaviorTitle": "4. Como está o comportamento da criança?",
-            "behaviorNormal": "Normal",
-            "behaviorIrritable": "Irritada",
-            "behaviorSleepy": "Sonolenta",
-            "behaviorVeryIll": "Muito Doente",
-            "qHydrationTitle": "5. Está se alimentando e aceitando líquidos?",
-            "recommendationsTitle": "Recomendações Imediatas",
-            "warningSignsTitle": "Sinais de Alerta",
-            "newFormButton": "Nova Avaliação"
-        },
-        "es": {
-            "pageTitle": "Triaje Pediátrico - MissionCare Plus",
-            "headerTitle": "Triaje Pediátrico",
-            "headerTitleOffline": "Triaje Pediátrico de Emergencia",
-            "emergencyWarning": "ATENCIÓN: EN CASO DE EMERGENCIA, BUSQUE AYUDA INMEDIATAMENTE.",
-            "section1Title": "Información Básica",
-            "q1Title": "1. ¿El niño tiene alguna enfermedad o alergia conocida?",
-            "q1Placeholder": "Si es así, descríbala aquí...",
-            "q2Title": "2. ¿Está al día el carné de vacunación?",
-            "optionYes": "Sí", "optionNo": "No",
-            "q3Title": "3. ¿El niño toma algún medicamento de forma continua?",
-            "q3Placeholder": "Si es así, ¿cuáles?",
-            "section2Title": "Síntomas Actuales",
-            "q4Title": "4. ¿Cuál es el principal problema o síntoma?",
-            "q4Opt1": "Fiebre", "q4Opt2": "Tos", "q4Opt3": "Vómitos / Diarrea", "q4Opt4": "Manchas en la Piel", "q4Opt5": "Dificultad para Respirar", "q4Opt6": "Otro",
-            "q5Title": "5. ¿Cuándo comenzaron los síntomas?",
-            "q5Opt1": "Hoy", "q5Opt2": "Ayer", "q5Opt3": "Hace 2-3 días", "q5Opt4": "Hace más de 3 días",
-            "section3Title": "Señales de Alerta en el Niño",
-            "q6Title": "6. ¿Tiene fiebre?",
-            "q6Opt2": "Fiebre Baja (hasta 38.4°C)", "q6Opt3": "Fiebre Alta (≥ 38.5°C)", "q6Opt4": "No he verificado",
-            "q7Title": "7. ¿Está más somnoliento o más irritable de lo normal?",
-            "q8Title": "8. ¿Se está alimentando (amamantando) bien? ¿Acepta líquidos?",
-            "q9Title": "9. ¿Tiene dificultad para respirar?",
-            "q10Title": "10. ¿Presenta vómitos o diarrea?",
-            "q10Opt2": "Solo Vómitos", "q10Opt3": "Solo Diarrea", "q10Opt4": "Ambos",
-            "q11Title": "11. ¿Ha aparecido alguna mancha o lesión en la piel?",
-            "generateButton": "Generar Análisis Pediátrico",
-            "generateButtonOffline": "Evaluar Emergencia",
-            "loadingText": "Analizando datos...",
-            "retryText": "Servidor ocupado. Reintentando...",
-            "reportTitle": "Informe del Análisis",
-            "reportTitleOffline": "Evaluación Pediátrica de Emergencia",
-            "tabOrientation": "Orientación",
-            "tabSummary": "Tabla Resumen",
-            "pdfButton": "Generar PDF",
-            "navBack": "Nuevo", "navHome": "Inicio",
-            "offlineModeActive": "Modo Offline Activado - Funcionalidades Limitadas",
-            "criticalSymptomsTitle": "Síntomas Críticos",
-            "qCriticalTitle": "1. ¿El niño presenta alguno de estos síntomas críticos?",
-            "criticalSymptom1": "Dificultad para Respirar",
-            "criticalSymptom2": "Labios o Piel Azulada",
-            "criticalSymptom3": "Convulsiones",
-            "criticalSymptom4": "Deshidratación Grave",
-            "criticalSymptomNone": "Ninguno de estos síntomas",
-            "generalSymptomsTitle": "Síntomas Generales",
-            "qGeneralTitle": "2. ¿Cuál es el principal problema o síntoma?",
-            "qFeverTitle": "3. ¿Tiene fiebre?",
-            "generalStateTitle": "Estado General",
-            "qBehaviorTitle": "4. ¿Cómo está el comportamiento del niño?",
-            "behaviorNormal": "Normal",
-            "behaviorIrritable": "Irritable",
-            "behaviorSleepy": "Somnoliento",
-            "behaviorVeryIll": "Muy Enfermo",
-            "qHydrationTitle": "5. ¿Se está alimentando y aceptando líquidos?",
-            "recommendationsTitle": "Recomendaciones Inmediatas",
-            "warningSignsTitle": "Señales de Alerta",
-            "newFormButton": "Nueva Evaluación"
-        },
-        "en": {
-            "pageTitle": "Pediatric Triage - MissionCare Plus",
-            "headerTitle": "Pediatric Triage",
-            "headerTitleOffline": "Emergency Pediatric Triage",
-            "emergencyWarning": "ATTENTION: IN CASE OF EMERGENCY, SEEK HELP IMMEDIATELY.",
-            "section1Title": "Basic Information",
-            "q1Title": "1. Does the child have any known diseases or allergies?",
-            "q1Placeholder": "If yes, describe here...",
-            "q2Title": "2. Is the vaccination record up to date?",
-            "optionYes": "Yes", "optionNo": "No",
-            "q3Title": "3. Does the child take any continuous medication?",
-            "q3Placeholder": "If yes, which ones?",
-            "section2Title": "Current Symptoms",
-            "q4Title": "4. What is the main problem or symptom?",
-            "q4Opt1": "Fever", "q4Opt2": "Cough", "q4Opt3": "Vomiting / Diarrhea", "q4Opt4": "Skin Rash", "q4Opt5": "Difficulty Breathing", "q4Opt6": "Other",
-            "q5Title": "5. When did the symptoms start?",
-            "q5Opt1": "Today", "q5Opt2": "Yesterday", "q5Opt3": "2-3 days ago", "q5Opt4": "More than 3 days ago",
-            "section3Title": "Warning Signs in the Child",
-            "q6Title": "6. Is there a fever?",
-            "q6Opt2": "Low-grade fever (up to 101.1°F / 38.4°C)", "q6Opt3": "High fever (≥ 101.3°F / 38.5°C)", "q6Opt4": "I haven't checked",
-            "q7Title": "7. Is the child sleepier or more irritable than usual?",
-            "q8Title": "8. Is the child eating (nursing) well? Accepting fluids?",
-            "q9Title": "9. Is the child having difficulty breathing?",
-            "q10Title": "10. Are there vomiting or diarrhea?",
-            "q10Opt2": "Vomiting only", "q10Opt3": "Diarrhea only", "q10Opt4": "Both",
-            "q11Title": "11. Has any rash or skin lesion appeared?",
-            "generateButton": "Generate Pediatric Analysis",
-            "generateButtonOffline": "Assess Emergency",
-            "loadingText": "Analyzing data...",
-            "retryText": "Server busy. Retrying...",
-            "reportTitle": "Analysis Report",
-            "reportTitleOffline": "Emergency Pediatric Assessment",
-            "tabOrientation": "Guidance",
-            "tabSummary": "Summary Table",
-            "pdfButton": "Generate PDF",
-            "navBack": "New", "navHome": "Home",
-            "offlineModeActive": "Offline Mode Activated - Limited Functionality",
-            "criticalSymptomsTitle": "Critical Symptoms",
-            "qCriticalTitle": "1. Does the child have any of these critical symptoms?",
-            "criticalSymptom1": "Difficulty Breathing",
-            "criticalSymptom2": "Blue Lips or Skin",
-            "criticalSymptom3": "Seizures",
-            "criticalSymptom4": "Severe Dehydration",
-            "criticalSymptomNone": "None of these symptoms",
-            "generalSymptomsTitle": "General Symptoms",
-            "qGeneralTitle": "2. What is the main problem or symptom?",
-            "qFeverTitle": "3. Is there a fever?",
-            "generalStateTitle": "General State",
-            "qBehaviorTitle": "4. How is the child's behavior?",
-            "behaviorNormal": "Normal",
-            "behaviorIrritable": "Irritable",
-            "behaviorSleepy": "Sleepy",
-            "behaviorVeryIll": "Very Ill",
-            "qHydrationTitle": "5. Is the child eating and accepting fluids?",
-            "recommendationsTitle": "Immediate Recommendations",
-            "warningSignsTitle": "Warning Signs",
-            "newFormButton": "New Assessment"
-        }
-    };
-    
-    const setLanguage = (lang) => {
-        document.getElementById('html-lang').setAttribute('lang', lang);
-        localStorage.setItem('language', lang);
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            element.textContent = translations[lang][key] || translations['pt'][key];
-        });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-            const key = element.getAttribute('data-i18n-placeholder');
-            element.placeholder = translations[lang][key] || translations['pt'][key];
-        });
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.lang === lang);
-        });
-    };
-    
-    document.querySelectorAll('.lang-btn').forEach(button => {
-        button.addEventListener('click', () => setLanguage(button.dataset.lang));
-    });
-    
-    const initialLang = localStorage.getItem('language') || 'pt';
-    setLanguage(initialLang);
-    // --- FIM DA LÓGICA DE TRADUÇÃO ---
-    
-    // --- INÍCIO DA LÓGICA OFFLINE ---
-    
-    // Elementos do DOM
-    const onlineMode = document.getElementById('online-mode');
-    const offlineMode = document.getElementById('offline-mode');
-    const formScreen = document.getElementById('form-screen');
-    const formScreenOffline = document.getElementById('form-screen-offline');
-    const loadingScreen = document.getElementById('loading-screen');
-    const loadingText = document.getElementById('loading-text');
+
+    let currentStep = 0;
+    const totalSteps = 5;
+    const formData = {};
+
+    const steps = document.querySelectorAll('.form-step');
+    const nextBtn = document.getElementById('next-btn');
+    const backBtn = document.getElementById('back-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const progressBarInner = document.getElementById('progress-bar-inner');
+    const formContainer = document.getElementById('form-container');
     const resultsScreen = document.getElementById('results-screen');
-    const resultsScreenOffline = document.getElementById('results-screen-offline');
-    const generateBtn = document.getElementById('generate-pediatric-analysis-btn');
-    const generateBtnOffline = document.getElementById('generate-pediatric-analysis-btn-offline');
-    const form = document.getElementById('pediatric-anamnesis-form');
-    const formOffline = document.getElementById('pediatric-anamnesis-form-offline');
+    const mainFooter = document.getElementById('main-footer');
+    const resultsFooter = document.getElementById('results-footer');
+    const restartBtn = document.getElementById('restart-btn');
     const orientationContent = document.getElementById('orientation-content');
-    const summaryContent = document.getElementById('summary-content');
-    const urgencyLevelDiv = document.getElementById('urgency-level');
-    const urgencyLevelDivOffline = document.getElementById('urgency-level-offline');
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const whatsappBtn = document.getElementById('whatsapp-btn');
-    const pdfBtn = document.getElementById('pdf-btn');
-    const saveOfflineBtn = document.getElementById('save-offline-btn');
-    const newFormBtn = document.getElementById('new-form-btn');
-    const reportContent = document.getElementById('report-content');
-    const recommendationsList = document.getElementById('recommendations-list');
-    const warningSigns = document.getElementById('warning-signs');
-    
-    // Configuração da API do MissionCare Plus Backend
-    const backendUrl = "https://missioncare-plus-backend.onrender.com";
-    
-    // Função de chamada à API com tentativas
-    const fetchWithRetry = async (url, options, retries = 4, backoff = 1500) => {
-        for (let i = 0; i < retries; i++) {
-            try {
-                const response = await fetch(url, options);
-                if (response.ok) return response;
-                if (response.status >= 500 && response.status < 600) {
-                    if (i < retries - 1) {
-                        const lang = localStorage.getItem('language') || 'pt';
-                        loadingText.textContent = translations[lang].retryText || "Servidor ocupado. Tentando novamente...";
-                        await new Promise(resolve => setTimeout(resolve, backoff * (i + 1)));
-                        continue;
-                    }
-                }
-                return response; 
-            } catch (error) {
-                if (i === retries - 1) throw error;
-                const lang = localStorage.getItem('language') || 'pt';
-                loadingText.textContent = translations[lang].retryText || "Servidor ocupado. Tentando novamente...";
-                await new Promise(resolve => setTimeout(resolve, backoff * (i + 1)));
-            }
+
+    const updateUIForStep = () => {
+        steps.forEach((step, index) => step.classList.toggle('active', index === currentStep));
+
+        const isFirstStep = currentStep === 0;
+        const isLastStep = currentStep === totalSteps - 1;
+
+        backBtn.classList.toggle('hidden', isFirstStep);
+        progressBar.classList.toggle('hidden', isFirstStep);
+        
+        if (!isFirstStep) {
+            const progress = (currentStep / (totalSteps - 1)) * 100;
+            progressBarInner.style.width = `${progress}%`;
+        }
+
+        nextBtn.innerHTML = isLastStep 
+            ? `<i class="fas fa-check mr-2"></i> Gerar Análise` 
+            : `Avançar <i class="fas fa-arrow-right ml-2"></i>`;
+
+        validateStep();
+    };
+
+    const nextStep = () => {
+        if (currentStep < totalSteps - 1) {
+            currentStep++;
+            updateUIForStep();
+        } else {
+            handleFormSubmit();
+        }
+    };
+
+    const prevStep = () => {
+        if (currentStep > 0) {
+            currentStep--;
+            updateUIForStep();
         }
     };
     
-    // Lógica Principal: Geração da Análise (MODO ONLINE)
-    generateBtn.addEventListener('click', async () => {
-        const lang = localStorage.getItem('language') || 'pt';
-        loadingText.textContent = translations[lang].loadingText || "Analisando dados...";
-        
-        const formData = new FormData(form);
-        const data = {
-            doencasAlergias: document.getElementById('doencas-alergias').value,
-            vacinacao: formData.get('vacinacao'),
-            medicamentosContinuos: document.getElementById('medicamentos-continuos').value,
-            problemaPrincipal: formData.get('problema-principal'),
-            inicioSintomas: formData.get('inicio-sintomas'),
-            febre: formData.get('febre'),
-            estadoGeral: formData.get('estado-geral'),
-            alimentacao: formData.get('alimentacao'),
-            respiracao: formData.get('respiracao'),
-            vomitoDiarreia: formData.get('vomito-diarreia'),
-            lesoesPele: formData.get('lesoes-pele')
-        };
-        
-        if (!data.problemaPrincipal) {
-            alert('Por favor, selecione o principal problema ou sintoma.');
-            return;
+    nextBtn.addEventListener('click', () => { if (!nextBtn.disabled) nextStep(); });
+    backBtn.addEventListener('click', prevStep);
+    restartBtn.addEventListener('click', () => location.reload());
+
+    const validateStep = () => {
+        let isValid = false;
+        if (currentStep === 0) {
+            isValid = document.getElementById('child-age').value.trim() !== '';
+        } else if (currentStep === 1) {
+            isValid = !!formData.problemaPrincipal;
+        } else if (currentStep === 2) {
+             isValid = formData.tepAppearance && formData.tepBreathing;
+        } else if (currentStep === 3) {
+            isValid = formData.alimentacao && formData.inicioSintomas;
+        } else if (currentStep === 4) {
+            isValid = true; // Campos opcionais
         }
-        
-        // Preparar dados para envio ao backend
-        const pediatricData = {
-            doencasAlergias: data.doencasAlergias || "Nenhuma",
-            vacinacao: data.vacinacao || "Não informado",
-            medicamentosContinuos: data.medicamentosContinuos || "Nenhum",
-            problemaPrincipal: data.problemaPrincipal,
-            inicioSintomas: data.inicioSintomas || "Não informado",
-            febre: data.febre || "Não informado",
-            estadoGeral: data.estadoGeral || "Não informado",
-            alimentacao: data.alimentacao || "Não informado",
-            respiracao: data.respiracao || "Não informado",
-            vomitoDiarreia: data.vomitoDiarreia || "Não informado",
-            lesoesPele: data.lesoesPele || "Não informado",
-            idioma: lang
-        };
-        
-        formScreen.style.display = 'none';
-        loadingScreen.classList.remove('hidden');
-        resultsScreen.classList.add('hidden');
-        window.scrollTo(0, 0);
-        
-        try {
-            // Atualizar texto de carregamento
-            if (lang === 'pt') {
-                loadingText.textContent = "Analisando dados pediátricos...";
-            } else if (lang === 'es') {
-                loadingText.textContent = "Analizando datos pediátricos...";
-            } else {
-                loadingText.textContent = "Analyzing pediatric data...";
-            }
+        nextBtn.disabled = !isValid;
+    };
+    
+    document.getElementById('child-age').addEventListener('input', validateStep);
+    
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const group = btn.closest('[data-form-key]');
+            const key = group.dataset.formKey;
             
-            // Enviar dados para o backend usando o assistente de pediatria
-            const response = await fetchWithRetry(`${backendUrl}/api/assistants/run/pediatria`, {
+            group.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            formData[key] = btn.dataset.value;
+            
+            validateStep();
+            
+            // Auto-avança em passos de seleção única
+            if (currentStep === 1 || currentStep === 3) {
+                 if (formData.alimentacao && formData.inicioSintomas) setTimeout(nextStep, 200);
+            }
+             if (currentStep === 1 && formData.problemaPrincipal) setTimeout(nextStep, 200);
+
+        });
+    });
+
+    const handleFormSubmit = async () => {
+        formData.idade = document.getElementById('child-age').value;
+        formData.doencasAlergias = document.getElementById('doencas-alergias').value;
+        formData.medicamentosContinuos = document.getElementById('medicamentos-continuos').value;
+
+        formContainer.style.display = 'none';
+        mainFooter.style.display = 'none';
+        
+        resultsScreen.classList.remove('hidden');
+        orientationContent.innerHTML = '<div class="loader mx-auto my-4"></div><p class="text-center font-semibold text-gray-600">Analisando informações...</p>';
+
+        const promptLines = [
+            `Análise Pediátrica:`,
+            `- Idade: ${formData.idade || 'Não informado'}`,
+            `- Queixa Principal: ${formData.problemaPrincipal || 'Não informado'}`,
+            `- Início: ${formData.inicioSintomas || 'Não informado'}`,
+            `- Aparência: ${formData.tepAppearance || 'Não informado'}`,
+            `- Respiração: ${formData.tepBreathing || 'Não informado'}`,
+            `- Alimentação/Hidratação: ${formData.alimentacao || 'Não informado'}`,
+            `- Doenças/Alergias Prévias: ${formData.doencasAlergias || 'Nenhuma'}`,
+            `- Medicamentos Contínuos: ${formData.medicamentosContinuos || 'Nenhum'}`
+        ];
+        const prompt = promptLines.join('\n');
+
+        try {
+            const response = await fetch('https://missioncareplus-jca0.onrender.com/api/v1/assistente', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: `Você é um assistente médico especializado em pediatria. Analise os seguintes dados de anamnese pediátrica e forneça um relatório médico estruturado em formato JSON no idioma ${lang}. Dados: ${JSON.stringify(pediatricData, null, 2)}`
+                    tipo_assistente: 'pediatria',
+                    prompt: prompt
                 })
             });
+
+            if (!response.ok) throw new Error(`Erro na API: ${response.statusText}`);
             
-            if (!response.ok) {
-                let errorMsg = `Erro no backend: ${response.status} ${response.statusText}`;
-                try {
-                    const errorBody = await response.json();
-                    errorMsg = errorBody.error || errorMsg;
-                } catch (e) {}
-                throw new Error(errorMsg);
-            }
+            const result = await response.json();
+            orientationContent.innerHTML = marked.parse(result.response);
             
-            const responseData = await response.json();
-            
-            if (!responseData.ok) {
-                throw new Error(responseData.error || "Erro na análise do backend");
-            }
-            
-            // Processar a resposta do assistente
-            const responseText = responseData.text;
-            
-            // Tentar extrair JSON da resposta
-            let analysisResult;
-            try {
-                // Limpar o texto da resposta
-                let cleanText = responseText.trim();
-                cleanText = cleanText.replace(/```json\s*/g, '').replace(/```\s*$/g, '');
-                
-                // Procurar por JSON na resposta
-                const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    const jsonString = jsonMatch[0];
-                    analysisResult = JSON.parse(jsonString);
-                } else {
-                    // Se não encontrar JSON, criar uma resposta estruturada baseada no texto
-                    analysisResult = {
-                        urgency: {
-                            level: "Moderado",
-                            reason: "Análise pediátrica realizada com sucesso"
-                        },
-                        orientation: responseText,
-                        summary: {
-                            symptom: data.problemaPrincipal,
-                            history: `Sintomas iniciaram ${data.inicioSintomas || "tempo não especificado"}`,
-                            background: data.doencasAlergias || "Nenhuma condição prévia informada"
-                        }
-                    };
-                }
-            } catch (parseError) {
-                console.warn("Erro ao fazer parse do JSON, criando resposta estruturada:", parseError);
-                // Criar resposta estruturada baseada no texto
-                analysisResult = {
-                    urgency: {
-                        level: "Moderado",
-                        reason: "Análise pediátrica realizada com sucesso"
-                    },
-                    orientation: responseText,
-                    summary: {
-                        symptom: data.problemaPrincipal,
-                        history: `Sintomas iniciaram ${data.inicioSintomas || "tempo não especificado"}`,
-                        background: data.doencasAlergias || "Nenhuma condição prévia informada"
-                    }
-                };
-            }
-            
-            // Verificar se a estrutura está completa
-            if (!analysisResult.urgency || !analysisResult.urgency.level) {
-                analysisResult.urgency = {
-                    level: "Moderado",
-                    reason: "Análise pediátrica realizada com sucesso"
-                };
-            }
-            
-            if (!analysisResult.orientation) {
-                analysisResult.orientation = responseText;
-            }
-            
-            if (!analysisResult.summary) {
-                analysisResult.summary = {
-                    symptom: data.problemaPrincipal || "Sintoma principal não especificado",
-                    history: `Sintomas iniciaram ${data.inicioSintomas || "tempo não especificado"}`,
-                    background: data.doencasAlergias || "Nenhuma condição prévia informada"
-                };
-            }
-            
-            displayResults(analysisResult);
+            mainFooter.style.display = 'block';
+            nextBtn.style.display = 'none';
+            resultsFooter.style.display = 'flex';
+
         } catch (error) {
-            console.error("Analysis generation error:", error);
-            displayError(`Falha ao analisar dados. Detalhe do erro: ${error.message}.`);
-        } finally {
-            loadingScreen.classList.add('hidden');
+            console.error("Erro ao gerar análise:", error);
+            orientationContent.innerHTML = '<p class="text-center text-red-600 font-bold">Ocorreu um erro ao buscar a análise. Tente novamente.</p>';
         }
-    });
-    
-    // Lógica Principal: Geração da Análise (MODO OFFLINE)
-    generateBtnOffline.addEventListener('click', () => {
-        // Coletar dados do formulário offline
-        const sintomasCriticos = Array.from(document.querySelectorAll('input[name="sintomas-criticos"]:checked')).map(el => el.value);
-        const problemaPrincipal = document.querySelector('input[name="problema-principal-offline"]:checked')?.value || "Não informado";
-        const febre = document.querySelector('input[name="febre-offline"]:checked')?.value || "Não informado";
-        const comportamento = document.querySelector('input[name="comportamento-offline"]:checked')?.value || "Não informado";
-        const hidratacao = document.querySelector('input[name="hidratacao-offline"]:checked')?.value || "Não informado";
-        
-        // Mostrar tela de carregamento
-        formScreenOffline.classList.add('hidden');
-        loadingScreen.classList.remove('hidden');
-        resultsScreenOffline.classList.add('hidden');
-        window.scrollTo(0, 0);
-        
-        // Simular tempo de processamento
-        setTimeout(() => {
-            loadingScreen.classList.add('hidden');
-            displayOfflineResults({
-                sintomasCriticos,
-                problemaPrincipal,
-                febre,
-                comportamento,
-                hidratacao
-            });
-        }, 1500);
-    });
-    
-    // Função para exibir resultados offline
-    function displayOfflineResults(data) {
-        const lang = localStorage.getItem('language') || 'pt';
-        
-        // Determinar nível de urgência com base nos sintomas críticos
-        let urgencyLevel = 'Baixo';
-        let urgencyReason = 'Sem sintomas críticos identificados.';
-        let urgencyClass = 'bg-green-500';
-        
-        // Verificar sintomas críticos primeiro
-        if (data.sintomasCriticos.length > 0) {
-            if (data.sintomasCriticos.includes('Dificuldade para Respirar') || 
-                data.sintomasCriticos.includes('Lábios ou Pele Azulada') || 
-                data.sintomasCriticos.includes('Convulsões')) {
-                urgencyLevel = 'Emergência';
-                urgencyReason = 'Presença de sintomas críticos que requerem atenção médica imediata.';
-                urgencyClass = 'bg-red-600';
-            } else if (data.sintomasCriticos.includes('Desidratação Grave')) {
-                urgencyLevel = 'Urgente';
-                urgencyReason = 'Sinais de desidratação grave que requerem avaliação médica urgente.';
-                urgencyClass = 'bg-orange-500';
-            }
-        } else {
-            // Se não há sintomas críticos, avaliar outros fatores
-            if (data.comportamento === 'Muito Doente' || data.hidratacao === 'Não') {
-                urgencyLevel = 'Urgente';
-                urgencyReason = 'Estado geral comprometido ou recusa de líquidos.';
-                urgencyClass = 'bg-orange-500';
-            } else if (data.febre === 'Sim' && data.comportamento === 'Sonolenta') {
-                urgencyLevel = 'Moderado';
-                urgencyReason = 'Febre com alteração do estado geral.';
-                urgencyClass = 'bg-yellow-500 text-black';
-            }
-        }
-        
-        // Traduzir nível de urgência se necessário
-        const urgencyTranslations = {
-            'pt': { 'Emergência': 'Emergência', 'Urgente': 'Urgente', 'Moderado': 'Moderado', 'Baixo': 'Baixo' },
-            'es': { 'Emergência': 'Emergencia', 'Urgente': 'Urgente', 'Moderado': 'Moderado', 'Baixo': 'Bajo' },
-            'en': { 'Emergência': 'Emergency', 'Urgente': 'Urgent', 'Moderado': 'Moderate', 'Baixo': 'Low' }
-        };
-        
-        const translatedUrgencyLevel = urgencyTranslations[lang][urgencyLevel] || urgencyLevel;
-        
-        // Exibir nível de urgência
-        urgencyLevelDivOffline.textContent = `${translatedUrgencyLevel.toUpperCase()}: ${urgencyReason}`;
-        urgencyLevelDivOffline.className = `p-4 rounded-lg mb-4 text-center text-white font-bold text-lg ${urgencyClass}`;
-        
-        // Gerar recomendações com base nos dados
-        const recommendations = generatePediatricOfflineRecommendations(data, lang);
-        
-        // Exibir recomendações
-        recommendationsList.innerHTML = '';
-        recommendations.forEach(rec => {
-            const li = document.createElement('li');
-            li.textContent = rec;
-            recommendationsList.appendChild(li);
-        });
-        
-        // Exibir sinais de alerta
-        const warningSignsText = generatePediatricWarningSigns(data, lang);
-        warningSigns.textContent = warningSignsText;
-        
-        // Mostrar tela de resultados
-        resultsScreenOffline.classList.remove('hidden');
-        formScreenOffline.classList.add('hidden');
-        
-        // Salvar dados para sincronização posterior
-        savePediatricFormDataForSync(data);
-    }
-    
-    // Função para gerar recomendações offline pediátricas
-    function generatePediatricOfflineRecommendations(data, lang) {
-        const recommendations = [];
-        
-        // Recomendações gerais
-        if (lang === 'pt') {
-            recommendations.push('Mantenha a criança hidratada, oferecendo líquidos com frequência.');
-            recommendations.push('Observe atentamente qualquer mudança nos sintomas ou comportamento.');
-            
-            // Recomendações específicas para sintomas críticos
-            if (data.sintomasCriticos.includes('Dificuldade para Respirar')) {
-                recommendations.push('Em caso de dificuldade para respirar, procure atendimento médico imediatamente.');
-                recommendations.push('Mantenha a criança em posição semi-sentada para facilitar a respiração.');
-            }
-            
-            if (data.sintomasCriticos.includes('Lábios ou Pele Azulada')) {
-                recommendations.push('Lábios ou pele azulada indicam falta de oxigênio. Procure emergência médica imediatamente.');
-            }
-            
-            if (data.sintomasCriticos.includes('Convulsões')) {
-                recommendations.push('Durante convulsões, afaste objetos perigosos e vire a criança de lado.');
-                recommendations.push('Procure atendimento médico de emergência imediatamente.');
-                recommendations.push('Não coloque nada na boca da criança durante a convulsão.');
-            }
-            
-            if (data.sintomasCriticos.includes('Desidratação Grave')) {
-                recommendations.push('Ofereça pequenas quantidades de líquidos com frequência.');
-                recommendations.push('Solução de reidratação oral é ideal se disponível.');
-                recommendations.push('Procure atendimento médico urgente.');
-            }
-            
-            // Recomendações para outros sintomas
-            if (data.problemaPrincipal === 'Febre' || data.febre === 'Sim') {
-                recommendations.push('Para febre, mantenha a criança com roupas leves.');
-                recommendations.push('Ofereça líquidos com frequência para prevenir desidratação.');
-                recommendations.push('Medicamentos antitérmicos podem ser usados se disponíveis e apropriados para a idade.');
-            }
-            
-            if (data.problemaPrincipal === 'Vômito/Diarreia') {
-                recommendations.push('Para vômitos e diarreia, ofereça pequenas quantidades de líquidos com frequência.');
-                recommendations.push('Evite alimentos sólidos até que os sintomas melhorem.');
-                recommendations.push('Solução de reidratação oral é ideal se disponível.');
-            }
-            
-            // Recomendações baseadas no comportamento
-            if (data.comportamento === 'Sonolenta' || data.comportamento === 'Muito Doente') {
-                recommendations.push('Sonolência excessiva ou comportamento de "muito doente" requer avaliação médica.');
-            }
-            
-            if (data.hidratacao === 'Não') {
-                recommendations.push('A recusa de líquidos pode levar à desidratação rapidamente em crianças.');
-                recommendations.push('Tente oferecer pequenas quantidades de líquidos com mais frequência.');
-                recommendations.push('Se a criança continuar se recusando a beber, procure ajuda médica.');
-            }
-            
-        } else if (lang === 'es') {
-            recommendations.push('Mantenga al niño hidratado, ofreciendo líquidos con frecuencia.');
-            recommendations.push('Observe atentamente cualquier cambio en los síntomas o comportamiento.');
-            
-            // Recomendaciones específicas para síntomas críticos
-            if (data.sintomasCriticos.includes('Dificuldade para Respirar')) {
-                recommendations.push('En caso de dificultad para respirar, busque atención médica inmediatamente.');
-                recommendations.push('Mantenga al niño en posición semi-sentada para facilitar la respiración.');
-            }
-            
-            if (data.sintomasCriticos.includes('Lábios ou Pele Azulada')) {
-                recommendations.push('Labios o piel azulada indican falta de oxígeno. Busque emergencia médica inmediatamente.');
-            }
-            
-            if (data.sintomasCriticos.includes('Convulsões')) {
-                recommendations.push('Durante convulsiones, aleje objetos peligrosos y ponga al niño de lado.');
-                recommendations.push('Busque atención médica de emergencia inmediatamente.');
-                recommendations.push('No coloque nada en la boca del niño durante la convulsión.');
-            }
-            
-            if (data.sintomasCriticos.includes('Desidratação Grave')) {
-                recommendations.push('Ofrezca pequeñas cantidades de líquidos con frecuencia.');
-                recommendations.push('La solución de rehidratación oral es ideal si está disponible.');
-                recommendations.push('Busque atención médica urgente.');
-            }
-            
-            // Recomendaciones para otros síntomas
-            if (data.problemaPrincipal === 'Febre' || data.febre === 'Sim') {
-                recommendations.push('Para fiebre, mantenga al niño con ropa ligera.');
-                recommendations.push('Ofrezca líquidos con frecuencia para prevenir deshidratación.');
-                recommendations.push('Los medicamentos antitérmicos pueden usarse si están disponibles y son apropiados para la edad.');
-            }
-            
-            if (data.problemaPrincipal === 'Vômito/Diarreia') {
-                recommendations.push('Para vómitos y diarrea, ofrezca pequeñas cantidades de líquidos con frecuencia.');
-                recommendations.push('Evite alimentos sólidos hasta que los síntomas mejoren.');
-                recommendations.push('La solución de rehidratación oral es ideal si está disponible.');
-            }
-            
-            // Recomendaciones basadas en el comportamiento
-            if (data.comportamento === 'Sonolenta' || data.comportamento === 'Muito Doente') {
-                recommendations.push('La somnolencia excesiva o el comportamiento de "muy enfermo" requieren evaluación médica.');
-            }
-            
-            if (data.hidratacao === 'Não') {
-                recommendations.push('La negativa a líquidos puede llevar a deshidratación rápidamente en niños.');
-                recommendations.push('Intente ofrecer pequeñas cantidades de líquidos con más frecuencia.');
-                recommendations.push('Si el niño continúa negándose a beber, busque ayuda médica.');
-            }
-            
-        } else { // Inglês
-            recommendations.push('Keep the child hydrated by offering fluids frequently.');
-            recommendations.push('Watch closely for any changes in symptoms or behavior.');
-            
-            // Specific recommendations for critical symptoms
-            if (data.sintomasCriticos.includes('Dificuldade para Respirar')) {
-                recommendations.push('In case of difficulty breathing, seek immediate medical attention.');
-                recommendations.push('Keep the child in a semi-sitting position to facilitate breathing.');
-            }
-            
-            if (data.sintomasCriticos.includes('Lábios ou Pele Azulada')) {
-                recommendations.push('Blue lips or skin indicate lack of oxygen. Seek immediate medical emergency.');
-            }
-            
-            if (data.sintomasCriticos.includes('Convulsões')) {
-                recommendations.push('During seizures, move dangerous objects away and turn the child on their side.');
-                recommendations.push('Seek immediate emergency medical attention.');
-                recommendations.push('Do not put anything in the child\'s mouth during the seizure.');
-            }
-            
-            if (data.sintomasCriticos.includes('Desidratação Grave')) {
-                recommendations.push('Offer small amounts of fluids frequently.');
-                recommendations.push('Oral rehydration solution is ideal if available.');
-                recommendations.push('Seek urgent medical attention.');
-            }
-            
-            // Recommendations for other symptoms
-            if (data.problemaPrincipal === 'Febre' || data.febre === 'Sim') {
-                recommendations.push('For fever, keep the child in light clothing.');
-                recommendations.push('Offer fluids frequently to prevent dehydration.');
-                recommendations.push('Fever medications can be used if available and appropriate for age.');
-            }
-            
-            if (data.problemaPrincipal === 'Vômito/Diarreia') {
-                recommendations.push('For vomiting and diarrhea, offer small amounts of fluids frequently.');
-                recommendations.push('Avoid solid foods until symptoms improve.');
-                recommendations.push('Oral rehydration solution is ideal if available.');
-            }
-            
-            // Recommendations based on behavior
-            if (data.comportamento === 'Sonolenta' || data.comportamento === 'Muito Doente') {
-                recommendations.push('Excessive sleepiness or "very ill" behavior requires medical evaluation.');
-            }
-            
-            if (data.hidratacao === 'Não') {
-                recommendations.push('Refusal of fluids can lead to dehydration quickly in children.');
-                recommendations.push('Try offering small amounts of fluids more frequently.');
-                recommendations.push('If the child continues to refuse to drink, seek medical help.');
-            }
-        }
-        
-        return recommendations;
-    }
-    
-    // Função para gerar sinais de alerta pediátricos
-    function generatePediatricWarningSigns(data, lang) {
-        if (lang === 'pt') {
-            return 'Procure atendimento médico imediatamente se a criança apresentar: dificuldade intensa para respirar, lábios ou unhas azulados, convulsões, choro fraco ou ausente, recusa completa de líquidos, sinais de desidratação grave (olhos fundos, boca seca, sem urina por mais de 8 horas), ou febre muito alta que não responde a medicamentos.';
-        } else if (lang === 'es') {
-            return 'Busque atención médica inmediatamente si el niño presenta: dificultad intensa para respirar, labios o uñas azulados, convulsiones, llanto débil o ausente, negativa completa de líquidos, signos de deshidratación grave (ojos hundidos, boca seca, sin orina por más de 8 horas), o fiebre muy alta que no responde a medicamentos.';
-        } else {
-            return 'Seek immediate medical attention if the child presents: severe difficulty breathing, blue lips or nails, seizures, weak or absent cry, complete refusal of fluids, signs of severe dehydration (sunken eyes, dry mouth, no urine for more than 8 hours), or very high fever that does not respond to medication.';
-        }
-    }
-    
-    // Função para salvar dados para sincronização posterior
-    function savePediatricFormDataForSync(data) {
-        // Adicionar timestamp
-        data.timestamp = new Date().toISOString();
-        data.type = 'pediatric-anamnese';
-        
-        // Salvar no localStorage
-        let pendingData = JSON.parse(localStorage.getItem('pendingSyncData') || '{}');
-        if (!pendingData.forms) pendingData.forms = [];
-        
-        pendingData.forms.push(data);
-        localStorage.setItem('pendingSyncData', JSON.stringify(pendingData));
-        
-        // Atualizar indicador de sincronização
-        updateSyncIndicator();
-    }
-    
-    // Função para atualizar indicador de sincronização
-    function updateSyncIndicator() {
-        const pendingData = JSON.parse(localStorage.getItem('pendingSyncData') || '{}');
-        const totalItems = (pendingData.forms?.length || 0) + 
-                           (pendingData.contacts?.length || 0) + 
-                           (pendingData.medicines?.length || 0) + 
-                           (pendingData.assessments?.length || 0);
-        
-        const indicator = document.getElementById('sync-pending-indicator');
-        if (totalItems > 0) {
-            indicator.classList.remove('hidden');
-            indicator.querySelector('span').textContent = `${totalItems} itens pendentes`;
-        } else {
-            indicator.classList.add('hidden');
-        }
-    }
-    
-    // Botão para salvar localmente
-    saveOfflineBtn.addEventListener('click', () => {
-        const data = {
-            sintomasCriticos: Array.from(document.querySelectorAll('input[name="sintomas-criticos"]:checked')).map(el => el.value),
-            problemaPrincipal: document.querySelector('input[name="problema-principal-offline"]:checked')?.value || "Não informado",
-            febre: document.querySelector('input[name="febre-offline"]:checked')?.value || "Não informado",
-            comportamento: document.querySelector('input[name="comportamento-offline"]:checked')?.value || "Não informado",
-            hidratacao: document.querySelector('input[name="hidratacao-offline"]:checked')?.value || "Não informado",
-            timestamp: new Date().toISOString()
-        };
-        
-        // Salvar no localStorage
-        let savedAssessments = JSON.parse(localStorage.getItem('savedPediatricAssessments') || '[]');
-        savedAssessments.push(data);
-        localStorage.setItem('savedPediatricAssessments', JSON.stringify(savedAssessments));
-        
-        // Mostrar confirmação
-        const lang = localStorage.getItem('language') || 'pt';
-        const message = lang === 'pt' ? 'Avaliação salva com sucesso!' : 
-                      lang === 'es' ? 'Evaluación guardada con éxito!' : 
-                      'Assessment saved successfully!';
-        
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    });
-    
-    // Botão para nova avaliação
-    newFormBtn.addEventListener('click', () => {
-        // Limpar formulário
-        formOffline.reset();
-        
-        // Voltar para a tela do formulário
-        resultsScreenOffline.classList.add('hidden');
-        formScreenOffline.classList.remove('hidden');
-    });
-    
-    // Funções auxiliares para exibição (MODO ONLINE)
-    function displayResults(result) {
-        const resultsContainer = document.getElementById('results-screen');
-        
-        const urgencyLevelDiv = resultsContainer.querySelector('#urgency-level');
-        const orientationContent = resultsContainer.querySelector('#orientation-content');
-        const summaryContent = resultsContainer.querySelector('#summary-content');
-        const whatsappBtn = resultsContainer.querySelector('#whatsapp-btn');
-        const pdfBtn = resultsContainer.querySelector('#pdf-btn');
-        const tabButtons = resultsContainer.querySelectorAll('.tab-button');
-        const reportContent = resultsContainer.querySelector('#report-content');
-        
-        whatsappBtn.disabled = false;
-        pdfBtn.disabled = false;
-        whatsappBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        pdfBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        
-        const urgencyClassMap = {
-            'Emergência': 'bg-red-600', 'Emergency': 'bg-red-600',
-            'Urgente': 'bg-orange-500', 'Urgent': 'bg-orange-500',
-            'Moderado': 'bg-yellow-500 text-black', 'Moderate': 'bg-yellow-500 text-black',
-            'Baixo': 'bg-green-500', 'Low': 'bg-green-500',
-            'Informativo': 'bg-blue-500', 'Informative': 'bg-blue-500'
-        };
-        
-        urgencyLevelDiv.textContent = `${result.urgency.level.toUpperCase()}: ${result.urgency.reason}`;
-        urgencyLevelDiv.className = `p-4 rounded-lg mb-4 text-center text-white font-bold text-lg ${urgencyClassMap[result.urgency.level] || 'bg-gray-500'}`;
-        orientationContent.innerHTML = marked.parse(result.orientation);
-        
-        const lang = localStorage.getItem('language') || 'pt';
-        const summaryTitles = {
-            pt: { symptom: "Sintoma Principal", history: "Histórico da Doença", background: "Antecedentes Relevantes" },
-            es: { symptom: "Síntoma Principal", history: "Historia de la Enfermedad", background: "Antecedentes Relevantes" },
-            en: { symptom: "Main Symptom", history: "History of Illness", background: "Relevant Background" }
-        };
-        
-        const titles = summaryTitles[lang];
-        summaryContent.innerHTML = `
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border border-gray-200 rounded-lg">
-                    <tbody>
-                        <tr class="border-b"><td class="p-3 font-semibold text-gray-700">${titles.symptom}</td><td class="p-3 text-gray-600">${result.summary.symptom}</td></tr>
-                        <tr class="border-b"><td class="p-3 font-semibold text-gray-700">${titles.history}</td><td class="p-3 text-gray-600">${result.summary.history}</td></tr>
-                        <tr><td class="p-3 font-semibold text-gray-700">${titles.background}</td><td class="p-3 text-gray-600">${result.summary.background}</td></tr>
-                    </tbody>
-                </table>
-            </div>`;
-        
-        resultsScreen.classList.remove('hidden');
-        
-        // Add event listeners for the new dynamic content
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                const tab = button.dataset.tab;
-                orientationContent.classList.toggle('hidden', tab !== 'orientation');
-                summaryContent.classList.toggle('hidden', tab !== 'summary');
-            });
-        });
-        
-        whatsappBtn.addEventListener('click', () => {
-            const fullReportText = `*Relatório Pediátrico MissionCare Plus*\n\n*${urgencyLevelDiv.innerText}*\n\n*Resumo:*\n${summaryContent.innerText}\n\n*Orientações:*\n${orientationContent.innerText}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullReportText)}`, '_blank');
-        });
-        
-        pdfBtn.addEventListener('click', () => {
-            const { jsPDF } = window.jspdf;
-            loadingScreen.classList.remove('hidden');
-            
-            html2canvas(reportContent, { scale: 2 }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                const imgProps = pdf.getImageProperties(imgData);
-                const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
-                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth, pdfHeight);
-                pdf.save('relatorio-pediatrico.pdf');
-            }).finally(() => loadingScreen.classList.add('hidden'));
-        });
-    }
-    
-    function displayError(message) {
-        const resultsContainer = document.getElementById('results-screen');
-        const urgencyLevelDiv = resultsContainer.querySelector('#urgency-level');
-        const orientationContent = resultsContainer.querySelector('#orientation-content');
-        
-        urgencyLevelDiv.textContent = "ERRO";
-        urgencyLevelDiv.className = 'p-4 rounded-lg mb-4 text-center text-white font-bold text-lg bg-gray-700';
-        orientationContent.innerHTML = `<div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700"><p class="font-bold">Falha na Comunicação</p><p>${message}</p></div>`;
-        
-        resultsContainer.classList.remove('hidden');
-    }
-    
-    // Inicializar indicador de sincronização
-    updateSyncIndicator();
-    
-    // Registrar service worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('ServiceWorker registrado com sucesso:', registration);
-                })
-                .catch(error => {
-                    console.log('Erro ao registrar ServiceWorker:', error);
-                });
-        });
-    }
+    };
+
+    updateUIForStep();
 });
 </script>
 </body>

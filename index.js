@@ -1,33 +1,36 @@
-const express = require('express');
-const { OpenAI } = require('openai');
-const cors = require('cors');
+
+import express from 'express';
+import cors from 'cors';
+import OpenAI from 'openai';
+import 'dotenv/config';
 
 const app = express();
-app.use(express.json());
-app.use(cors());
+const port = process.env.PORT || 3000;
 
-const assistantMapping = {
-  'clinica': 'asst_qitIwbREUyPY1GRIYH7vYQx0',
-  'ginecologia': 'asst_abc123DEF456ghi789', // Exemplo de outro assistente
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const assistantIds = {
+  "primeiros_socorros": "asst_NU2rjoLUZiECJ711IE1pXotZ",
+  "clinica": "asst_re1VWU19CE7rvfMzbdfNQVdm" 
 };
 
-let openai;
-if (process.env.OPENAI_API_KEY) {
-  openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-} else {
-  console.warn('Chave da API da OpenAI não encontrada. Defina a variável de ambiente OPENAI_API_KEY.');
-  // Lidar com a ausência da chave da API, se necessário
-}
+app.use(cors());
+app.use(express.json());
+
+app.get('/api/v1', (req, res) => {
+  res.send('API MissionCare Plus v1 está no ar!');
+});
 
 app.post('/api/v1/assistente', async (req, res) => {
-  if (!openai) {
-    return res.status(500).json({ error: 'A API da OpenAI não foi inicializada.' });
+  const { tipo_assistente, prompt } = req.body;
+
+  if (!tipo_assistente || !prompt) {
+    return res.status(400).json({ error: 'Parâmetros "tipo_assistente" e "prompt" são obrigatórios.' });
   }
 
-  const { tipo_assistente, prompt } = req.body;
-  const assistantId = assistantMapping[tipo_assistente];
+  const assistantId = assistantIds[tipo_assistente];
 
   if (!assistantId) {
     return res.status(400).json({ error: 'Tipo de assistente inválido.' });
@@ -35,8 +38,9 @@ app.post('/api/v1/assistente', async (req, res) => {
 
   try {
     const thread = await openai.beta.threads.create();
+
     await openai.beta.threads.messages.create(thread.id, {
-      role: 'user',
+      role: "user",
       content: prompt,
     });
 
@@ -45,28 +49,34 @@ app.post('/api/v1/assistente', async (req, res) => {
     });
 
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-    while (runStatus.status !== 'completed') {
-      await new Promise(resolve => setTimeout(resolve, 500));
+    while (runStatus.status !== "completed") {
+      await new Promise(resolve => setTimeout(resolve, 300));
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      
+      if (['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
+        console.error('Run failed with status:', runStatus.status, runStatus.last_error);
+        return res.status(500).json({ error: `A execução falhou com o status: ${runStatus.status}` });
+      }
     }
 
     const messages = await openai.beta.threads.messages.list(thread.id);
-    const lastMessage = messages.data.find(
-      (msg) => msg.role === 'assistant' && msg.content[0].type === 'text'
-    );
 
-    if (lastMessage) {
-      res.json({ response: lastMessage.content[0].text.value });
+    const lastMessageForRun = messages.data
+      .filter(message => message.run_id === run.id && message.role === "assistant")
+      .pop();
+
+    if (lastMessageForRun && lastMessageForRun.content[0].type === 'text') {
+      res.json({ response: lastMessageForRun.content[0].text.value });
     } else {
-      res.status(500).json({ error: 'Nenhuma resposta recebida do assistente.' });
+      res.status(500).json({ error: "Nenhuma resposta do assistente encontrada." });
     }
+
   } catch (error) {
-    console.error('Erro ao chamar a API da OpenAI:', error);
-    res.status(500).json({ error: 'Falha ao se comunicar com o assistente.' });
+    console.error("Erro ao processar a requisição do assistente:", error);
+    res.status(500).json({ error: "Falha ao se comunicar com o assistente." });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });
