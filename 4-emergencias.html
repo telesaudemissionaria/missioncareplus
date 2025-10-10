@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const translations = {
         pt: {
+            langName: "Português",
             pageTitle: "Assistente de Emergência",
             subtitle: "Qual é a emergência?",
             navHome: "Início",
@@ -133,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         en: {
+            langName: "English",
             pageTitle: "Emergency Assistant",
             subtitle: "What is the emergency?",
             navHome: "Home",
@@ -155,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         es: {
+            langName: "Español",
             pageTitle: "Asistente de Emergencia",
             subtitle: "¿Cuál es la emergencia?",
             navHome: "Inicio",
@@ -186,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const langSwitcher = document.querySelector('.lang-switcher');
 
     function updateLanguage(lang) {
+        document.documentElement.lang = lang;
         document.documentElement.setAttribute('data-current-lang', lang);
         const langTexts = translations[lang];
         
@@ -201,18 +205,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     langSwitcher.addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
-            const lang = e.target.dataset.lang;
-            if (lang) updateLanguage(lang);
+        const button = e.target.closest('button[data-lang]');
+        if (button) {
+            const lang = button.dataset.lang;
+            localStorage.setItem('preferredLang', lang);
+            updateLanguage(lang);
         }
     });
     
     criticalButtons.addEventListener('click', e => {
-        const button = e.target.closest('button');
-        if (button && button.dataset.key) {
+        const button = e.target.closest('button[data-key]');
+        if (button) {
+            const key = button.dataset.key;
             const currentLang = document.documentElement.getAttribute('data-current-lang') || 'pt';
-            const prompt = translations[currentLang].prompts[button.dataset.key];
-            getEmergencyHelp(prompt);
+            const userPrompt = translations[currentLang].prompts[key];
+            getEmergencyHelp(userPrompt, currentLang);
         }
     });
     
@@ -223,22 +230,22 @@ document.addEventListener('DOMContentLoaded', () => {
         responseContent.innerHTML = '';
     });
 
-    async function getEmergencyHelp(userPrompt) {
-        const currentLang = document.documentElement.getAttribute('data-current-lang') || 'pt';
-        const loadingText = translations[currentLang].loading;
-        const errorTitleText = translations[currentLang].errorTitle;
-        const errorMessageText = translations[currentLang].errorMessage;
+    async function getEmergencyHelp(userPrompt, langCode) {
+        const langData = translations[langCode];
+
+        // **CORREÇÃO: Adiciona instrução de idioma ao prompt**
+        const finalPrompt = `Please provide the response in ${langData.langName}. The user's request is: "${userPrompt}"`;
 
         mainView.classList.add('hidden');
         resultsContainer.classList.remove('hidden');
         backToMainBtn.classList.remove('hidden');
-        responseContent.innerHTML = `<div class="loader mx-auto my-8"></div><p class="text-center font-semibold text-gray-600">${loadingText}</p>`;
+        responseContent.innerHTML = `<div class="loader mx-auto my-8"></div><p class="text-center font-semibold text-gray-600">${langData.loading}</p>`;
 
         try {
             const response = await fetch('https://missioncareplus-jca0.onrender.com/api/v1/assistente', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: userPrompt })
+                body: JSON.stringify({ prompt: finalPrompt })
             });
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -252,11 +259,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Fetch error:', error);
-            responseContent.innerHTML = `<div class="text-center p-4 bg-red-100 text-red-800 rounded-lg"><p class="font-bold">${errorTitleText}</p><p>${errorMessageText}</p></div>`;
+            responseContent.innerHTML = `<div class="text-center p-4 bg-red-100 text-red-800 rounded-lg"><p class="font-bold">${langData.errorTitle}</p><p>${langData.errorMessage}</p></div>`;
         }
     }
     
-    // Set initial language based on browser or default to 'pt'
     const initialLang = localStorage.getItem('preferredLang') || 'pt';
     updateLanguage(initialLang);
 });
