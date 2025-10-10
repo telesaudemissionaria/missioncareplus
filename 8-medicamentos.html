@@ -17,17 +17,6 @@
             background-color: #f8fafc; /* gray-50 */
         }
         
-        /* Custom Styles for a more polished look */
-        .filter-btn {
-            transition: all 0.2s ease-in-out;
-            border: 2px solid transparent;
-        }
-
-        .filter-btn.active {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
         .med-card {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -37,44 +26,39 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
-        /* Category Tag Colors */
-        .tag-analgesico { background-color: #fecaca; color: #b91c1c; }
-        .tag-antialergico { background-color: #fed7aa; color: #c2410c; }
-        .tag-anticonvulsivante { background-color: #fef08a; color: #a16207; }
-        .tag-anti-infeccioso { background-color: #d9f99d; color: #4d7c0f; }
-        .tag-cardiovascular { background-color: #fbcfe8; color: #9d174d; }
-        .tag-gastrointestinal { background-color: #a5f3fc; color: #155e75; }
-        .tag-respiratorio { background-color: #bfdbfe; color: #1e40af; }
-        .tag-solucoes { background-color: #e0e7ff; color: #3730a3; }
-        .tag-default { background-color: #e5e7eb; color: #374151; }
+        .gestacao-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem; /* 12px */
+            padding: 0.75rem; /* 12px */
+            border-radius: 0.5rem; /* 8px */
+            margin-top: 0.75rem; /* 12px */
+        }
+
+        .gestacao-ok { background-color: #f0fdf4; color: #15803d; } /* green-50, green-700 */
+        .gestacao-warn { background-color: #fffbeb; color: #b45309; } /* amber-50, amber-700 */
+        .gestacao-danger { background-color: #fef2f2; color: #b91c1c; } /* red-50, red-700 */
         
+        .gestacao-info .fa-icon {
+            font-size: 1.125rem; /* 18px */
+            margin-top: 0.125rem; /* 2px */
+        }
     </style>
 </head>
 <body class="bg-gray-50">
 
-    <!-- MODAL DE DISCLAIMER APRIMORADO -->
+    <!-- MODAL DE DISCLAIMER -->
     <div id="disclaimer-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 md:p-8 max-h-[95vh] overflow-y-auto">
-            <h2 class="text-xl font-bold text-red-700 mb-4" data-translate="disclaimer.title">⚠️ AVISO IMPORTANTE</h2>
-            
-            <!-- AVISO DE SEGURANÇA PEDIÁTRICA EM DESTAQUE -->
+            <h2 class="text-xl font-bold text-red-700 mb-4">⚠️ AVISO IMPORTANTE</h2>
             <div class="p-4 rounded-lg bg-red-50 border-2 border-red-200 mb-5">
-                <h3 class="font-bold text-red-800 flex items-center">
-                    <i class="fas fa-child-reaching mr-3 fa-lg"></i>
-                    <span>RISCO EXTREMO EM CRIANÇAS</span>
-                </h3>
-                <p class="text-red-700 mt-2 text-sm">
-                    A dosagem de medicamentos em crianças é complexa e depende de peso e idade. 
-                    <strong>NUNCA</strong> administre medicamentos a uma criança com base neste guia. 
-                    Um erro pode causar danos graves ou ser fatal. 
-                    <strong>É OBRIGATÓRIO CONSULTAR UM MÉDICO.</strong>
-                </p>
+                <h3 class="font-bold text-red-800 flex items-center"><i class="fas fa-child-reaching mr-3 fa-lg"></i><span>RISCO EXTREMO EM CRIANÇAS</span></h3>
+                <p class="text-red-700 mt-2 text-sm">A dosagem de medicamentos em crianças é complexa. <strong>NUNCA</strong> administre medicamentos a uma criança com base neste guia. Um erro pode ser fatal. <strong>CONSULTE UM MÉDICO.</strong></p>
             </div>
-
-            <h3 class="text-lg font-semibold text-gray-800 mb-3" data-translate="disclaimer.subtitle">DECLARAÇÃO DE RESPONSABILIDADE</h3>
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">DECLARAÇÃO DE RESPONSABILIDADE</h3>
             <div class="text-sm text-gray-600 space-y-3">
-                <p>Este guia destina-se <strong>exclusivamente a profissionais de saúde</strong> em contextos de missão. As informações não substituem uma avaliação clínica completa.</p>
-                <p>Ao continuar, você confirma que é um profissional habilitado e assume total responsabilidade pelo uso das informações aqui contidas.</p>
+                <p>Este guia destina-se <strong>exclusivamente a profissionais de saúde</strong>. As informações não substituem uma avaliação clínica.</p>
+                <p>Ao continuar, você confirma que é um profissional habilitado e assume total responsabilidade pelo uso das informações.</p>
             </div>
             <button id="accept-button" class="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-lg font-bold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
                 Entendido, sou profissional de saúde
@@ -85,134 +69,133 @@
     <!-- Container da Aplicação -->
     <div id="app-container" class="relative max-w-5xl mx-auto min-h-screen flex-col bg-white shadow-lg">
         <header class="sticky top-0 z-30 bg-white/95 p-4 backdrop-blur-sm border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <a href="index.html" class="text-gray-600 hover:text-teal-600">
-                    <i class="fas fa-arrow-left fa-lg"></i>
-                </a>
-                <h1 class="text-gray-800 text-xl font-bold text-center">Guia de Medicamentos</h1>
-                <div class="w-6"></div> <!-- Spacer -->
-            </div>
+            <div class="flex items-center justify-between"><a href="index.html" class="text-gray-600 hover:text-teal-600"><i class="fas fa-arrow-left fa-lg"></i></a><h1 class="text-gray-800 text-xl font-bold text-center">Guia de Medicamentos</h1><div class="w-6"></div></div>
         </header>
 
-        <!-- BARRA DE FERRAMENTAS COM FILTROS -->
-        <div id="filter-controls" class="sticky top-[73px] z-20 bg-white p-4 border-b border-gray-200">
-            <div class="mb-4">
-                <div class="relative">
-                    <input type="text" id="search-input" placeholder="Pesquisar por nome ou indicação..." class="w-full form-input pl-10 pr-4 py-2 rounded-full border-gray-300 focus:border-teal-500 focus:ring-teal-500 shadow-sm">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
-                </div>
-            </div>
-            <div id="category-filters" class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-semibold mr-2 text-gray-600">Categorias:</span>
-                <!-- Filtros serão inseridos aqui pelo JS -->
+        <div id="search-bar" class="sticky top-[73px] z-20 bg-white p-4 border-b border-gray-200">
+            <div class="relative">
+                <input type="text" id="search-input" placeholder="Pesquisar por nome ou indicação..." class="w-full form-input pl-10 pr-4 py-3 rounded-full border-gray-300 focus:border-teal-500 focus:ring-teal-500 shadow-sm text-base">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4"><i class="fas fa-search text-gray-400"></i></div>
             </div>
         </div>
         
         <main class="flex-grow p-4">
-             <!-- Lista de Medicamentos -->
-            <div id="medication-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Conteúdo gerado dinamicamente -->
-            </div>
-            <p id="no-results" class="hidden text-center text-gray-500 mt-8">Nenhum medicamento encontrado.</p>
+            <div id="medication-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+            <p id="no-results" class="hidden text-center text-gray-500 mt-10 text-lg font-semibold">Nenhum medicamento encontrado.</p>
         </main>
         
         <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white">
-          <div class="mx-auto flex h-16 max-w-5xl items-center justify-around">
-            <a href="index.html" class="flex h-full w-full flex-col items-center justify-center text-gray-600 hover:bg-gray-50 hover:text-teal-600">
-              <i class="fas fa-home text-2xl"></i>
-              <span class="mt-1 text-xs font-bold uppercase">Início</span>
-            </a>
-          </div>
+            <div class="mx-auto flex h-16 max-w-5xl items-center justify-around"><a href="index.html" class="flex h-full w-full flex-col items-center justify-center text-gray-600 hover:bg-gray-50 hover:text-teal-600"><i class="fas fa-home text-2xl"></i><span class="mt-1 text-xs font-bold uppercase">Início</span></a></div>
         </nav>
     </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- DADOS DOS MEDICAMENTOS (NOVA ESTRUTURA) ---
     const medicationData = [
-        { categoria: 'Analgésicos', tag: 'analgesico', nome: 'Paracetamol', indicacao: 'Dor e Febre', apresentacao: 'Comprimido 500 mg', justificativa: 'Primeira linha para dor e febre. Seguro em casos de suspeita de Dengue.' },
-        { categoria: 'Analgésicos', tag: 'analgesico', nome: 'Ibuprofeno', indicacao: 'Dor Inflamatória', apresentacao: 'Comprimido 400 mg', justificativa: 'Dor de origem inflamatória (muscular, cólica). Evitar se suspeita de Dengue.' },
-        { categoria: 'Antialérgicos', tag: 'antialergico', nome: 'Loratadina', indicacao: 'Alergias Leves', apresentacao: 'Comprimido 10 mg', justificativa: 'Urticária e rinite alérgica. Não causa sonolência na maioria dos pacientes.' },
-        { categoria: 'Antialérgicos', tag: 'antialergico', nome: 'Hidrocortisona Injetável', indicacao: 'Reações Alérgicas Graves', apresentacao: 'Pó para injeção 100 mg', justificativa: 'Usado após Epinefrina em anafilaxia, ou em crises de asma e reações alérgicas severas.' },
-        { categoria: 'Anticonvulsivantes', tag: 'anticonvulsivante', nome: 'Diazepam Injetável', indicacao: 'Convulsões Ativas', apresentacao: 'Injetável 5 mg/mL', justificativa: 'Manejo de emergência do estado de mal epiléptico (convulsões prolongadas).' },
-        { categoria: 'Anti-infecciosos', tag: 'anti-infeccioso', nome: 'Amoxicilina', indicacao: 'Infecções Respiratórias', apresentacao: 'Comprimido 500 mg', justificativa: 'Infecções bacterianas comuns como otite, sinusite e pneumonia leve.' },
-        { categoria: 'Anti-infecciosos', tag: 'anti-infeccioso', nome: 'Amoxicilina + Clavulanato', indicacao: 'Mordeduras e Infecções de Pele', apresentacao: 'Comprimido 500mg/125mg', justificativa: 'Amplo espectro, eficaz para mordeduras de animais, infecções de pele e sinusites resistentes.' },
-        { categoria: 'Anti-infecciosos', tag: 'anti-infeccioso', nome: 'Azitromicina', indicacao: 'Infecções Sexuais e Respiratórias', apresentacao: 'Comprimido 500 mg', justificativa: 'Tratamento de clamídia, pneumonia atípica e febre tifoide.' },
-        { categoria: 'Anti-infecciosos', tag: 'anti-infeccioso', nome: 'Doxiciclina', indicacao: 'Infecções por Carrapatos e Cólera', apresentacao: 'Comprimido 100 mg', justificativa: 'Antibiótico versátil para doenças por carrapatos (Ex: Febre Maculosa), cólera e malária (profilaxia).' },
-        { categoria: 'Anti-infecciosos', tag: 'anti-infeccioso', nome: 'Metronidazol', indicacao: 'Gastroenterites e Abscessos', apresentacao: 'Comprimido 250 mg', justificativa: 'Tratamento de giardíase, amebíase e infecções por bactérias anaeróbias (abscessos dentários).' },
-        { categoria: 'Anti-infecciosos', tag: 'anti-infeccioso', nome: 'Nitrofurantoína', indicacao: 'Infecção Urinária (Cistite)', apresentacao: 'Comprimido 100 mg', justificativa: 'Tratamento de escolha para infecções urinárias baixas não complicadas.' },
-        { categoria: 'Anti-infecciosos', tag: 'anti-infeccioso', nome: 'Ceftriaxona Injetável', indicacao: 'Infecções Graves', apresentacao: 'Pó para injeção 1 g', justificativa: 'Antibiótico injetável crucial para tratar infecções graves como meningite, sepse e pneumonia grave.' },
-        { categoria: 'Anti-infecciosos', tag: 'anti-infeccioso', nome: 'Albendazol', indicacao: 'Vermes Intestinais', apresentacao: 'Comprimido mastigável 400 mg', justificativa: 'Tratamento de amplo espectro para a maioria das parasitoses intestinais.' },
-        { categoria: 'Gastrointestinais', tag: 'gastrointestinal', nome: 'Sais de Reidratação Oral', indicacao: 'Diarreia e Desidratação', apresentacao: 'Pó para diluição', justificativa: 'Insubstituível e salvador de vidas. Base do tratamento para diarreia aguda.' },
-        { categoria: 'Gastrointestinais', tag: 'gastrointestinal', nome: 'Omeprazol', indicacao: 'Azia e Gastrite', apresentacao: 'Comprimido 20 mg', justificativa: 'Reduz a produção de ácido no estômago, usado para úlceras, gastrite e refluxo.' },
-        { categoria: 'Gastrointestinais', tag: 'gastrointestinal', nome: 'Metoclopramida', indicacao: 'Náuseas e Vômitos', apresentacao: 'Comprimido 10 mg', justificativa: 'Controla náuseas e vômitos de diversas causas.' },
-        { categoria: 'Respiratório', tag: 'respiratorio', nome: 'Salbutamol Inalador', indicacao: 'Falta de Ar (Asma)', apresentacao: 'Inalador de dose medida', justificativa: 'Medicamento de resgate para alívio rápido da falta de ar em crises de asma e DPOC.' },
-        { categoria: 'Cardiovasculares', tag: 'cardiovascular', nome: 'AAS (Ácido Acetilsalicílico)', indicacao: 'Prevenção de Infarto', apresentacao: 'Comprimido 100 mg', justificativa: 'Antiagregante plaquetário usado na suspeita de infarto e para prevenção em pacientes de alto risco.' },
-        { categoria: 'Cardiovasculares', tag: 'cardiovascular', nome: 'Enalapril', indicacao: 'Pressão Alta', apresentacao: 'Comprimido 20 mg', justificativa: 'Medicamento chave para tratamento de hipertensão arterial e insuficiência cardíaca.' },
-        { categoria: 'Soluções', tag: 'solucoes', nome: 'Soro Fisiológico 0,9%', indicacao: 'Hidratação e Diluição', apresentacao: 'Bolsas de 500 mL', justificativa: 'Fundamental para acesso venoso, hidratação na veia e diluição de medicamentos injetáveis.' },
+        // Analgésicos
+        { nome: 'Paracetamol (Acetaminofeno)', categoria: 'Analgésicos e Antitérmicos', indicacao: 'Febre e Dor', apresentacao: 'Comprimidos 500 mg; suspensão 160 mg/5 mL', uso_principal: 'Primeiro escalão para febre e dor leve a moderada em todas as idades.', gestacao: { status: 'ok', texto: 'Pode usar em todos os trimestres nas doses habituais.' } },
+        { nome: 'Ibuprofeno', categoria: 'Analgésicos e Antiinflamatórios (AINE)', indicacao: 'Dor Inflamatória e Febre', apresentacao: 'Comprimidos 200–400 mg; suspensão 100 mg/5 mL', uso_principal: 'Dor com componente inflamatório e febre quando paracetamol não basta.', gestacao: { status: 'warn', texto: 'Evitar no 3º trimestre (risco ducto arterioso/oligohidrâmnio). Preferir paracetamol; usar menor dose possível no 1º/2º.' } },
+        // Antiinfecciosos
+        { nome: 'Amoxicilina', categoria: 'Antiinfecciosos', indicacao: 'Infecções Respiratórias Comunitárias', apresentacao: 'Cápsulas 250/500 mg; suspensão 125 mg/5 mL ou 250 mg/5 mL; comprimido dispersível 250 mg', uso_principal: 'Otite, faringoamigdalite estreptocócica, sinusite bacteriana, bronquite/pneumonia leves.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        { nome: 'Amoxicilina + Ácido Clavulânico', categoria: 'Antiinfecciosos', indicacao: 'Infecções com beta-lactamase', apresentacao: 'Comprimidos 500/125 mg e 875/125 mg; suspensão 400/57 mg/5 mL (varia)', uso_principal: 'Quando suspeita de produtor de beta-lactamase ou infecção polimicrobiana.', gestacao: { status: 'ok', texto: 'Pode usar quando clinicamente indicado.' } },
+        { nome: 'Azitromicina', categoria: 'Antiinfecciosos (Macrolídeo)', indicacao: 'Pneumonia atípica, ISTs, impetigo', apresentacao: 'Comprimidos 500 mg; suspensão 200 mg/5 mL', uso_principal: 'Alternativa de posologia curta (1x/dia) para respiratório/pele e algumas ISTs.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        { nome: 'Doxiciclina', categoria: 'Antiinfecciosos (Tetraciclina)', indicacao: 'Riquétsias, cólera, malária', apresentacao: 'Cápsulas/Comprimidos 100 mg', uso_principal: 'Antibiótico versátil para adultos; não usar em crianças <8 anos.', gestacao: { status: 'danger', texto: 'Contraindicada (risco ósseo/dentário fetal), especialmente após 13 semanas.' } },
+        { nome: 'Cefalexina', categoria: 'Antiinfecciosos (Cefalosporina 1ªG)', indicacao: 'Pele/Partes Moles e ITU', apresentacao: 'Cápsulas 500 mg; suspensão 250 mg/5 mL', uso_principal: 'Celulite, impetigo, infecções cutâneas comunitárias.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        { nome: 'Cefixima', categoria: 'Antiinfecciosos (Cefalosporina 3ªG)', indicacao: 'ITU, gonorreia', apresentacao: 'Comprimidos 200 mg; suspensão 100 mg/5 mL', uso_principal: 'Alternativa oral quando espectro mais amplo é necessário.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        { nome: 'Ciprofloxacino', categoria: 'Antiinfecciosos (Fluoroquinolona)', indicacao: 'ITU complicada, diarreia grave', apresentacao: 'Comprimidos 250–500 mg', uso_principal: 'Situações específicas com justificativa; uso restrito.', gestacao: { status: 'warn', texto: 'Evitar; considerar apenas se benefício > risco e sem alternativas adequadas.' } },
+        { nome: 'Co-trimoxazol (SMX+TMP)', categoria: 'Antiinfecciosos', indicacao: 'ITU, Pneumocystis', apresentacao: 'Comprimidos 400/80 mg; suspensão 200/40 mg/5 mL', uso_principal: 'Opção barata e útil em múltiplas indicações.', gestacao: { status: 'warn', texto: 'Evitar no 1º trimestre (antagonismo do folato) e próximo ao termo (risco hiperbilirrubinemia).' } },
+        { nome: 'Metronidazol', categoria: 'Antiinfecciosos (Nitroimidazol)', indicacao: 'Giardíase, amebíase, anaeróbios', apresentacao: 'Comprimidos 250/400 mg', uso_principal: 'Protozoários e infecções por anaeróbios; evitar álcool.', gestacao: { status: 'ok', texto: 'Pode usar. Alguns serviços evitam dose única de 2 g no 1º trimestre.' } },
+        { nome: 'Tinidazol', categoria: 'Antiinfecciosos (Nitroimidazol)', indicacao: 'Giardíase, tricomoníase', apresentacao: 'Comprimidos 500 mg', uso_principal: 'Alternativa de dose única em protozooses.', gestacao: { status: 'warn', texto: 'Evitar no 1º trimestre; considerar após 1º se necessário.' } },
+        { nome: 'Nitrofurantoína', categoria: 'Antiinfecciosos (Urinário)', indicacao: 'Cistite não complicada', apresentacao: 'Cápsulas 100 mg', uso_principal: 'Primeira linha para cistite simples em mulheres.', gestacao: { status: 'warn', texto: 'Geralmente segura no 2º trimestre; evitar de 38–42 semanas e durante o parto (risco hemólise neonatal).' } },
+        { nome: 'Fosfomicina Trometamol', categoria: 'Antiinfecciosos', indicacao: 'Cistite não complicada (dose única)', apresentacao: 'Sachê 3 g', uso_principal: 'Tratamento em dose única de ITU não complicada.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        // Antiparasitários
+        { nome: 'Albendazol', categoria: 'Antiparasitário', indicacao: 'Verminoses Intestinais', apresentacao: 'Comprimido mastigável 400 mg', uso_principal: 'Helmintíases intestinais comuns (dose única em muitos cenários).', gestacao: { status: 'warn', texto: 'Evitar no 1º trimestre; após isso, usar apenas se benefício > risco.' } },
+        { nome: 'Mebendazol', categoria: 'Antiparasitário', indicacao: 'Geo-helmintos', apresentacao: 'Comprimidos 100 mg; suspensão (varia)', uso_principal: 'Alternativa eficaz para geo-helmintos.', gestacao: { status: 'ok', texto: 'Preferir após 1º trimestre; evitar no 1º se possível.' } },
+        { nome: 'Ivermectina', categoria: 'Antiparasitário/Endectocida', indicacao: 'Estrongiloidíase, Escabiose', apresentacao: 'Comprimidos 3 mg', uso_principal: 'Muito útil para sarna/piolhos e estrongiloidíase.', gestacao: { status: 'danger', texto: 'Não recomendada (dados limitados). Usar apenas com orientação especializada.' } },
+        { nome: 'Praziquantel', categoria: 'Antiparasitário', indicacao: 'Esquistossomose, Teníase', apresentacao: 'Comprimidos 600 mg', uso_principal: 'Tratamento de parasitoses por platelmintos.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        // Antimalárico
+        { nome: 'Arteméter + Lumefantrina', categoria: 'Antimalárico (ACT)', indicacao: 'Malária não complicada (P. falciparum)', apresentacao: 'Comprimidos combinados', uso_principal: 'Esquema padrão ACT conforme mapa de resistência local.', gestacao: { status: 'warn', texto: 'Evitar no 1º trimestre quando houver alternativa; seguro no 2º/3º conforme protocolos.' } },
+        // Respiratório
+        { nome: 'Salbutamol (Albuterol) – Inalador', categoria: 'Respiratório', indicacao: 'Asma/Broncoespasmo (Resgate)', apresentacao: 'Aerossol dosificador (MDI)', uso_principal: 'Alívio rápido de broncoespasmo.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        { nome: 'Beclometasona – Inalador', categoria: 'Respiratório', indicacao: 'Asma Persistente (Controle)', apresentacao: 'Aerossol dosificador (MDI)', uso_principal: 'Manutenção para reduzir exacerbações de asma.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        // Antialérgicos e Corticoides
+        { nome: 'Loratadina', categoria: 'Antialérgicos', indicacao: 'Rinite/Urticária', apresentacao: 'Comprimido 10 mg; solução 5 mg/5 mL', uso_principal: 'Antihistamínico não sedativo de uso diário.', gestacao: { status: 'ok', texto: 'Pode usar (fármaco de escolha).' } },
+        { nome: 'Prednisona / Prednisolona (oral)', categoria: 'Corticoides Sistêmicos', indicacao: 'Exacerbação de Asma, Reações Alérgicas', apresentacao: 'Comprimidos 5–20 mg (varia)', uso_principal: 'Curto curso para crises quando necessário.', gestacao: { status: 'warn', texto: 'Usar menor dose e tempo possíveis; benefício costuma superar risco em exacerbações.' } },
+        // Gastrointestinal
+        { nome: 'Sais de Reidratação Oral (SRO/ORS)', categoria: 'Gastrointestinal', indicacao: 'Desidratação por Diarreia', apresentacao: 'Sachês para preparo (geralmente 1 L)', uso_principal: 'Pilar do manejo de diarreia em todas as idades.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        { nome: 'Sulfato de Zinco', categoria: 'Gastrointestinal/Nutrição', indicacao: 'Diarreia Aguda (<5 anos)', apresentacao: 'Comprimidos dispersíveis 20 mg', uso_principal: 'Reduz duração/recorrência da diarreia em crianças; usar com SRO.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        { nome: 'Omeprazol', categoria: 'Gastrointestinal (IBP)', indicacao: 'Dispepsia/DRGE, Úlcera', apresentacao: 'Cápsulas/Comprimidos gastro-resistentes 20 mg', uso_principal: 'Controle de sintomas e proteção gástrica quando indicado.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        { nome: 'Metoclopramida', categoria: 'Antiemético/Procinético', indicacao: 'Náuseas e Vômitos (adultos)', apresentacao: 'Comprimidos 10 mg; solução oral (varia)', uso_principal: 'Alívio de náuseas/vômitos; evitar uso prolongado.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        // Saúde Reprodutiva e Nutrição
+        { nome: 'Levonorgestrel (Contracepção de Emergência)', categoria: 'Saúde Sexual e Reprodutiva', indicacao: 'CE pós-relação desprotegida', apresentacao: 'Comprimido 1,5 mg (dose única)', uso_principal: 'Contracepção de emergência até 120 h (mais eficaz <72 h).', gestacao: { status: 'warn', texto: 'Não é indicado se já grávida. Ingestão inadvertida não mostrou teratogenicidade.' } },
+        { nome: 'Ferro (Sais Ferrosos) ± Ácido Fólico', categoria: 'Nutrição/Hematologia', indicacao: 'Anemia Ferropriva e Suplementação', apresentacao: 'Comprimidos (doses variadas)', uso_principal: 'Prevenção/correção de anemia; rotina na gestação.', gestacao: { status: 'ok', texto: 'Recomendado.' } },
+        // Endocrinologia e Cardiovascular
+        { nome: 'Metformina', categoria: 'Endocrinologia (DM2)', indicacao: 'Controle Glicêmico', apresentacao: 'Comprimidos 500 mg', uso_principal: '1ª linha em DM2; titular conforme tolerância.', gestacao: { status: 'warn', texto: 'Pode ser usada. Em DM gestacional, insulina é preferida quando disponível.' } },
+        { nome: 'Amlodipina', categoria: 'Cardiovascular (Antihipertensivo)', indicacao: 'Hipertensão Arterial', apresentacao: 'Comprimidos 5 mg e 10 mg', uso_principal: 'Controle pressórico 1x/dia, boa tolerabilidade.', gestacao: { status: 'warn', texto: 'Pode usar se necessário; preferir fármacos com maior evidência (ex: metildopa, labetalol).' } },
+        { nome: 'Enalapril', categoria: 'Cardiovascular (IECA)', indicacao: 'Hipertensão/ICC', apresentacao: 'Comprimidos 5 mg e 20 mg', uso_principal: 'Anti-hipertensivo/nefroprotetor em não grávidas.', gestacao: { status: 'danger', texto: 'Contraindicado (fetotoxicidade). Suspender ao confirmar gestação e substituir.' } },
+        { nome: 'Hidroclorotiazida', categoria: 'Cardiovascular (Diurético)', indicacao: 'Hipertensão Leve/Moderada', apresentacao: 'Comprimidos 12,5–25 mg', uso_principal: 'Anti-hipertensivo simples; atenção a eletrólitos.', gestacao: { status: 'warn', texto: 'Evitar rotineiramente; considerar apenas se benefício > risco e com monitorização.' } },
+        // Antifúngicos
+        { nome: 'Fluconazol', categoria: 'Antifúngicos (Azólico)', indicacao: 'Candidíase Oral/Vaginal', apresentacao: 'Cápsulas 150 mg', uso_principal: 'Candidíase mucocutânea comum.', gestacao: { status: 'warn', texto: 'Dose única 150 mg parece segura; evitar altas doses/uso prolongado e evitar no 1º trimestre.' } },
+        { nome: 'Clotrimazol (tópico/vaginal)', categoria: 'Antifúngicos Tópicos', indicacao: 'Micoses Cutâneas e Vulvovaginais', apresentacao: 'Creme 1%; comprimido vaginal 100–500 mg', uso_principal: 'Opção tópica segura e eficaz para micoses superficiais.', gestacao: { status: 'ok', texto: 'Pode usar (preferido para VVC na gestação).' } },
+        // Tópicos
+        { nome: 'Permetrina (tópica)', categoria: 'Escabicida/Pediculicida', indicacao: 'Escabiose e Pediculose', apresentacao: 'Creme 5%; loção 1%', uso_principal: 'Tratamento de primeira linha para sarna/piolhos.', gestacao: { status: 'ok', texto: 'Pode usar.' } },
+        { nome: 'Povidona-iodo (tópica)', categoria: 'Antissépticos', indicacao: 'Antissepsia de Pele/Feridas', apresentacao: 'Solução aquosa/jabonosa', uso_principal: 'Antissepsia de pele e feridas antes de procedimentos.', gestacao: { status: 'warn', texto: 'Uso local e breve é aceitável; evitar uso extenso/prolongado (risco tireoide neonatal).' } },
+        { nome: 'Hidrocortisona (tópica)', categoria: 'Corticoide Tópico', indicacao: 'Dermatites, Eczema', apresentacao: 'Creme/Pomada 1%', uso_principal: 'Prurido e inflamação leves, por curto período.', gestacao: { status: 'ok', texto: 'Pode usar em camadas finas por tempo limitado.' } }
     ];
 
-    // --- ELEMENTOS DO DOM ---
     const disclaimerModal = document.getElementById('disclaimer-modal');
     const acceptButton = document.getElementById('accept-button');
     const medicationList = document.getElementById('medication-list');
     const searchInput = document.getElementById('search-input');
-    const categoryFiltersContainer = document.getElementById('category-filters');
     const noResults = document.getElementById('no-results');
 
-    let activeCategory = 'Todos';
-
-    // --- LÓGICA DE FUNCIONAMENTO ---
-
-    // Lida com o modal de aviso
     const handleDisclaimer = () => {
-        const accepted = localStorage.getItem('disclaimerAccepted_v2');
+        const accepted = localStorage.getItem('disclaimerAccepted_v3');
         if (accepted) {
             disclaimerModal.style.display = 'none';
         }
         acceptButton.addEventListener('click', () => {
             disclaimerModal.style.display = 'none';
-            localStorage.setItem('disclaimerAccepted_v2', 'true');
+            localStorage.setItem('disclaimerAccepted_v3', 'true');
         });
     };
 
-    // Cria os botões de filtro de categoria
-    const createCategoryFilters = () => {
-        const categories = ['Todos', ...new Set(medicationData.map(med => med.categoria))];
-        categoryFiltersContainer.innerHTML += categories.map(category => {
-            const tag = medicationData.find(m => m.categoria === category)?.tag || 'default';
-            const isActive = category === 'Todos' ? 'active' : '';
-            const colorClasses = category === 'Todos' ? 'bg-gray-700 text-white' : `tag-${tag}`;
-            return `<button class="filter-btn text-sm font-semibold px-3 py-1 rounded-full ${colorClasses} ${isActive}" data-category="${category}">${category}</button>`;
-        }).join('');
-
-        // Adiciona event listeners aos novos botões
-        document.querySelectorAll('.filter-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelector('.filter-btn.active').classList.remove('active', 'bg-gray-700', 'text-white');
-                document.querySelector('.filter-btn.active').classList.add(`tag-${document.querySelector('.filter-btn.active').dataset.category.toLowerCase()}`);
-                
-                activeCategory = button.dataset.category;
-                button.classList.add('active', 'bg-gray-700', 'text-white');
-                renderMedicationList();
-            });
-        });
+    const getPregnancyUI = (gestacao) => {
+        if (!gestacao) return '';
+        
+        let icon = '';
+        switch (gestacao.status) {
+            case 'ok':
+                icon = '<i class="fas fa-check-circle fa-icon"></i>';
+                break;
+            case 'warn':
+                icon = '<i class="fas fa-exclamation-triangle fa-icon"></i>';
+                break;
+            case 'danger':
+                icon = '<i class="fas fa-times-circle fa-icon"></i>';
+                break;
+        }
+        
+        return `
+            <div class="gestacao-info gestacao-${gestacao.status}">
+                ${icon}
+                <div class="text-sm">
+                    <strong class="font-bold">Gestação:</strong> ${gestacao.texto}
+                </div>
+            </div>`;
     };
-    
-    // Renderiza a lista de medicamentos com base nos filtros
+
     const renderMedicationList = () => {
-        const searchTerm = searchInput.value.toLowerCase();
+        const searchTerm = searchInput.value.toLowerCase().trim();
         
         const filteredData = medicationData.filter(med => {
-            const categoryMatch = activeCategory === 'Todos' || med.categoria === activeCategory;
-            const searchMatch = med.nome.toLowerCase().includes(searchTerm) || med.indicacao.toLowerCase().includes(searchTerm) || med.justificativa.toLowerCase().includes(searchTerm);
-            return categoryMatch && searchMatch;
+            return med.nome.toLowerCase().includes(searchTerm) || 
+                   med.indicacao.toLowerCase().includes(searchTerm) ||
+                   med.categoria.toLowerCase().includes(searchTerm);
         });
 
-        medicationList.innerHTML = ''; // Limpa a lista
+        medicationList.innerHTML = '';
         
         if (filteredData.length === 0) {
             noResults.style.display = 'block';
@@ -223,13 +206,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.className = 'med-card bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden';
                 card.innerHTML = `
                     <div class="p-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <p class="text-lg font-bold text-gray-800">${med.nome}</p>
-                            <span class="tag-${med.tag} text-xs font-bold px-2 py-1 rounded-full">${med.categoria}</span>
-                        </div>
-                        <p class="text-sm font-semibold text-teal-600 mb-2">${med.indicacao}</p>
-                        <p class="text-sm text-gray-500 mb-3"><strong>Apresentação:</strong> ${med.apresentacao}</p>
-                        <p class="text-sm text-gray-700"><strong>Uso principal:</strong> ${med.justificativa}</p>
+                        <p class="text-xs font-semibold uppercase text-teal-600 tracking-wide">${med.categoria}</p>
+                        <p class="text-lg font-bold text-gray-800 mt-1">${med.nome}</p>
+                        <p class="text-sm text-gray-600 mt-1 mb-3">${med.indicacao}</p>
+                        
+                        <p class="text-sm"><strong class="font-semibold text-gray-700">Apresentação:</strong> ${med.apresentacao}</p>
+                        <p class="text-sm mt-1"><strong class="font-semibold text-gray-700">Uso principal:</strong> ${med.uso_principal}</p>
+                        
+                        ${getPregnancyUI(med.gestacao)}
                     </div>
                 `;
                 medicationList.appendChild(card);
@@ -237,12 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- INICIALIZAÇÃO ---
     handleDisclaimer();
-    createCategoryFilters();
     renderMedicationList();
-
-    // Adiciona o event listener para a barra de pesquisa
     searchInput.addEventListener('input', renderMedicationList);
 });
 </script>
