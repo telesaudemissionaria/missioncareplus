@@ -9,38 +9,51 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <!-- NOVO: Adicionado para formatar a resposta do Dr. IA -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
-        :root {
-            --primary-color: #0d9488; /* teal-600 */
-            --primary-color-light: #ccfbf1; /* teal-100 */
-            --danger-color: #dc2626; /* red-600 */
-            --danger-color-light: #fee2e2; /* red-100 */
-            --warning-color: #f59e0b; /* amber-500 */
-            --warning-color-light: #fef3c7; /* amber-100 */
-        }
-        body { font-family: 'Lexend', 'Noto Sans', sans-serif; padding-bottom: 80px; }
-        .form-section { padding: 1.5rem; border: 1px solid #e5e7eb; border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); }
+        body { font-family: 'Lexend', 'Noto Sans', sans-serif; padding-bottom: 80px; background-color: #f9fafb; }
+        .form-section { padding: 1.5rem; border: 1px solid #e5e7eb; border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05); }
         .choice-label { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 2px solid #e5e7eb; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s; }
-        .choice-label:has(input:checked) { background-color: var(--primary-color-light); border-color: var(--primary-color); }
-        .loader { width: 50px; aspect-ratio: 1; border-radius: 50%; border: 8px solid var(--primary-color); border-right-color: var(--primary-color-light); animation: l2 1s infinite linear; }
+        .choice-label:has(input:checked) { background-color: #ccfbf1; border-color: #0d9488; }
+        .loader { width: 50px; aspect-ratio: 1; border-radius: 50%; border: 8px solid #0d9488; border-right-color: #ccfbf1; animation: l2 1s infinite linear; }
         @keyframes l2 { to{transform: rotate(1turn)} }
-        /* Estilos para a tela de resultados */
-        #orientation-content h3 { font-size: 1.25rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1f2937; }
-        #orientation-content h4 { font-size: 1.1rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; color: #1f2937; border-left: 4px solid var(--primary-color); padding-left: 0.75rem; }
-        #orientation-content ul { list-style-type: none; padding-left: 0; margin-bottom: 1rem; }
-        #orientation-content li { background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; color: #374151; display: flex; align-items: start; }
-        #orientation-content li::before { content: '🔹'; margin-right: 0.75rem; }
-        #orientation-content p { margin-bottom: 1rem; line-height: 1.6; color: #4b5563;}
-        .urgency-card { border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 2px solid; text-align: center; }
-        .urgency-high { background-color: var(--danger-color-light); border-color: var(--danger-color); }
-        .urgency-medium { background-color: var(--warning-color-light); border-color: var(--warning-color); }
-        .urgency-low { background-color: #f0fdf4; border-color: #22c55e; }
-        .urgency-title { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; }
-        .urgency-high .urgency-title { color: var(--danger-color); }
-        .urgency-medium .urgency-title { color: var(--warning-color); }
-        .urgency-low .urgency-title { color: #16a34a; }
-        .limitations-box { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 0.5rem; margin-top: 2rem; font-style: italic; color: #64748b; }
+
+        /* Estilos simplificados para a resposta de texto */
+        #orientation-content { 
+            padding: 1rem; 
+            background-color: white; 
+            border-radius: 0.5rem; 
+            border: 1px solid #e5e7eb;
+            line-height: 1.7;
+            color: #374151;
+        }
+        #orientation-content h1, #orientation-content h2, #orientation-content h3 {
+            font-weight: 700; 
+            color: #111827; 
+            margin-bottom: 0.5rem;
+        }
+         #orientation-content strong {
+             color: #0d9488; /* Teal-600 */
+         }
+        #orientation-content ol, #orientation-content ul {
+            padding-left: 1.5rem; 
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        #orientation-content ol { list-style-type: decimal; }
+        #orientation-content ul { list-style-type: disc; }
+        #orientation-content p, #orientation-content li { margin-bottom: 0.75rem; }
+        #orientation-content blockquote { 
+            margin-top: 1.5rem; 
+            padding: 1rem; 
+            background-color: #f8fafc; 
+            border-left: 4px solid #0d9488;
+            font-style: italic;
+            color: #4b5563;
+        }
+
     </style>
 </head>
 <body class="bg-gray-50">
@@ -49,30 +62,30 @@
         
         <header class="sticky top-0 z-20 bg-white/90 backdrop-blur-sm border-b border-gray-200 p-4 flex items-center justify-between">
             <h1 class="text-gray-800 text-lg font-bold">Triagem Clínica - Adulto</h1>
-             <a href="https://telesaudemissionaria.github.io/missioncareplus/index.html" class="text-gray-600 hover:text-teal-600" title="Início">
+             <a href="index.html" class="text-gray-600 hover:text-teal-600" title="Início">
                 <i class="fas fa-home fa-lg"></i>
             </a>
         </header>
 
         <main id="form-container" class="flex-grow p-4 md:p-6 space-y-8">
             
-            <div class="form-section space-y-6">
+            <div class="form-section bg-white space-y-6">
                  <h2 class="text-xl font-bold text-center text-gray-800">1. Queixa Principal</h2>
                 <div>
                     <label for="problema-principal" class="font-semibold text-gray-700 mb-2 block">Qual o principal problema ou sintoma?</label>
-                    <textarea id="problema-principal" placeholder="Ex: Dor de cabeça forte, febre alta..." class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 p-3" rows="2"></textarea>
+                    <textarea id="problema-principal" placeholder="Ex: Dor de cabeça forte, febre alta..." class="form-textarea w-full rounded-xl border-gray-300 bg-gray-50 p-3" rows="2"></textarea>
                 </div>
                 <div>
                     <label for="inicio-sintomas" class="font-semibold text-gray-700 mb-2 block">Quando os sintomas começaram?</label>
-                    <input type="text" id="inicio-sintomas" placeholder="Ex: Há 3 dias, ontem à noite" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 p-3">
+                    <input type="text" id="inicio-sintomas" placeholder="Ex: Há 3 dias, ontem à noite" class="form-input w-full rounded-xl border-gray-300 bg-gray-50 p-3">
                 </div>
                  <div>
                     <label for="melhora-piora" class="font-semibold text-gray-700 mb-2 block">O que melhora ou piora o sintoma?</label>
-                    <textarea id="melhora-piora" placeholder="Ex: Repouso melhora, esforço piora..." class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 p-3" rows="2"></textarea>
+                    <textarea id="melhora-piora" placeholder="Ex: Repouso melhora, esforço piora..." class="form-textarea w-full rounded-xl border-gray-300 bg-gray-50 p-3" rows="2"></textarea>
                 </div>
             </div>
 
-            <div class="form-section space-y-6">
+            <div class="form-section bg-white space-y-6">
                 <h2 class="text-xl font-bold text-center text-gray-800">2. Histórico de Saúde</h2>
                 <fieldset>
                     <legend class="font-semibold text-gray-700 mb-3">Possui alguma destas doenças crônicas?</legend>
@@ -86,17 +99,17 @@
                 </fieldset>
                  <div>
                     <label for="medicamentos" class="font-semibold text-gray-700 mb-2 block">Usa algum medicamento de forma contínua?</label>
-                    <textarea id="medicamentos" placeholder="Ex: Losartana 50mg, Metformina..." class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 p-3" rows="2"></textarea>
+                    <textarea id="medicamentos" placeholder="Ex: Losartana 50mg, Metformina..." class="form-textarea w-full rounded-xl border-gray-300 bg-gray-50 p-3" rows="2"></textarea>
                 </div>
                 <div>
                     <label for="alergias" class="font-semibold text-gray-700 mb-2 block">Possui alguma alergia conhecida?</label>
-                    <textarea id="alergias" placeholder="Ex: Alergia a Penicilina, camarão..." class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 p-3" rows="2"></textarea>
+                    <textarea id="alergias" placeholder="Ex: Alergia a Penicilina, camarão..." class="form-textarea w-full rounded-xl border-gray-300 bg-gray-50 p-3" rows="2"></textarea>
                 </div>
             </div>
         </main>
         
-        <div id="results-screen" class="hidden p-4 md:p-6 space-y-6">
-            <h1 class="text-2xl font-bold text-center text-gray-800">Análise Preliminar</h1>
+        <div id="results-screen" class="hidden p-4 md:p-6">
+             <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">Orientações do Dr. IA</h1>
             <div id="orientation-content"></div>
         </div>
 
@@ -130,65 +143,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('problema-principal').addEventListener('input', validateForm);
 
-    const renderAnalysis = (data) => {
-        let urgencyClass = 'urgency-low';
-        let urgencyText = 'Baixo Risco';
-        if (data.conduta_recomendada && data.conduta_recomendada.urgencia) {
-            urgencyClass = 'urgency-high';
-            urgencyText = 'Urgência Alta';
-        } else if (data.sinais_de_gravidade && data.sinais_de_gravidade.length > 0) {
-            urgencyClass = 'urgency-medium';
-            urgencyText = 'Risco Moderado';
-        }
-
-        const createList = (items, icon = '🔹') => {
-            if (!items || items.length === 0) return '<p>Nenhuma informação específica.</p>';
-            return `<ul>${items.map(item => `<li>${icon} ${item}</li>`).join('')}</ul>`;
-        };
-
-        orientationContent.innerHTML = `
-            <div class="urgency-card ${urgencyClass}">
-                <h3 class="urgency-title">${urgencyText}</h3>
-                <p class="font-semibold text-lg">${data.conduta_recomendada?.justificativa || 'Avaliação geral da IA.'}</p>
-            </div>
-
-            ${data.conduta_recomendada?.orientacoes ? `
-                <h4><i class="fas fa-clipboard-list mr-2"></i>Orientações</h4>
-                ${createList(data.conduta_recomendada.orientacoes)}
-            ` : ''}
-            
-            ${data.conduta_recomendada?.hipoteses_diagnosticas_preliminares ? `
-                <h4><i class="fas fa-lightbulb mr-2"></i>Hipóteses Preliminares</h4>
-                ${createList(data.conduta_recomendada.hipoteses_diagnosticas_preliminares, '💡')}
-            ` : ''}
-
-            ${data.sinais_de_piora ? `
-                <h4><i class="fas fa-exclamation-triangle mr-2"></i>Sinais de Alerta</h4>
-                ${createList(data.sinais_de_piora, '⚠️')}
-            ` : ''}
-            
-             ${data.sinais_de_gravidade && data.sinais_de_gravidade.length > 0 ? `
-                <h4><i class="fas fa-bolt mr-2"></i>Sinais de Gravidade Identificados</h4>
-                ${createList(data.sinais_de_gravidade, '⚡')}
-            ` : ''}
-
-            ${data.limitacoes_da_analise ? `
-                <div class="limitations-box">
-                    <p class="font-bold">Aviso Importante</p>
-                    <p>${data.limitacoes_da_analise}</p>
-                </div>
-            ` : ''}
-        `;
-    };
-
+    // LÓGICA DE SUBMISSÃO SIMPLIFICADA
     const handleFormSubmit = async () => {
         const getSelectedValues = (name) => Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
         
         const payload = {
             problemaPrincipal: document.getElementById('problema-principal').value,
             inicioSintomas: document.getElementById('inicio-sintomas').value,
-            // O campo de progressão não existe no seu HTML atual, adicionei a coleta mas o campo precisa existir no HTML
-            // progressaoSintomas: document.querySelector('input[name="progressao-sintomas"]:checked')?.value || 'Não informado',
             melhoraPiora: document.getElementById('melhora-piora').value,
             doencasCronicas: getSelectedValues('condicoes').join(', ') || 'Nenhuma informada',
             medicamentos: document.getElementById('medicamentos').value,
@@ -199,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.style.display = 'none';
         resultsScreen.classList.remove('hidden');
         resultsScreen.scrollIntoView({ behavior: 'smooth' });
-        orientationContent.innerHTML = '<div class="loader mx-auto my-8"></div><p class="text-center font-semibold text-gray-600">Analisando informações... Isso pode levar alguns segundos.</p>';
+        orientationContent.innerHTML = '<div class="loader mx-auto my-8"></div><p class="text-center font-semibold text-gray-600">Analisando informações com o Dr. IA...</p>';
 
         try {
             const response = await fetch(API_URL, {
@@ -210,11 +171,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: `Erro na API: ${response.statusText}` }));
-                throw new Error(errorData.error);
+                throw new Error(errorData.error || 'Resposta inválida do servidor');
             }
             
             const result = await response.json();
-            renderAnalysis(result);
+
+            // SIMPLIFICADO: Renderiza a resposta de texto diretamente usando marked.js
+            if (result.response) {
+                orientationContent.innerHTML = window.marked.parse(result.response);
+            } else {
+                throw new Error("Formato de resposta inesperado do servidor.");
+            }
             
         } catch (error) {
             console.error("Erro ao gerar análise:", error);
