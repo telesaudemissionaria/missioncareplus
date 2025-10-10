@@ -46,7 +46,7 @@
                  <button id="back-to-main" class="text-gray-600 hover:text-red-600 hidden w-10 h-10">
                     <i class="fas fa-arrow-left fa-lg"></i>
                 </button>
-                <a href="index.html" class="text-gray-600 hover:text-red-600 w-10 h-10 flex items-center justify-center" title="Início">
+                <a href="index.html" id="home-link" class="text-gray-600 hover:text-red-600 w-10 h-10 flex items-center justify-center" title="Início">
                     <i class="fas fa-home fa-lg"></i>
                 </a>
             </div>
@@ -88,6 +88,21 @@
                             <span data-translate="fainting">Desmaio / Convulsão / Confusão</span>
                         </button>
                     </div>
+                    
+                    <!-- NOVO: Secção para Outras Emergências -->
+                    <div id="other-emergency-container" class="mt-6 pt-6 border-t border-gray-200">
+                        <button id="other-emergency-btn" data-translate="otherEmergency" class="w-full text-center py-3 px-4 border-2 border-gray-300 rounded-full font-bold text-gray-700 bg-gray-50 hover:bg-gray-200 transition">
+                            Nenhuma das opções / Outra situação
+                        </button>
+                        <div id="search-container" class="hidden mt-2">
+                            <div class="relative">
+                                <input type="text" id="search-input" placeholder="Descreva a situação..." class="w-full form-input pl-4 pr-12 py-3 rounded-full border-gray-300 focus:border-red-500 focus:ring-red-500 transition shadow-sm">
+                                <button id="search-btn" class="absolute inset-y-0 right-0 flex items-center justify-center w-12 h-full bg-red-600 text-white font-bold rounded-r-full hover:bg-red-700">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -124,6 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
             bleeding: "Sangramento incontrolável",
             allergy: "Reação alérgica grave",
             fainting: "Desmaio / Convulsão / Confusão",
+            otherEmergency: "Nenhuma das opções / Outra situação",
+            otherPlaceholder: "Ex: criança caiu e bateu a cabeça",
+            promptPrefix: "Instruções de primeiros socorros para",
             prompts: {
                 chestPain: "Instruções de primeiros socorros para dor forte no peito, possível infarto.",
                 stroke: "Instruções de primeiros socorros para fraqueza súbita na face, braço ou perna, ou fala alterada, possível AVC.",
@@ -147,6 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
             bleeding: "Uncontrollable bleeding",
             allergy: "Severe allergic reaction",
             fainting: "Fainting / Seizure / Confusion",
+            otherEmergency: "None of the above / Other situation",
+            otherPlaceholder: "Ex: child fell and hit head",
+            promptPrefix: "First aid instructions for",
             prompts: {
                 chestPain: "First aid instructions for severe chest pain, possible heart attack.",
                 stroke: "First aid instructions for sudden weakness in the face, arm, or leg, or altered speech, possible stroke.",
@@ -170,6 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
             bleeding: "Sangrado incontrolable",
             allergy: "Reacción alérgica grave",
             fainting: "Desmayo / Convulsión / Confusión",
+            otherEmergency: "Ninguna de las opciones / Otra situación",
+            otherPlaceholder: "Ej: niño se cayó y se golpeó la cabeza",
+            promptPrefix: "Instrucciones de primeros auxilios para",
             prompts: {
                 chestPain: "Instrucciones de primeros auxilios para dolor severo en el pecho, posible infarto.",
                 stroke: "Instrucciones de primeros auxilios para debilidad súbita en la cara, brazo o pierna, o habla alterada, posible ACV.",
@@ -187,6 +211,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const criticalButtons = document.getElementById('critical-buttons');
     const backToMainBtn = document.getElementById('back-to-main');
     const langSwitcher = document.querySelector('.lang-switcher');
+    const otherEmergencyBtn = document.getElementById('other-emergency-btn');
+    const searchContainer = document.getElementById('search-container');
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const homeLink = document.getElementById('home-link');
 
     function updateLanguage(lang) {
         document.documentElement.lang = lang;
@@ -195,10 +224,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.querySelectorAll('[data-translate]').forEach(el => {
             const key = el.dataset.translate;
-            if (langTexts[key]) {
-                el.textContent = langTexts[key];
-            }
+            if (langTexts[key]) el.textContent = langTexts[key];
         });
+        
+        searchInput.placeholder = langTexts.otherPlaceholder;
         
         langSwitcher.querySelector('button.active').classList.remove('active');
         langSwitcher.querySelector(`button[data-lang="${lang}"]`).classList.add('active');
@@ -223,22 +252,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
+    otherEmergencyBtn.addEventListener('click', () => {
+        otherEmergencyBtn.classList.add('hidden');
+        searchContainer.classList.remove('hidden');
+        searchInput.focus();
+    });
+
+    const handleSearch = () => {
+        const searchText = searchInput.value.trim();
+        if (searchText) {
+            const currentLang = document.documentElement.getAttribute('data-current-lang') || 'pt';
+            const prefix = translations[currentLang].promptPrefix;
+            const userPrompt = `${prefix} ${searchText}`;
+            getEmergencyHelp(userPrompt, currentLang);
+        }
+    };
+
+    searchBtn.addEventListener('click', handleSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSearch();
+    });
+
     backToMainBtn.addEventListener('click', () => {
         resultsContainer.classList.add('hidden');
         mainView.classList.remove('hidden');
         backToMainBtn.classList.add('hidden');
+        homeLink.classList.remove('hidden');
         responseContent.innerHTML = '';
+        // Reset search field
+        searchInput.value = '';
+        searchContainer.classList.add('hidden');
+        otherEmergencyBtn.classList.remove('hidden');
     });
 
     async function getEmergencyHelp(userPrompt, langCode) {
         const langData = translations[langCode];
-
-        // **CORREÇÃO: Adiciona instrução de idioma ao prompt**
         const finalPrompt = `Please provide the response in ${langData.langName}. The user's request is: "${userPrompt}"`;
 
         mainView.classList.add('hidden');
         resultsContainer.classList.remove('hidden');
         backToMainBtn.classList.remove('hidden');
+        homeLink.classList.add('hidden'); // Hide home button on results
+
         responseContent.innerHTML = `<div class="loader mx-auto my-8"></div><p class="text-center font-semibold text-gray-600">${langData.loading}</p>`;
 
         try {
