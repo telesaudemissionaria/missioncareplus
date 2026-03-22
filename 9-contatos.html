@@ -1,84 +1,132 @@
-        (function(){
-        // Use shared translator (assets/js/translator.js) translations when available
-        const translations = window.translations || {};
-        
-        // Variáveis globais
-        let currentLang = localStorage.getItem('appLang') || 'pt-BR';
-        
-        // Função para atualizar o status online/offline da UI
-        function updateOnlineStatus() {
-            const isOnline = navigator.onLine;
-            const offlineIndicator = document.getElementById('offline-indicator');
-            const offlineInfoElements = document.querySelectorAll('.offline-info');
-            
-            if (isOnline) {
-                offlineIndicator.classList.remove('show');
-                offlineInfoElements.forEach(el => el.classList.remove('show'));
-            } else {
-                offlineIndicator.classList.add('show');
-                // Mostra todas as informações de contexto offline
-                offlineInfoElements.forEach(el => el.classList.add('show'));
-                showMessage((translations[currentLang] && translations[currentLang]['offline.mode_alert']) || 'Modo Offline ativado.', 'info', 5000);
-            }
-        }
-        
-        // Função para exibir mensagens de notificação
-        function showMessage(message, type = 'info', duration = 3000) {
-            const appMessage = document.getElementById('app-message');
-            if (!appMessage) return;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato e Suporte - MissionCare Plus</title>
+    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* ============================================
+           ESTILOS DA PÁGINA DE CONTATOS
+           ============================================ */
 
-            appMessage.textContent = message;
-            // Remove classes de tipo anteriores e adiciona a nova
-            appMessage.classList.remove('success', 'error', 'info');
-            appMessage.classList.add(type);
-            appMessage.classList.add('show');
-            
-            setTimeout(() => {
-                appMessage.classList.remove('show');
-            }, duration);
+        /* Botões de idioma */
+        .lang-btn {
+            padding: 4px 8px;
+            border-radius: 9999px;
+            transition: all 0.2s;
+            opacity: 0.5;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+        .lang-btn.active {
+            opacity: 1;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .lang-btn:hover {
+            opacity: 0.8;
         }
 
-        // Função para copiar texto para a área de transferência
+        /* Mensagem de notificação */
+        #app-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            z-index: 200;
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
         #app-message.show {
             transform: translateY(0);
             opacity: 1;
         }
-        #app-message.error { background-color: #dc2626; } /* red-600 */
-        #app-message.success { background-color: #0d9488; } /* teal-600 */
-        #app-message.info { background-color: #2563eb; } /* blue-600 */
-        
-        /* Estilos para o indicador de modo offline */
+        #app-message.error { background-color: #dc2626; }
+        #app-message.success { background-color: #0d9488; }
+        #app-message.info { background-color: #2563eb; }
+
+        /* Indicador de modo offline */
         .offline-indicator {
             position: fixed;
-            bottom: 70px; /* Acima da barra de navegação */
+            bottom: 70px;
             right: 10px;
-            background-color: #f59e0b; /* amber-500 */
+            background-color: #f59e0b;
             color: white;
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
             z-index: 100;
-            display: none; /* Oculto por padrão */
+            display: none;
         }
         .offline-indicator.show {
             display: block;
         }
 
-        /* MELHORIA: Estilos para informações offline. Mais genérico para ser reutilizado */
+        /* Informações exibidas em modo offline */
         .offline-info {
-            display: none; /* Oculto por padrão */
+            display: none;
             margin-top: 1rem;
             padding: 0.75rem;
-            background-color: #fef3c7; /* amber-100 */
-            border: 1px solid #fde68a; /* amber-200 */
+            background-color: #fef3c7;
+            border: 1px solid #fde68a;
             border-radius: 0.75rem;
             text-align: center;
             font-size: 0.875rem;
-            color: #92400e; /* amber-800 */
+            color: #92400e;
         }
         .offline-info.show {
             display: block;
+        }
+
+        /* Modal de feedback */
+        .feedback-modal {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .feedback-modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Barra de navegação inferior */
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .bottom-nav-item svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 2px;
+        }
+        .bottom-nav-item:hover,
+        .bottom-nav-item.active {
+            color: #0d9488;
+        }
+
+        /* Card hover effect */
+        .contact-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .contact-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
     </style>
     <script src="assets/js/offline-banner.js" defer></script>
@@ -86,13 +134,17 @@
 <body class="bg-gray-100 text-gray-800">
     <div class="relative flex size-full min-h-screen flex-col bg-gray-100 justify-between">
         <div>
-            <!-- Cabeçalho -->
+            <!-- ============================================
+                 CABEÇALHO
+                 ============================================ -->
             <header class="sticky top-0 z-10 flex items-center bg-white/90 p-4 pb-3 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-                <a href="index.html" class="text-gray-600 hover:text-teal-700 p-2 -ml-2 rounded-full transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+                <a href="index.html" class="text-gray-600 hover:text-teal-700 p-2 -ml-2 rounded-full transition-colors duration-200" aria-label="Voltar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+                    </svg>
                 </a>
-                <h1 data-i18n='contatos.titulo' class="text-gray-800 text-xl font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-8">Contato e Suporte</h1>
-                
+                <h1 data-i18n="contatos.titulo" class="text-gray-800 text-xl font-bold leading-tight tracking-tight flex-1 text-center pr-8">Contato e Suporte</h1>
+
                 <!-- Seletor de Idioma -->
                 <div id="language-selector" class="absolute top-2 right-2 flex space-x-1 bg-gray-200 p-1 rounded-full">
                     <button id="lang-pt" class="lang-btn" aria-label="Português">
@@ -106,10 +158,10 @@
                         <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <rect width="20" height="14" fill="#b22234"/>
                             <g fill="#fff">
-                              <rect y="1" width="20" height="1.5"/>
-                              <rect y="4" width="20" height="1.5"/>
-                              <rect y="7" width="20" height="1.5"/>
-                              <rect y="10" width="20" height="1.5"/>
+                                <rect y="1" width="20" height="1.5"/>
+                                <rect y="4" width="20" height="1.5"/>
+                                <rect y="7" width="20" height="1.5"/>
+                                <rect y="10" width="20" height="1.5"/>
                             </g>
                             <rect width="8" height="6" fill="#3c3b6e"/>
                         </svg>
@@ -123,9 +175,12 @@
                 </div>
             </header>
 
-            <!-- Conteúdo da Página -->
+            <!-- ============================================
+                 CONTEÚDO PRINCIPAL
+                 ============================================ -->
             <main class="flex-grow pb-24 max-w-2xl mx-auto w-full">
-                <!-- Informações da Missão -->
+
+                <!-- Banner da Missão -->
                 <div class="p-4">
                     <div class="bg-white rounded-xl p-4 text-center border border-gray-200 shadow-sm">
                         <h2 class="text-2xl font-black text-teal-800 mb-2">MISSIONCARE PLUS</h2>
@@ -133,15 +188,17 @@
                     </div>
                 </div>
 
-                <!-- Formas de Contato -->
-                <div class="px-4 py-2 space-y-6">
+                <!-- Seção: Formas de Contato -->
+                <div class="px-4 py-2 space-y-4">
                     <h2 class="text-xl font-bold text-gray-700" data-i18n="contact.how_to_contact">Como entrar em contato</h2>
-                    
-                    <!-- WhatsApp (Emergência) - REATORADO -->
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+
+                    <!-- ── CARD 1: WhatsApp de Emergência ── -->
+                    <div class="contact-card bg-white rounded-xl p-4 border border-red-200 shadow-sm">
                         <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                                <svg class="w-6 h-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256"><path d="M239.87,193.34,208.2,180.48a16,16,0,0,0-15.84,1.74l-19.8,13.2a144.35,144.35,0,0,1-63.83-63.83l13.2-19.8a16,16,0,0,0,1.74-15.84L110.8,64.13a16,16,0,0,0-15.18-10.42H64.13a16,16,0,0,0-16,15.18c-1.23,49.1,14.05,97.53,44.58,135.25a173.43,173.43,0,0,0,135.25,44.58,16,16,0,0,0,15.18-16V194.66A16,16,0,0,0,239.87,193.34Z"></path></svg>
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <svg class="w-6 h-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256">
+                                    <path d="M239.87,193.34,208.2,180.48a16,16,0,0,0-15.84,1.74l-19.8,13.2a144.35,144.35,0,0,1-63.83-63.83l13.2-19.8a16,16,0,0,0,1.74-15.84L110.8,64.13a16,16,0,0,0-15.18-10.42H64.13a16,16,0,0,0-16,15.18c-1.23,49.1,14.05,97.53,44.58,135.25a173.43,173.43,0,0,0,135.25,44.58,16,16,0,0,0,15.18-16V194.66A16,16,0,0,0,239.87,193.34Z"></path>
+                                </svg>
                             </div>
                             <div class="flex-1">
                                 <h3 class="font-bold text-red-700 text-lg" data-i18n="whatsapp.emergency_title">Contato de Emergência</h3>
@@ -149,11 +206,13 @@
                             </div>
                         </div>
                         <button id="whatsapp-emergency-btn" class="w-full bg-red-600 text-white p-3 rounded-lg font-bold hover:bg-red-700 transition-colors shadow-md flex items-center justify-center space-x-2">
-                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 14.2c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.2.4-.4.1-.1.2-.2.3-.4.1-.2.1-.3 0-.4-.1-.1-1.7-4.1-1.9-4.5-.2-.4-.4-.4-.6-.4h-.4c-.2 0-.5.2-.6.4-.2.2-.8.8-.8 1.9 0 1.2.8 2.2 1 2.4.1.2 1.5 2.3 3.7 3.2.5.2.9.4 1.2.5.5.2 1 .1 1.3-.1.4-.2.8-.9.9-1.7.1-.8.1-1.5 0-1.7-.1-.2-.3-.3-.5-.4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16.6 14.2c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.2.4-.4.1-.1.2-.2.3-.4.1-.2.1-.3 0-.4-.1-.1-1.7-4.1-1.9-4.5-.2-.4-.4-.4-.6-.4h-.4c-.2 0-.5.2-.6.4-.2.2-.8.8-.8 1.9 0 1.2.8 2.2 1 2.4.1.2 1.5 2.3 3.7 3.2.5.2.9.4 1.2.5.5.2 1 .1 1.3-.1.4-.2.8-.9.9-1.7.1-.8.1-1.5 0-1.7-.1-.2-.3-.3-.5-.4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                            </svg>
                             <span data-i18n="whatsapp.emergency_btn">Abrir WhatsApp de Emergência</span>
                         </button>
-                        <!-- MELHORIA: Informação offline unificada e acionável -->
-                        <div id="offline-whatsapp-info" class="offline-info">
+                        <!-- Info offline com número para ligar -->
+                        <div class="offline-info">
                             <p class="font-semibold mb-2" data-i18n="whatsapp.offline_title">Você está offline. Para emergências:</p>
                             <p class="mb-3">
                                 <span data-i18n="whatsapp.offline_info_label">Ligue para:</span>
@@ -165,53 +224,99 @@
                         </div>
                     </div>
 
-                    <!-- Email Geral -->
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                    <!-- ── CARD 2: WhatsApp Grupo (Suporte Geral) ── -->
+                    <div class="contact-card bg-white rounded-xl p-4 border border-green-200 shadow-sm">
                         <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M16.6 14.2c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.2.4-.4.1-.1.2-.2.3-.4.1-.2.1-.3 0-.4-.1-.1-1.7-4.1-1.9-4.5-.2-.4-.4-.4-.6-.4h-.4c-.2 0-.5.2-.6.4-.2.2-.8.8-.8 1.9 0 1.2.8 2.2 1 2.4.1.2 1.5 2.3 3.7 3.2.5.2.9.4 1.2.5.5.2 1 .1 1.3-.1.4-.2.8-.9.9-1.7.1-.8.1-1.5 0-1.7-.1-.2-.3-.3-.5-.4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-green-700 text-lg" data-i18n="whatsapp.group_title">Grupo WhatsApp</h3>
+                                <p class="text-sm text-gray-600" data-i18n="whatsapp.group_desc">Participe do nosso grupo de suporte e comunidade.</p>
+                            </div>
+                        </div>
+                        <button id="whatsapp-group-btn" class="w-full bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-700 transition-colors shadow-md flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16.6 14.2c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.2.4-.4.1-.1.2-.2.3-.4.1-.2.1-.3 0-.4-.1-.1-1.7-4.1-1.9-4.5-.2-.4-.4-.4-.6-.4h-.4c-.2 0-.5.2-.6.4-.2.2-.8.8-.8 1.9 0 1.2.8 2.2 1 2.4.1.2 1.5 2.3 3.7 3.2.5.2.9.4 1.2.5.5.2 1 .1 1.3-.1.4-.2.8-.9.9-1.7.1-.8.1-1.5 0-1.7-.1-.2-.3-.3-.5-.4zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                            </svg>
+                            <span data-i18n="whatsapp.group_btn">Entrar no Grupo</span>
+                        </button>
+                    </div>
+
+                    <!-- ── CARD 3: Email Geral ── -->
+                    <div class="contact-card bg-white rounded-xl p-4 border border-blue-200 shadow-sm">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/>
+                                </svg>
                             </div>
                             <div class="flex-1">
                                 <h3 class="font-bold text-blue-700 text-lg" data-i18n="email.title">Email Geral</h3>
                                 <p class="text-sm text-gray-600" data-i18n="email.desc">Para dúvidas, sugestões e informações gerais.</p>
                             </div>
                         </div>
-                        <div class="p-3 bg-gray-50 rounded-lg text-center border border-gray-200">
-                            <p class="text-sm font-semibold text-gray-700">missionarymedicalcare@gmail.com</p>
+                        <a href="mailto:missionarymedicalcare@gmail.com" class="block w-full bg-blue-50 text-blue-700 p-3 rounded-lg font-semibold text-center border border-blue-200 hover:bg-blue-100 transition-colors">
+                            missionarymedicalcare@gmail.com
+                        </a>
+                        <div class="offline-info">
+                            <p data-i18n="email.offline_info">Anote o email e envie quando estiver conectado: missionarymedicalcare@gmail.com</p>
                         </div>
                     </div>
 
-                    <!-- Redes Sociais -->
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                    <!-- ── CARD 4: Redes Sociais ── -->
+                    <div class="contact-card bg-white rounded-xl p-4 border border-purple-200 shadow-sm">
                         <h3 class="font-bold text-gray-700 mb-3 flex items-center text-lg" data-i18n="social.title">
-                            <span class="mr-2 text-xl">🌐</span> Siga-nos nas redes sociais
+                            Siga-nos nas redes sociais
                         </h3>
-                        <div class="flex justify-center">
-                            <button onclick="abrirRedeSocial('instagram')" class="flex items-center justify-center p-3 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-colors font-semibold shadow-md w-full sm:w-auto sm:min-w-[200px]">
-                                <span class="mr-2">📷</span> Instagram
+                        <div class="grid grid-cols-1 gap-3">
+                            <button id="btn-instagram" class="flex items-center justify-center p-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:from-purple-700 hover:to-pink-600 transition-all font-semibold shadow-md">
+                                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                </svg>
+                                Instagram
                             </button>
                         </div>
                         <div class="offline-info">
                             <p data-i18n="social.offline_info">Conecte-se conosco quando estiver online para receber encorajamento e notícias.</p>
                         </div>
                     </div>
+
+                    <!-- ── CARD 5: Sobre o App ── -->
+                    <div class="contact-card bg-white rounded-xl p-4 border border-teal-200 shadow-sm">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <svg class="w-6 h-6 text-teal-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-teal-700 text-lg" data-i18n="about.title">Sobre o App</h3>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-600 space-y-2">
+                            <p data-i18n="about.version"><strong>Versão:</strong> 2.0 - MissionCare Plus</p>
+                            <p data-i18n="about.purpose"><strong>Finalidade:</strong> Suporte clínico para equipes missionárias em campo.</p>
+                            <p data-i18n="about.offline_note"><strong>Modo Offline:</strong> Protocolos de triagem e emergência disponíveis sem internet.</p>
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
-        
-        <!-- Mensagem de Notificação -->
-        <div id="app-message" class="hidden"></div>
-        
+
+        <!-- Mensagem de Notificação (topo da tela) -->
+        <div id="app-message"></div>
+
         <!-- Indicador de Modo Offline -->
         <div id="offline-indicator" class="offline-indicator" data-i18n="offline.indicator">Modo Offline</div>
     </div>
-    
-    <!-- Modal de Feedback (sucesso/erro) -->
-    <div id="feedback-modal" class="feedback-modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[70]">
+
+    <!-- Modal de Feedback -->
+    <div id="feedback-modal" class="feedback-modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center">
-            <div id="feedback-icon" class="size-16 mx-auto mb-4 rounded-full flex items-center justify-center">
-                <!-- Ícone será injetado via JS -->
-            </div>
+            <div id="feedback-icon" class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"></div>
             <h3 id="feedback-title" class="text-xl font-bold text-gray-800 mb-2"></h3>
             <p id="feedback-message" class="text-gray-600 mb-6"></p>
             <button id="close-feedback-modal" class="w-full bg-teal-600 text-white p-3 rounded-lg font-bold hover:bg-teal-700 transition-colors shadow-md" data-i18n="feedback.close_button">
@@ -219,26 +324,49 @@
             </button>
         </div>
     </div>
-    
-    <!-- Barra de Navegação Inferior -->
+
+    <!-- ============================================
+         BARRA DE NAVEGAÇÃO INFERIOR
+         ============================================ -->
     <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
         <nav class="flex justify-around items-center h-16 max-w-2xl mx-auto">
-            <a href="index.html" class="bottom-nav-item active" id="nav-home">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h9.75a1.125 1.125 0 001.125-1.125V9.75M8.25 21h8.25" /></svg>
+            <a href="index.html" class="bottom-nav-item" id="nav-home">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h9.75a1.125 1.125 0 001.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
                 <span data-i18n="nav.home">Início</span>
+            </a>
+            <a href="4-emergencias.html" class="bottom-nav-item" id="nav-emergency">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                <span data-i18n="nav.emergency">Emergência</span>
+            </a>
+            <a href="9-contatos.html" class="bottom-nav-item active" id="nav-contact">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                </svg>
+                <span data-i18n="nav.contact">Contato</span>
             </a>
         </nav>
     </footer>
-    
-        <script src="assets/js/translator.js" defer></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', function(){
-            if (window.Translator && typeof window.Translator.init === 'function') {
-                window.Translator.init({ storageKey: 'lang', defaultLang: 'pt' });
-            }
-        });
 
-        (function(){
+    <!-- ============================================
+         JAVASCRIPT
+         ============================================ -->
+    <script src="assets/js/translator.js" defer></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar tradutor se disponível
+        if (window.Translator && typeof window.Translator.init === 'function') {
+            window.Translator.init({ storageKey: 'lang', defaultLang: 'pt' });
+        }
+    });
+
+    (function() {
+        'use strict';
+
+        // ── TRADUÇÕES ──
         const translations = {
             'pt-BR': {
                 'contatos.titulo': 'Contato e Suporte',
@@ -251,12 +379,22 @@
                 'whatsapp.offline_info_label': 'Ligue para:',
                 'whatsapp.copy_btn': 'Copiar Número',
                 'whatsapp.copied_success': 'Número copiado!',
+                'whatsapp.group_title': 'Grupo WhatsApp',
+                'whatsapp.group_desc': 'Participe do nosso grupo de suporte e comunidade.',
+                'whatsapp.group_btn': 'Entrar no Grupo',
                 'email.title': 'Email Geral',
                 'email.desc': 'Para dúvidas, sugestões e informações gerais.',
+                'email.offline_info': 'Anote o email e envie quando estiver conectado: missionarymedicalcare@gmail.com',
                 'social.title': 'Siga-nos nas redes sociais',
                 'social.offline_info': 'Conecte-se conosco quando estiver online para receber encorajamento e notícias.',
+                'about.title': 'Sobre o App',
+                'about.version': 'Versão: 2.0 - MissionCare Plus',
+                'about.purpose': 'Finalidade: Suporte clínico para equipes missionárias em campo.',
+                'about.offline_note': 'Modo Offline: Protocolos de triagem e emergência disponíveis sem internet.',
                 'feedback.close_button': 'Fechar',
                 'nav.home': 'Início',
+                'nav.emergency': 'Emergência',
+                'nav.contact': 'Contato',
                 'offline.indicator': 'Modo Offline',
                 'offline.mode_alert': 'Modo Offline ativado. Algumas funcionalidades podem estar limitadas.'
             },
@@ -271,12 +409,22 @@
                 'whatsapp.offline_info_label': 'Llame a:',
                 'whatsapp.copy_btn': 'Copiar Número',
                 'whatsapp.copied_success': '¡Número copiado!',
+                'whatsapp.group_title': 'Grupo WhatsApp',
+                'whatsapp.group_desc': 'Únase a nuestro grupo de apoyo y comunidad.',
+                'whatsapp.group_btn': 'Unirse al Grupo',
                 'email.title': 'Correo General',
                 'email.desc': 'Para dudas, sugerencias e información general.',
+                'email.offline_info': 'Anote el correo y envíe cuando tenga conexión: missionarymedicalcare@gmail.com',
                 'social.title': 'Síganos en redes sociales',
                 'social.offline_info': 'Conéctese con nosotros cuando esté en línea para recibir aliento y noticias.',
+                'about.title': 'Sobre la App',
+                'about.version': 'Versión: 2.0 - MissionCare Plus',
+                'about.purpose': 'Finalidad: Soporte clínico para equipos misioneros en campo.',
+                'about.offline_note': 'Modo Offline: Protocolos de triaje y emergencia disponibles sin internet.',
                 'feedback.close_button': 'Cerrar',
                 'nav.home': 'Inicio',
+                'nav.emergency': 'Emergencia',
+                'nav.contact': 'Contacto',
                 'offline.indicator': 'Modo Offline',
                 'offline.mode_alert': 'Modo sin conexión activado. Algunas funcionalidades pueden estar limitadas.'
             },
@@ -291,157 +439,208 @@
                 'whatsapp.offline_info_label': 'Call:',
                 'whatsapp.copy_btn': 'Copy Number',
                 'whatsapp.copied_success': 'Number copied!',
+                'whatsapp.group_title': 'WhatsApp Group',
+                'whatsapp.group_desc': 'Join our support and community group.',
+                'whatsapp.group_btn': 'Join Group',
                 'email.title': 'General Email',
                 'email.desc': 'For questions, suggestions, and general information.',
+                'email.offline_info': 'Note the email and send when connected: missionarymedicalcare@gmail.com',
                 'social.title': 'Follow us on social media',
                 'social.offline_info': 'Connect with us when you are online to receive encouragement and news.',
+                'about.title': 'About the App',
+                'about.version': 'Version: 2.0 - MissionCare Plus',
+                'about.purpose': 'Purpose: Clinical support for missionary teams in the field.',
+                'about.offline_note': 'Offline Mode: Triage and emergency protocols available without internet.',
                 'feedback.close_button': 'Close',
                 'nav.home': 'Home',
+                'nav.emergency': 'Emergency',
+                'nav.contact': 'Contact',
                 'offline.indicator': 'Offline Mode',
                 'offline.mode_alert': 'Offline mode activated. Some features may be limited.'
             }
         };
-        
-        // Variáveis globais
-        let currentLang = localStorage.getItem('appLang') || 'pt-BR';
-        
-        // Função para atualizar o status online/offline da UI
-        function updateOnlineStatus() {
-            const isOnline = navigator.onLine;
-            const offlineIndicator = document.getElementById('offline-indicator');
-            const offlineInfoElements = document.querySelectorAll('.offline-info');
-            
-            if (isOnline) {
-                offlineIndicator.classList.remove('show');
-                offlineInfoElements.forEach(el => el.classList.remove('show'));
-            } else {
-                offlineIndicator.classList.add('show');
-                // Mostra todas as informações de contexto offline
-                offlineInfoElements.forEach(el => el.classList.add('show'));
-                showMessage(translations[currentLang]['offline.mode_alert'], 'info', 5000);
-            }
-        }
-        
-        // Função para exibir mensagens de notificação
-        function showMessage(message, type = 'info', duration = 3000) {
-            const appMessage = document.getElementById('app-message');
-            if (!appMessage) return;
 
+        let currentLang = localStorage.getItem('appLang') || 'pt-BR';
+
+        // ── FUNÇÕES UTILITÁRIAS ──
+
+        function showMessage(message, type, duration) {
+            type = type || 'info';
+            duration = duration || 3000;
+            var appMessage = document.getElementById('app-message');
+            if (!appMessage) return;
             appMessage.textContent = message;
-            // Remove classes de tipo anteriores e adiciona a nova
-            appMessage.classList.remove('success', 'error', 'info');
-            appMessage.classList.add(type);
-            appMessage.classList.add('show');
-            
-            setTimeout(() => {
+            appMessage.className = ''; // Reset
+            appMessage.classList.add(type, 'show');
+            // Aplica estilos inline como fallback
+            appMessage.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:12px 16px;color:white;font-weight:600;text-align:center;z-index:200;transform:translateY(0);opacity:1;';
+            if (type === 'error') appMessage.style.backgroundColor = '#dc2626';
+            else if (type === 'success') appMessage.style.backgroundColor = '#0d9488';
+            else appMessage.style.backgroundColor = '#2563eb';
+            setTimeout(function() {
                 appMessage.classList.remove('show');
+                appMessage.style.transform = 'translateY(-100%)';
+                appMessage.style.opacity = '0';
             }, duration);
         }
 
-        // Função para copiar texto para a área de transferência
+        function updateOnlineStatus() {
+            var isOnline = navigator.onLine;
+            var offlineIndicator = document.getElementById('offline-indicator');
+            var offlineInfoElements = document.querySelectorAll('.offline-info');
+
+            if (isOnline) {
+                if (offlineIndicator) offlineIndicator.classList.remove('show');
+                offlineInfoElements.forEach(function(el) { el.classList.remove('show'); });
+            } else {
+                if (offlineIndicator) offlineIndicator.classList.add('show');
+                offlineInfoElements.forEach(function(el) { el.classList.add('show'); });
+                var t = translations[currentLang];
+                if (t) showMessage(t['offline.mode_alert'], 'info', 5000);
+            }
+        }
+
         function copyToClipboard(text) {
-            // Usa um textarea temporário para copiar o texto
-            const textArea = document.createElement("textarea");
+            // API moderna (preferida)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    var t = translations[currentLang];
+                    showMessage(t ? t['whatsapp.copied_success'] : 'Copiado!', 'success');
+                }).catch(function() {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            var textArea = document.createElement('textarea');
             textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
             try {
                 document.execCommand('copy');
-                showMessage(translations[currentLang]['whatsapp.copied_success'], 'success');
+                var t = translations[currentLang];
+                showMessage(t ? t['whatsapp.copied_success'] : 'Copiado!', 'success');
             } catch (err) {
-                console.error('Falha ao copiar texto: ', err);
                 showMessage('Erro ao copiar', 'error');
             }
             document.body.removeChild(textArea);
         }
-        
-        // Função para abrir redes sociais
-        function abrirRedeSocial(redeSocial) {
-            if (!navigator.onLine) {
-                showMessage(translations[currentLang]['offline.mode_alert'], 'error');
-                return;
-            }
-            
-            const urls = {
-                instagram: 'https://www.instagram.com/missionarymedicalcare/'
-            };
-            
-            const url = urls[redeSocial];
-            if (url) {
-                window.open(url, '_blank');
-            }
-        }
-        
-        // Função para abrir WhatsApp
-        function abrirWhatsApp() {
-            if (!navigator.onLine) {
-                // A UI já mostra a alternativa offline, então apenas damos um feedback
-                showMessage(translations[currentLang]['offline.mode_alert'], 'error');
-                return;
-            }
-            // Link para o grupo de WhatsApp
-            const url = 'https://chat.whatsapp.com/EZ4WRQo1dQI7fzsHDk6K0A?mode=ems_share_t';
-            window.open(url, '_blank');
-        }
-        
-        // Função para atualizar o idioma da interface
+
         function updateLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('appLang', lang);
-            
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.id === `lang-${lang.split('-')[0]}`);
-                btn.classList.toggle('inactive', btn.id !== `lang-${lang.split('-')[0]}`);
+
+            // Atualiza visual dos botões de idioma
+            document.querySelectorAll('.lang-btn').forEach(function(btn) {
+                var langPrefix = lang.split('-')[0];
+                if (btn.id === 'lang-' + langPrefix) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
             });
-            
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) {
-                    element.textContent = translations[lang][key];
+
+            // Atualiza textos traduzidos
+            var t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(function(element) {
+                var key = element.getAttribute('data-i18n');
+                if (t[key]) {
+                    element.textContent = t[key];
                 }
             });
         }
-        
-        // Função para mostrar modal de feedback (mantida para consistência com outras páginas)
-        function showFeedbackModal(title, message, isSuccess) {
-            // ... (código do modal mantido, caso seja necessário em outras interações)
+
+        function abrirWhatsAppEmergencia() {
+            if (!navigator.onLine) {
+                var t = translations[currentLang];
+                showMessage(t ? t['offline.mode_alert'] : 'Você está offline.', 'error');
+                return;
+            }
+            window.open('https://chat.whatsapp.com/EZ4WRQo1dQI7fzsHDk6K0A?mode=ems_share_t', '_blank');
         }
-        
-        // Inicialização quando o DOM estiver carregado
+
+        function abrirWhatsAppGrupo() {
+            if (!navigator.onLine) {
+                var t = translations[currentLang];
+                showMessage(t ? t['offline.mode_alert'] : 'Você está offline.', 'error');
+                return;
+            }
+            window.open('https://chat.whatsapp.com/EZ4WRQo1dQI7fzsHDk6K0A?mode=ems_share_t', '_blank');
+        }
+
+        function abrirInstagram() {
+            if (!navigator.onLine) {
+                var t = translations[currentLang];
+                showMessage(t ? t['offline.mode_alert'] : 'Você está offline.', 'error');
+                return;
+            }
+            window.open('https://www.instagram.com/missionarymedicalcare/', '_blank');
+        }
+
+        // ── INICIALIZAÇÃO ──
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Configurar o idioma inicial
+            // Idioma
             updateLanguage(currentLang);
-            
-            // Verificar status de conexão inicial e configurar listeners
+
+            // Status online/offline
             updateOnlineStatus();
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
-            
-            // Adicionar event listeners para botões de idioma
-            document.getElementById('lang-pt').addEventListener('click', () => updateLanguage('pt-BR'));
-            document.getElementById('lang-es').addEventListener('click', () => updateLanguage('es-ES'));
-            document.getElementById('lang-en').addEventListener('click', () => updateLanguage('en-US'));
-            
-            // Adicionar event listener para o botão de WhatsApp
-            document.getElementById('whatsapp-emergency-btn').addEventListener('click', abrirWhatsApp);
-            
-            // Adicionar event listener para o botão de copiar número
-            document.getElementById('copy-number-btn').addEventListener('click', () => {
-                const number = document.getElementById('emergency-phone-number').textContent;
-                copyToClipboard(number);
-            });
 
-            // Lógica para fechar o modal (mantida para consistência)
-            const feedbackModal = document.getElementById('feedback-modal');
-            document.getElementById('close-feedback-modal').addEventListener('click', () => feedbackModal.classList.remove('show'));
-            feedbackModal.addEventListener('click', function(event) {
-                if (event.target === this) {
-                    this.classList.remove('show');
-                }
-            });
+            // Botões de idioma
+            var langPt = document.getElementById('lang-pt');
+            var langEs = document.getElementById('lang-es');
+            var langEn = document.getElementById('lang-en');
+            if (langPt) langPt.addEventListener('click', function() { updateLanguage('pt-BR'); });
+            if (langEs) langEs.addEventListener('click', function() { updateLanguage('es-ES'); });
+            if (langEn) langEn.addEventListener('click', function() { updateLanguage('en-US'); });
+
+            // Botão WhatsApp Emergência
+            var emergencyBtn = document.getElementById('whatsapp-emergency-btn');
+            if (emergencyBtn) emergencyBtn.addEventListener('click', abrirWhatsAppEmergencia);
+
+            // Botão WhatsApp Grupo
+            var groupBtn = document.getElementById('whatsapp-group-btn');
+            if (groupBtn) groupBtn.addEventListener('click', abrirWhatsAppGrupo);
+
+            // Botão copiar número
+            var copyBtn = document.getElementById('copy-number-btn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', function() {
+                    var numberEl = document.getElementById('emergency-phone-number');
+                    if (numberEl) copyToClipboard(numberEl.textContent.trim());
+                });
+            }
+
+            // Botão Instagram
+            var igBtn = document.getElementById('btn-instagram');
+            if (igBtn) igBtn.addEventListener('click', abrirInstagram);
+
+            // Modal de feedback
+            var feedbackModal = document.getElementById('feedback-modal');
+            var closeModalBtn = document.getElementById('close-feedback-modal');
+            if (closeModalBtn && feedbackModal) {
+                closeModalBtn.addEventListener('click', function() {
+                    feedbackModal.classList.remove('show');
+                });
+            }
+            if (feedbackModal) {
+                feedbackModal.addEventListener('click', function(event) {
+                    if (event.target === feedbackModal) {
+                        feedbackModal.classList.remove('show');
+                    }
+                });
+            }
         });
+    })();
     </script>
 </body>
 </html>
-
