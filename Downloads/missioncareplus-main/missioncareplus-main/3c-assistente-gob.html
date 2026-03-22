@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-lang">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="app_title">Triagem Gineco-Obstetrícia (GOB) — MissionCare Plus</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&family=Noto+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="assets/js/api-config.js"></script>
+  
+  <meta name="theme-color" content="#0f766e"/>
+  <style>
+    body { font-family: 'Noto Sans', sans-serif; padding-bottom: 80px; }
+    h1, h2, h3, button, .font-semibold, .font-extrabold { font-family: 'Lexend', sans-serif; }
+    .page {
+        display: none;
+        animation: fadeIn 0.5s;
+    }
+    .page.active {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .profile-box {
+        transition: all 0.2s ease-in-out;
+    }
+    .profile-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    .lang-btn.active {
+        color: #0f766e;
+        font-weight: 800;
+        text-decoration: underline;
+    }
+    .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#fff;box-shadow:0 -4px 15px -5px rgba(0,0,0,.1);z-index:50;padding:.75rem 0}
+    .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem;cursor:pointer;transition:.2s;border-radius:.5rem;color:#6b7280}
+    .nav-item:hover{background:rgba(59,130,246,.1)}
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+  <main class="max-w-3xl mx-auto p-4 sm:p-6">
+    <header class="mb-6 text-center relative">
+      <h1 class="text-3xl font-extrabold text-teal-800" data-i18n="main_title">Triagem Gineco-Obstetrícia</h1>
+      <p class="text-sm text-slate-600 mt-2" data-i18n="subtitle">
+        Ferramenta de apoio à decisão. <strong>Não substitui uma consulta médica.</strong>
+      </p>
+      <div id="lang-switcher" class="flex justify-center gap-4 mt-4">
+    <button onclick="setLanguage('pt')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="pt" aria-label="Português (Brasil)">
+      <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#009c3b"/><polygon points="10,2 16,7 10,12 4,7" fill="#ffdf00"/><circle cx="10" cy="7" r="2.6" fill="#3e4095"/></svg>
+      <span class="ml-2">Português</span>
+    </button>
+    <button onclick="setLanguage('es')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="es" aria-label="Español (España)">
+      <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#c60b1e"/><rect y="4" width="20" height="6" fill="#ffc400"/></svg>
+      <span class="ml-2">Español</span>
+    </button>
+    <button onclick="setLanguage('en')" class="lang-btn text-sm font-semibold text-slate-600 hover:text-teal-700" data-lang="en" aria-label="English (US)">
+      <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="14" fill="#b22234"/><g fill="#fff"><rect y="1" width="20" height="1.5"/><rect y="4" width="20" height="1.5"/><rect y="7" width="20" height="1.5"/><rect y="10" width="20" height="1.5"/></g><rect width="8" height="6" fill="#3c3b6e"/></svg>
+      <span class="ml-2">English</span>
+    </button>
+      </div>
+    </header>
+
+    <!-- Page 1: Profile Selection -->
+    <div id="page-1" class="page active">
+        <h2 class="font-semibold text-lg text-slate-800 text-center mb-4" data-i18n="select_profile_title">1. Selecione o Perfil da Paciente</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div onclick="selectProfile('gestante')" class="profile-box bg-white shadow-md rounded-2xl p-6 text-center cursor-pointer">
+                <span class="text-6xl">🤰</span>
+                <p class="text-xl font-semibold mt-4" data-i18n="profile_gestante">Gestante</p>
+            </div>
+            <div onclick="selectProfile('puerpera')" class="profile-box bg-white shadow-md rounded-2xl p-6 text-center cursor-pointer">
+                <span class="text-6xl">🤱</span>
+                <p class="text-xl font-semibold mt-4" data-i18n="profile_puerpera">Puérpera</p>
+                <span class="text-xs text-slate-500" data-i18n="profile_puerpera_subtitle">(até 42 dias pós-parto)</span>
+            </div>
+            <div onclick="selectProfile('nao_gravida')" class="profile-box bg-white shadow-md rounded-2xl p-6 text-center cursor-pointer">
+                <span class="text-6xl">👩‍⚕️</span>
+                <p class="text-xl font-semibold mt-4" data-i18n="profile_nao_gravida">Não Grávida</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 2: Data Input -->
+    <div id="page-2" class="page">
+        <!-- Patient Quick Card -->
+        <div id="patient-card" class="bg-teal-700 text-white rounded-2xl p-4 mb-5 shadow-lg sticky top-4 z-10">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="font-semibold text-lg"><span data-i18n="card_profile">Perfil</span>: <span id="card-profile"></span></p>
+                    <p id="card-ig-container" class="text-sm hidden"><span data-i18n="card_gestational_age">Idade Gestacional</span>: <span id="card-ig" class="font-bold"></span></p>
+                </div>
+                <button onclick="resetApp()" class="text-sm underline hover:text-teal-200" data-i18n="change_profile">Trocar Perfil</button>
+            </div>
+        </div>
+
+        <!-- Gestante Fields -->
+        <div id="gestante-fields-section" class="bg-white shadow-md rounded-2xl p-5 mb-5 hidden">
+            <h3 class="font-semibold text-lg text-slate-800 mb-3" data-i18n="gestational_age_title">Idade Gestacional</h3>
+             <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label for="dum" class="block text-sm font-medium text-slate-700" data-i18n="dum_label">DUM (data da última menstruação)</label>
+                <input type="date" id="dum" class="w-full mt-1 rounded-lg border-slate-300 focus:border-teal-500 focus:ring-teal-500">
+              </div>
+              <div>
+                <label for="igSemanas" class="block text-sm font-medium text-slate-700" data-i18n="ig_weeks_label">IG em semanas (se não souber a DUM)</label>
+                <input type="number" id="igSemanas" class="w-full mt-1 rounded-lg border-slate-300 focus:border-teal-500 focus:ring-teal-500" min="4" max="43" placeholder="ex.: 28">
+              </div>
+            </div>
+        </div>
+
+        <!-- Vitals -->
+        <div class="bg-white shadow-md rounded-2xl p-5 mb-5">
+            <h3 class="font-semibold text-lg text-slate-800 mb-3" data-i18n="vitals_title">Sinais Vitais (Opcional)</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                <div>
+                  <label for="pas" class="block text-sm font-medium text-slate-600">PAS</label>
+                  <input id="pas" type="number" class="w-full mt-1 rounded-lg border-slate-300" placeholder="mmHg">
+                </div>
+                <div>
+                  <label for="pad" class="block text-sm font-medium text-slate-600">PAD</label>
+                  <input id="pad" type="number" class="w-full mt-1 rounded-lg border-slate-300" placeholder="mmHg">
+                </div>
+                <div>
+                  <label for="fc" class="block text-sm font-medium text-slate-600">FC</label>
+                  <input id="fc" type="number" class="w-full mt-1 rounded-lg border-slate-300" placeholder="bpm">
+                </div>
+                <div>
+                  <label for="fr" class="block text-sm font-medium text-slate-600">FR</label>
+                  <input id="fr" type="number" class="w-full mt-1 rounded-lg border-slate-300" placeholder="irpm">
+                </div>
+                <div>
+                  <label for="temp" class="block text-sm font-medium text-slate-600">Temp</label>
+                  <input id="temp" type="number" step="0.1" class="w-full mt-1 rounded-lg border-slate-300" placeholder="°C">
+                </div>
+            </div>
+        </div>
+
+        <!-- Symptoms -->
+        <div class="bg-white shadow-md rounded-2xl p-5 mb-5">
+            <h3 class="font-semibold text-lg text-slate-800 mb-3" data-i18n="symptoms_title">Sinais e Sintomas de Alerta</h3>
+            <div class="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                <label class="flex items-center"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="sangramento_intenso"><span data-i18n="symptom_bleeding">Sangramento vaginal intenso/coágulos</span></label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="dor_abdominal_forte"><span data-i18n="symptom_pain">Dor abdominal forte/contrações regulares</span></label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="perda_liquido"><span data-i18n="symptom_fluid_loss">Perda de líquido pela vagina</span></label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="cefaleia_visao"><span data-i18n="symptom_headache">Cefaleia forte/visão turva</span></label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="convulsao"><span data-i18n="symptom_seizure">Convulsão/desmaio</span></label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="dispneia_toracica"><span data-i18n="symptom_breathing">Falta de ar/dor torácica</span></label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="febre_alta"><span data-i18n="symptom_fever">Febre alta/calafrios</span></label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="disuria_lombar"><span data-i18n="symptom_urinary_pain">Dor ao urinar/dor lombar</span></label>
+                <label class="flex items-center gestanteOnly hidden"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="mov_fetais_reduzidos"><span data-i18n="symptom_fetal_mov">Movimentos fetais reduzidos (se ≥24 sem)</span></label>
+                <label class="flex items-center gestanteOnly hidden"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="ombro_dor"><span data-i18n="symptom_shoulder_pain">Dor no ombro/tontura (suspeita de ectópica)</span></label>
+                <label class="flex items-center puerperaOnly hidden"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="sangramento_puerperio"><span data-i18n="symptom_postpartum_bleeding">Sangramento anormal no puerpério</span></label>
+                <label class="flex items-center puerperaOnly hidden"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="mastite"><span data-i18n="symptom_mastitis">Mama vermelha/dolorosa com febre (mastite)</span></label>
+                <label class="flex items-center"><input type="checkbox" class="mr-2 rounded text-teal-600 focus:ring-teal-500 sym" value="vomitos_persistentes"><span data-i18n="symptom_vomiting">Vômitos persistentes/incapaz de ingerir líquidos</span></label>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-4 mt-6 items-center">
+            <button id="analisarBtn" class="px-6 py-3 rounded-xl bg-teal-700 text-white font-semibold shadow-lg hover:bg-teal-800 transition-all transform hover:scale-105" tabindex="0" data-i18n="analyze_button">Analisar Sinais</button>
+        </div>
+    </div>
+
+    <!-- Page 3: Result -->
+    <div id="page-3" class="page">
+        <section id="resultado" class="rounded-2xl p-5 border-4">
+            <div id="nivel" class="text-2xl font-extrabold mb-3 flex items-center"></div>
+            <h3 class="font-semibold text-slate-800 mb-2" data-i18n="result_advice_title">Aconselhamento e Plano de Ação:</h3>
+            <div id="aconselhamento" class="mt-2 text-sm leading-relaxed space-y-2"></div>
+            
+            <!-- Emergency Actions -->
+            <div id="emergency-actions" class="mt-5 space-y-3 hidden">
+                <a id="comunicar-emergencia-btn" href="#" target="_blank" class="block w-full text-center px-4 py-3 bg-red-600 text-white font-bold rounded-lg shadow-lg hover:bg-red-700 transition-colors">
+                    <span data-i18n="emergency_button">🚨 COMUNICAR EMERGÊNCIA</span>
+                </a>
+                <a href="#" class="block w-full text-center px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300 transition-colors" data-i18n="guide_hemorrhage">
+                    Ver Guia Rápido: Hemorragia
+                </a>
+            </div>
+            
+            <!-- Other Actions -->
+            <div id="other-actions" class="mt-4 space-y-2 hidden">
+                 <a href="#" class="block w-full text-center px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300 transition-colors" data-i18n="guide_preeclampsia">
+                    Ver Guia Rápido: Pré-eclâmpsia
+                </a>
+            </div>
+
+            <details class="mt-6">
+                <summary class="cursor-pointer text-sm font-semibold text-slate-600 hover:text-slate-800" data-i18n="summary_title">Ver resumo para registro</summary>
+                <pre id="resumo" class="mt-2 text-xs bg-slate-100 p-3 rounded-lg overflow-x-auto"></pre>
+            </details>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <button id="copiarBtn" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition-colors" data-i18n="copy_summary_button">Copiar Resumo</button>
+                <button onclick="resetApp()" class="px-4 py-2 bg-teal-700 text-white rounded-lg text-sm font-semibold hover:bg-teal-600 transition-colors" data-i18n="new_triage_button">Nova Triagem</button>
+            </div>
+        </section>
+    </div>
+  </main>
+  
+  <!-- Barra inferior -->
+  <nav class="bottom-nav">
+    <div class="max-w-3xl mx-auto px-4">
+      <div class="grid grid-cols-2 gap-4">
+        <button id="back-btn" class="nav-item">
+            <i class="fas fa-arrow-left text-xl mb-1"></i>
+            <span class="text-xs" data-i18n="nav_back">Voltar</span>
+        </button>
+        <a href="index.html" class="nav-item">
+          <i class="fas fa-home text-xl mb-1"></i>
+          <span class="text-xs" data-i18n="nav_home">Início</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <script>
+  </script>
+  <script src="assets/js/translator.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.Translator && typeof window.Translator.init === 'function') {
+        window.Translator.init({ storageKey: 'gob_triage_lang', defaultLang: 'pt' });
+      }
+    });
+
+  
+    const el = id => document.getElementById(id);
+    const state = { profile: null, ig: null, summary: '' };
+    let currentPage = 1;
+  const pages = {
+    '1': el('page-1'),
+    '2': el('page-2'),
+    '3': el('page-3')
+  };
+
+  const profileLabels = {
+    pt: { gestante: 'Gestante', puerpera: 'Puérpera', nao_gravida: 'Não Grávida' },
+    es: { gestante: 'Embarazada', puerpera: 'Puérpera', nao_gravida: 'No Embarazada' },
+    en: { gestante: 'Pregnant', puerpera: 'Postpartum', nao_gravida: 'Not Pregnant' }
+  };
+
+  // Prefer shared translator dictionaries; keep local fallback empty to avoid duplication
+  const translations = window.translations || {};
+
+  let currentLang = localStorage.getItem('gob_triage_lang') || 'pt';
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    try { localStorage.setItem('gob_triage_lang', lang); } catch(e) {}
+    document.documentElement.lang = lang;
+
+    if (window.applyTranslations) {
+      window.applyTranslations(lang);
+    } else {
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          element.innerHTML = translations[lang][key];
+        }
+      });
+    }
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+
+    if (state.profile) {
+      el('card-profile').textContent = profileLabels[currentLang][state.profile];
+    }
+  }
+
+
+    function showPage(pageNumber) {
+        Object.values(pages).forEach(p => p.classList.remove('active'));
+        pages[pageNumber].classList.add('active');
+        currentPage = pageNumber;
+        updateNav();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function selectProfile(profile) {
+        state.profile = profile;
+        el('card-profile').textContent = profileLabels[currentLang][profile];
+        
+        const gestanteFields = el('gestante-fields-section');
+        const cardIgContainer = el('card-ig-container');
+        document.querySelectorAll('.gestanteOnly').forEach(x => x.classList.toggle('hidden', profile !== 'gestante'));
+        document.querySelectorAll('.puerperaOnly').forEach(x => x.classList.toggle('hidden', profile !== 'puerpera'));
+
+        if (profile === 'gestante') {
+            gestanteFields.classList.remove('hidden');
+            cardIgContainer.classList.remove('hidden');
+        } else {
+            gestanteFields.classList.add('hidden');
+            cardIgContainer.classList.add('hidden');
+        }
+        showPage('2');
+    }
+
+    function getIG() {
+      let ig = null;
+      if (state.profile === 'gestante') {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0); 
+        if (el('dum').value) {
+          const d = new Date(el('dum').value);
+          d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+          if (!isNaN(d.getTime()) && d <= hoje) {
+            ig = Math.max(0, Math.min(43, Math.floor((hoje - d) / (1000 * 60 * 60 * 24 * 7))));
+          }
+        } else if (el('igSemanas').value) {
+          ig = parseInt(el('igSemanas').value, 10);
+        }
+      }
+      state.ig = ig;
+      el('card-ig').textContent = (ig != null && !isNaN(ig) ? `${ig} semanas` : '—');
+      return ig;
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    // Configuração da API do MissionCare Plus Backend
+    const backendUrl = API_CONFIG.BASE_URL;
+    
+    async function classificar() {
+      const sintomas = [...document.querySelectorAll('.sym:checked')].map(x => x.value);
+      const sinaisVitais = {
+        pas: +(el('pas').value || 0), pad: +(el('pad').value || 0), fc: +(el('fc').value || 0), fr: +(el('fr').value || 0), temp: +(el('temp').value || 0)
+      };
+      const IG = getIG();
+      
+      // Se não há sintomas selecionados, usar classificação local
+      if (sintomas.length === 0) {
+        return { 
+          nivel: '🟢 Verde — Não Urgente', 
+          classe: 'border-emerald-500 bg-emerald-50',
+          plano: [
+            '<strong>Conduta:</strong> Manter acompanhamento de rotina (pré-natal ou ginecológico).',
+            '<strong>Autocuidado:</strong> Focar em descanso, hidratação e alimentação saudável.',
+            '<strong>Sinais de Alerta:</strong> Observar surgimento de sangramento, piora da dor, febre, desmaio ou falta de ar.'
+          ]
+        };
+      }
+      
+      try {
+        // Preparar dados para envio ao backend
+        const gobData = {
+          profile: state.profile,
+          ig: IG,
+          sintomas: sintomas,
+          sinaisVitais: sinaisVitais,
+          idioma: currentLang
+        };
+        
+        // Enviar dados para o backend usando o assistente de GOB
+        const response = await fetch(`${backendUrl}/api/assistants/run/gob`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: `Você é um assistente médico especializado em gineco-obstetrícia. Analise os seguintes dados de triagem GOB e forneça uma classificação de urgência em formato JSON no idioma ${currentLang}. Dados: ${JSON.stringify(gobData, null, 2)}`
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Erro no backend: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.ok) {
+          throw new Error(data.error || "Erro na análise do backend");
+        }
+        
+        // Processar a resposta do assistente
+        const responseText = data.text;
+        
+        // Tentar extrair JSON da resposta
+        try {
+          const cleanText = responseText.trim().replace(/```json\s*/g, '').replace(/```\s*$/g, '');
+          const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+          
+          if (jsonMatch) {
+            const analysisResult = JSON.parse(jsonMatch[0]);
+            
+            // Verificar se a estrutura está completa
+            if (analysisResult.nivel && analysisResult.classe && analysisResult.plano) {
+              return analysisResult;
+            }
+          }
+        } catch (parseError) {
+          console.warn("Erro ao fazer parse do JSON, usando classificação local:", parseError);
+        }
+        
+        // Se não conseguir processar a resposta do backend, usar classificação local
+        console.log("Usando classificação local devido a erro no backend");
+        
+      } catch (error) {
+        console.warn("Erro ao conectar com o backend, usando classificação local:", error);
+      }
+      
+      // Classificação local como fallback
+      const emergencia = verificarEmergencia(sintomas, state.profile, IG, sinaisVitais);
+      if (emergencia) return emergencia;
+      
+      const urgencia = verificarUrgencia(sintomas, state.profile, IG);
+      if (urgencia) return urgencia;
+      
+      const atencao = verificarAtencao(sintomas);
+      if (atencao) return atencao;
+      
+      return { 
+        nivel: '🟢 Verde — Não Urgente', 
+        classe: 'border-emerald-500 bg-emerald-50',
+        plano: [
+          '<strong>Conduta:</strong> Manter acompanhamento de rotina (pré-natal ou ginecológico).',
+          '<strong>Autocuidado:</strong> Focar em descanso, hidratação e alimentação saudável.',
+          '<strong>Sinais de Alerta:</strong> Observar surgimento de sangramento, piora da dor, febre, desmaio ou falta de ar.'
+        ]
+      };
+    }
+
+    function verificarEmergencia(sintomas, perfil, IG, sinaisVitais) {
+      const hemoGrave = (sinaisVitais.pas && sinaisVitais.pas < 90) || (sinaisVitais.pas && sinaisVitais.pas >= 160) || (sinaisVitais.pad && sinaisVitais.pad >= 110) || (sinaisVitais.fc && sinaisVitais.fc > 120) || (sinaisVitais.fr && sinaisVitais.fr > 30) || (sinaisVitais.temp && sinaisVitais.temp >= 38.5);
+      const after20w = IG != null && IG >= 20;
+      if (hemoGrave || sintomas.includes('convulsao') || sintomas.includes('dispneia_toracica') || sintomas.includes('sangramento_intenso') || (perfil === 'gestante' && sintomas.includes('dor_abdominal_forte') && IG != null && IG < 12 && sintomas.includes('ombro_dor')) || (perfil === 'gestante' && after20w && sintomas.includes('cefaleia_visao') && ((sinaisVitais.pas && sinaisVitais.pas >= 140) || (sinaisVitais.pad && sinaisVitais.pad >= 90))) || (perfil === 'puerpera' && sintomas.includes('sangramento_puerperio'))) {
+        return { nivel: '🔴 Vermelho — Emergência', classe: 'border-red-500 bg-red-50', plano: ['<strong>Ação Imediata:</strong> Levar a paciente ao serviço de saúde mais próximo AGORA.', '<strong>Transporte:</strong> Se possível, não ir sozinha. Levar cartão pré-natal e exames.', '<strong>Cuidados:</strong> Manter repouso e não ingerir alimentos sólidos.'], isEmergency: true };
+      }
+      return null;
+    }
+
+    function verificarUrgencia(sintomas, perfil, IG) {
+      const after24w = IG != null && IG >= 24;
+      if ((perfil === 'gestante' && sintomas.includes('perda_liquido') && IG != null && IG < 37) || (perfil === 'gestante' && after24w && sintomas.includes('mov_fetais_reduzidos')) || (sintomas.includes('febre_alta') && sintomas.includes('disuria_lombar')) || (perfil === 'puerpera' && (sintomas.includes('mastite') || sintomas.includes('febre_alta')))) {
+        return { nivel: '🟠 Laranja — Urgência', classe: 'border-orange-500 bg-orange-50', plano: ['<strong>Ação:</strong> Procurar avaliação médica ou teleconsulta nas próximas horas (idealmente ≤ 24h).', '<strong>Monitoramento:</strong> Observar atentamente a evolução dos sintomas.', '<strong>Alerta:</strong> Em caso de piora, tratar como emergência (Vermelho).'], isUrgency: true };
+      }
+      return null;
+    }
+
+    function verificarAtencao(sintomas) {
+      if (sintomas.includes('vomitos_persistentes') || sintomas.includes('disuria_lombar') || sintomas.includes('dor_abdominal_forte')) {
+        return { nivel: '🟡 Amarelo — Atenção', classe: 'border-yellow-400 bg-yellow-50', plano: ['<strong>Ação:</strong> Agendar avaliação ambulatorial ou teleconsulta (em até 72h).', '<strong>Autocuidado:</strong> Manter boa hidratação e repouso.', '<strong>Observar:</strong> Ficar atenta a sinais de alarme para reclassificação.'] };
+      }
+      return null;
+    }
+
+    function montarResumo(nivel) {
+      const sintomas = [...document.querySelectorAll('.sym:checked')].map(checkbox => {
+          const label = checkbox.nextElementSibling;
+          return label ? label.textContent.trim() : checkbox.value;
+      });
+      const p = profileLabels[currentLang][state.profile];
+      const vitais = [
+        el('pas').value ? `PA: ${el('pas').value}x${el('pad').value} mmHg` : '',
+        el('fc').value ? `FC: ${el('fc').value} bpm` : '',
+        el('fr').value ? `FR: ${el('fr').value} irpm` : '',
+        el('temp').value ? `T: ${el('temp').value}°C` : ''
+      ].filter(Boolean).join(', ');
+
+      const resumo = [
+        `PERFIL: ${p}`,
+        (state.profile === 'gestante' ? `IG ESTIMADA: ${el('card-ig').textContent}` : ''),
+        `SINAIS VITAIS: ${vitais || 'não aferidos'}`,
+        `SINTOMAS: ${sintomas.join('; ') || 'nenhum relatado'}`,
+        `CLASSIFICAÇÃO: ${nivel}`
+      ].filter(Boolean).join('\n');
+      state.summary = resumo;
+      return resumo;
+    }
+    
+    function setupEmergencyActions() {
+        const cleanSummary = state.summary.replace(/\n/g, ' ').replace(/PERFIL:.*SINAIS VITAIS:/, 'SINAIS VITAIS:');
+        const text = encodeURIComponent(`ALERTA CÓDIGO MATER: ${cleanSummary}. Necessita de remoção IMEDIATA. Local: [INFORMAR LOCAL].`);
+        el('comunicar-emergencia-btn').href = `https://api.whatsapp.com/message/DY63DAZ7BSHKL1?autoload=1&app_absent=0&text=${text}`;
+    }
+
+    function resetApp() {
+        document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
+        ['pas', 'pad', 'fc', 'fr', 'temp', 'dum', 'igSemanas'].forEach(id => el(id).value = '');
+        state.profile = null;
+        state.ig = null;
+        state.summary = '';
+        showPage('1');
+    }
+    
+    function handleBack() {
+        if (currentPage > 1) {
+            showPage(currentPage - 1);
+        }
+    }
+    
+    function updateNav() {
+        const backBtn = el('back-btn');
+        if (currentPage === 1) {
+            backBtn.style.opacity = '0.5';
+            backBtn.style.cursor = 'not-allowed';
+        } else {
+            backBtn.style.opacity = '1';
+            backBtn.style.cursor = 'pointer';
+        }
+    }
+
+    el('analisarBtn').addEventListener('click', async () => {
+      // Mostrar loading
+      el('analisarBtn').disabled = true;
+      el('analisarBtn').textContent = 'Analisando...';
+      
+      try {
+        const r = await classificar();
+        el('resultado').className = 'rounded-2xl p-5 border-4 ' + r.classe;
+        el('nivel').innerHTML = r.nivel;
+        el('aconselhamento').innerHTML = '<ul class="space-y-1">' + r.plano.map(x => `<li>${x}</li>`).join('') + '</ul>';
+        el('resumo').textContent = montarResumo(r.nivel);
+
+        el('emergency-actions').classList.toggle('hidden', !r.isEmergency);
+        el('other-actions').classList.toggle('hidden', !r.isUrgency);
+        
+        if(r.isEmergency) {
+            setupEmergencyActions();
+        }
+
+        showPage('3');
+      } catch (error) {
+        console.error('Erro na análise:', error);
+        // Em caso de erro, mostrar mensagem de erro
+        el('resultado').className = 'rounded-2xl p-5 border-4 border-red-500 bg-red-50';
+        el('nivel').innerHTML = '❌ Erro na Análise';
+        el('aconselhamento').innerHTML = '<p>Ocorreu um erro ao analisar os dados. Tente novamente ou use a classificação local.</p>';
+        showPage('3');
+      } finally {
+        // Restaurar botão
+        el('analisarBtn').disabled = false;
+        el('analisarBtn').textContent = translations[currentLang].analyze_button || 'Analisar Sinais';
+      }
+    });
+
+    el('copiarBtn')?.addEventListener('click', () => { 
+      navigator.clipboard.writeText(state.summary);
+      const btn = el('copiarBtn');
+      const originalText = btn.textContent;
+      btn.textContent = translations[currentLang].copied || "Copied!";
+      btn.classList.add('bg-green-600');
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.classList.remove('bg-green-600');
+      }, 2000);
+    });
+
+    ['dum', 'igSemanas'].forEach(id => {
+      el(id).addEventListener('input', debounce(getIG, 300));
+    });
+
+    el('back-btn').addEventListener('click', handleBack);
+
+  // Initial load
+  document.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('gob_triage_lang') || 'pt';
+    // If Translator is available, use it to apply translations; otherwise fallback
+    if (window.applyTranslations) { window.applyTranslations(savedLang); }
+    setLanguage(savedLang);
+    showPage('1');
+  });
+  </script>
+</body>
+</html>

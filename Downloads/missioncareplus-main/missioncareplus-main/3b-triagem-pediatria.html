@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-lang">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="pageTitle">Triagem Pediátrica - MissionCare Plus</title>
+    
+    <!-- Importação de Fontes e Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="assets/js/api-config.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #0d9488; /* teal-600 */
+            --primary-color-light: #ccfbf1; /* teal-100 */
+            --danger-color: #dc2626; /* red-600 */
+            --danger-color-light: #fee2e2; /* red-100 */
+            --warning-color: #f59e0b; /* amber-500 */
+            --warning-color-light: #fef3c7; /* amber-100 */
+        }
+        body {
+            font-family: 'Lexend', 'Noto Sans', sans-serif;
+            padding-bottom: 80px; 
+        }
+        .choice-btn.selected, .lang-btn.selected {
+            background-color: var(--primary-color-light);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .loader {
+            width: 50px; aspect-ratio: 1; border-radius: 50%;
+            border: 8px solid #0d9488;
+            border-right-color: #ccfbf1;
+            animation: l2 1s infinite linear;
+        }
+        @keyframes l2 {to{transform: rotate(1turn)}}
+        .form-section {
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        /* Estilos para a tela de resultados */
+        #orientation-content h3 { font-size: 1.25rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1f2937; }
+        #orientation-content h4 { font-size: 1.1rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; color: #1f2937; border-left: 4px solid var(--primary-color); padding-left: 0.75rem; }
+        #orientation-content ul { list-style-type: none; padding-left: 0; margin-bottom: 1rem; }
+        #orientation-content li { background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.5rem; color: #374151; display: flex; align-items: start; }
+        #orientation-content li::before { content: '🔹'; margin-right: 0.75rem; }
+        #orientation-content p { margin-bottom: 1rem; line-height: 1.6; color: #4b5563;}
+        .urgency-card { border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem; border: 2px solid; }
+        .urgency-high { background-color: var(--danger-color-light); border-color: var(--danger-color); }
+        .urgency-medium { background-color: var(--warning-color-light); border-color: var(--warning-color); }
+        .urgency-low { background-color: #f0fdf4; border-color: #22c55e; }
+        .urgency-title { font-size: 1.5rem; font-weight: 800; }
+        .urgency-high .urgency-title { color: var(--danger-color); }
+        .urgency-medium .urgency-title { color: var(--warning-color); }
+        .urgency-low .urgency-title { color: #16a34a; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div id="app-container" class="relative flex size-full min-h-screen flex-col bg-white max-w-2xl mx-auto shadow-lg">
+        
+        <header id="main-header" class="sticky top-0 z-20 bg-white/90 backdrop-blur-sm border-b border-gray-200">
+            <div class="p-4 flex items-center justify-between">
+                <div class="w-1/4 flex justify-start">
+                    <a href="https://telesaudemissionaria.github.io/missioncareplus/index.html" class="text-gray-600 hover:text-teal-600 w-10 h-10 flex items-center justify-center" title="Início">
+                        <i class="fas fa-home fa-lg"></i>
+                    </a>
+                    <button onclick="history.back()" class="text-gray-600 hover:text-teal-600 w-10 h-10 flex items-center justify-center" title="Voltar">
+                        <i class="fas fa-arrow-left fa-lg"></i>
+                    </button>
+                </div>
+                <div class="w-1/2 text-center">
+                   <h1 id="header-title" data-i18n="headerTitle" class="text-gray-800 text-lg font-bold">Triagem Pediátrica</h1>
+                </div>
+                <div class="w-1/4 flex justify-end items-center gap-1">
+                     <button data-lang="pt-BR" class="lang-btn p-2 text-xs font-bold rounded-md border selected" aria-label="Português (Brasil)">
+                         <span class="text-lg" aria-hidden="true">🇧🇷</span>
+                     </button>
+                     <button data-lang="en" class="lang-btn p-2 text-xs font-bold rounded-md border" aria-label="English (US)">
+                         <span class="text-lg" aria-hidden="true">🇺🇸</span>
+                     </button>
+                     <button data-lang="es" class="lang-btn p-2 text-xs font-bold rounded-md border" aria-label="Español (España)">
+                         <span class="text-lg" aria-hidden="true">🇪🇸</span>
+                     </button>
+                </div>
+            </div>
+        </header>
+
+        <main id="form-container" class="flex-grow p-4 md:p-6 space-y-8">
+            
+            <!-- SEÇÃO 1: DADOS INICIAIS -->
+            <div class="form-section space-y-6">
+                <div class="text-center">
+                    <h2 class="text-xl font-bold text-gray-800" data-i18n="step0_section_title">1. Dados da Criança</h2>
+                    <p class="text-gray-600 mt-1" data-i18n="step0_subtitle">Comece com as informações básicas.</p>
+                </div>
+                <div>
+                    <label for="child-age" class="font-semibold text-gray-700 mb-2 block" data-i18n="step0_age_label">Qual a idade da criança?</label>
+                    <input type="text" id="child-age" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="child_age_placeholder" placeholder="Ex: 2 anos, 6 meses">
+                </div>
+                <div>
+                    <label class="font-semibold text-gray-700 mb-2 block" data-i18n="sexo_label">Qual o sexo da criança?</label>
+                    <div class="grid grid-cols-2 gap-4" data-form-key="sexo">
+                        <button class="choice-btn flex items-center justify-center p-3 rounded-lg border-2" data-value="Masculino">
+                            <span class="text-2xl mr-2">♂️</span><span data-i18n="male">Masculino</span>
+                        </button>
+                        <button class="choice-btn flex items-center justify-center p-3 rounded-lg border-2" data-value="Feminino">
+                            <span class="text-2xl mr-2">♀️</span><span data-i18n="female">Feminino</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: QUEIXA PRINCIPAL -->
+             <div class="form-section space-y-4">
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_section_title">2. Queixa Principal</h2>
+                <div>
+                    <label for="queixa-principal" class="font-semibold text-gray-700 mb-2 block" data-i18n="chief_complaint_label">Descreva a queixa principal:</label>
+                    <input type="text" id="queixa-principal" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="chief_complaint_placeholder" placeholder="Ex: Febre, tosse, dor de barriga...">
+                </div>
+                 <div>
+                    <label for="historia-doenca" class="font-semibold text-gray-700 mb-2 block" data-i18n="history_label">Descreva a história da doença:</label>
+                    <textarea id="historia-doenca" rows="4" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="history_placeholder" placeholder="Ex: Começou ontem com febre de 38.5°C, tosse seca e não quer comer."></textarea>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 3: SINAIS VITAIS -->
+            <div class="form-section space-y-6">
+                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_section_title">3. Sinais Vitais (Opcional)</h2>
+                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="temperatura" class="font-semibold text-gray-700 mb-1 block text-sm" data-i18n="label_temperature">Temperatura (°C)</label>
+                        <input type="text" id="temperatura" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" data-i18n="placeholder_temperature" placeholder="Ex: 38.5">
+                    </div>
+                    <div>
+                        <label for="frequencia-cardiaca" class="font-semibold text-gray-700 mb-1 block text-sm" data-i18n="label_hr">FC (bpm)</label>
+                        <input type="text" id="frequencia-cardiaca" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" data-i18n="placeholder_hr" placeholder="Ex: 120">
+                    </div>
+                    <div>
+                        <label for="frequencia-respiratoria" class="font-semibold text-gray-700 mb-1 block text-sm" data-i18n="label_rr">FR (irpm)</label>
+                        <input type="text" id="frequencia-respiratoria" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" data-i18n="placeholder_rr" placeholder="Ex: 40">
+                    </div>
+                     <div>
+                        <label for="saturacao-o2" class="font-semibold text-gray-700 mb-1 block text-sm" data-i18n="label_spo2">Sat O₂ (%)</label>
+                        <input type="text" id="saturacao-o2" class="form-input w-full rounded-md border-gray-300 bg-gray-100 p-2" data-i18n="placeholder_spo2" placeholder="Ex: 98">
+                    </div>
+                 </div>
+            </div>
+            
+            <!-- SEÇÃO 4: AVALIAÇÃO GERAL -->
+             <div class="form-section space-y-6">
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_section_title">4. Avaliação Geral</h2>
+                <fieldset>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="legend_general_state">Estado Geral</legend>
+                    <div class="grid grid-cols-3 gap-2" data-form-key="estadoGeral">
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Bom"><span class="text-xl">😊</span><span class="text-xs mt-1" data-i18n="state_good">Bom</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Regular"><span class="text-xl">😐</span><span class="text-xs mt-1" data-i18n="state_regular">Regular</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Ruim"><span class="text-xl">😫</span><span class="text-xs mt-1" data-i18n="state_poor">Ruim</span></button>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="legend_consciousness">Nível de Consciência</legend>
+                     <div class="grid grid-cols-3 gap-2" data-form-key="nivelConsciencia">
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-xl">👀</span><span class="text-xs mt-1" data-i18n="conscious_alert">Alerta</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Sonolento"><span class="text-xl">😴</span><span class="text-xs mt-1" data-i18n="conscious_drowsy">Sonolento</span></button>
+                        <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Irritado/Inconsolável"><span class="text-xl">😭</span><span class="text-xs mt-1" data-i18n="conscious_irritable">Irritado</span></button>
+                    </div>
+                </fieldset>
+             </div>
+
+            <!-- SEÇÃO 5: INFORMAÇÕES FINAIS -->
+            <div class="form-section space-y-6">
+                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step4_section_title">5. Informações Adicionais</h2>
+                <div>
+                    <label for="observacoes-adicionais" class="font-semibold text-gray-700 mb-2 block" data-i18n="observations_label">Observações adicionais relevantes?</label>
+                    <textarea id="observacoes-adicionais" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="observations_placeholder" placeholder="Ex: Moleira alta, pele com manchas, recusa líquidos..."></textarea>
+                </div>
+            </div>
+        </main>
+        
+        <!-- TELA DE RESULTADOS -->
+            <div id="results-screen" class="hidden p-4 md:p-6 space-y-6">
+            <h1 class="text-2xl font-bold text-center text-gray-800" data-i18n="results_title">Análise Preliminar</h1>
+            <div id="orientation-content" class="max-w-none bg-white p-1 rounded-lg">
+                <!-- Conteúdo da IA será inserido aqui -->
+            </div>
+        </div>
+
+        <footer id="main-footer" class="bg-white border-t border-gray-200 sticky bottom-0 z-10 p-4">
+              <button id="submit-btn" class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 rounded-full shadow-lg text-lg font-bold text-white hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                  <i class="fas fa-check mr-2"></i> <span data-i18n="submit_btn_text">Gerar Análise</span>
+              </button>
+              <div id="results-footer" class="hidden flex flex-col sm:flex-row gap-4">
+                   <button id="restart-btn" class="w-full flex items-center justify-center py-3 px-4 border-2 border-gray-300 rounded-full shadow-sm text-lg font-bold text-gray-600 bg-transparent hover:bg-gray-100 transition" data-i18n="restart_btn_text">
+                       Nova Avaliação
+                   </button>
+              </div>
+        </footer>
+    </div>
+    
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Objeto para armazenar os dados do formulário
+    const formData = {};
+
+    // Elementos da UI
+    const submitBtn = document.getElementById('submit-btn');
+    const formContainer = document.getElementById('form-container');
+    const resultsScreen = document.getElementById('results-screen');
+    const resultsFooter = document.getElementById('results-footer');
+    const restartBtn = document.getElementById('restart-btn');
+    const orientationContent = document.getElementById('orientation-content');
+    
+    // URL da API
+    const API_URL = API_CONFIG.ENDPOINTS.TRIAGEM_PEDIATRICA;
+
+    // Função para validar o formulário e habilitar/desabilitar o botão de envio
+    const validateForm = () => {
+        const isAgeValid = document.getElementById('child-age').value.trim() !== '';
+        const isQueixaValid = document.getElementById('queixa-principal').value.trim() !== '';
+        const isHistoriaValid = document.getElementById('historia-doenca').value.trim() !== '';
+        
+        const isFormValid = isAgeValid && isQueixaValid && isHistoriaValid;
+        submitBtn.disabled = !isFormValid;
+    };
+
+    // Adiciona listeners aos campos de texto para validação em tempo real
+    document.getElementById('child-age').addEventListener('input', validateForm);
+    document.getElementById('queixa-principal').addEventListener('input', validateForm);
+    document.getElementById('historia-doenca').addEventListener('input', validateForm);
+
+    // Lógica para os botões de múltipla escolha
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const group = btn.closest('[data-form-key]');
+            if (group) {
+                const key = group.dataset.formKey;
+                group.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                formData[key] = btn.dataset.value;
+                validateForm();
+            }
+        });
+    });
+
+    // Função para renderizar os resultados da análise (usando traduções atuais)
+    const renderAnalysis = (data) => {
+        const dict = translations[currentLang] || translations['pt'];
+        let urgencyClass = 'urgency-low';
+        let urgencyText = dict['urgency_low_label'] || 'Baixo Risco';
+        if (data.conduta_recomendada && data.conduta_recomendada.urgencia) {
+            urgencyClass = 'urgency-high';
+            urgencyText = dict['urgency_high_label'] || 'Urgência Alta';
+        } else if (data.sinais_de_gravidade && data.sinais_de_gravidade.length > 0) {
+            urgencyClass = 'urgency-medium';
+            urgencyText = dict['urgency_medium_label'] || 'Risco Moderado';
+        }
+
+        const createList = (items) => {
+            if (!items || items.length === 0) return `<p>${dict['no_info_available'] || 'Nenhuma informação disponível.'}</p>`;
+            return `<ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
+        };
+
+        orientationContent.innerHTML = `
+            <div class="urgency-card ${urgencyClass}">
+                <h3 class="urgency-title">${urgencyText}</h3>
+                <p class="font-semibold">${data.conduta_recomendada?.justificativa || dict['ai_default_evaluation'] || 'Avaliação geral da IA.'}</p>
+            </div>
+
+            ${data.conduta_recomendada?.orientacoes ? `
+                <h4><i class="fas fa-clipboard-list mr-2"></i>${dict['recommended_conduct'] || 'Conduta Recomendada'}</h4>
+                ${createList(data.conduta_recomendada.orientacoes)}
+            ` : ''}
+
+            ${data.sinais_de_piora ? `
+                <h4><i class="fas fa-exclamation-triangle mr-2"></i>${dict['worsening_signs'] || 'Sinais de Piora a Observar'}</h4>
+                ${createList(data.sinais_de_piora)}
+            ` : ''}
+            
+             ${data.sinais_de_gravidade && data.sinais_de_gravidade.length > 0 ? `
+                <h4><i class="fas fa-bolt mr-2"></i>${dict['severity_signs'] || 'Sinais de Gravidade Identificados'}</h4>
+                ${createList(data.sinais_de_gravidade)}
+            ` : ''}
+        `;
+    };
+
+    // Função para lidar com a submissão do formulário
+    const handleFormSubmit = async () => {
+        // Coleta todos os dados num único objeto
+        const payload = {
+            ...formData,
+            idade: document.getElementById('child-age').value,
+            queixaPrincipal: document.getElementById('queixa-principal').value,
+            historiaDoenca: document.getElementById('historia-doenca').value,
+            temperatura: document.getElementById('temperatura').value,
+            frequenciaCardiaca: document.getElementById('frequencia-cardiaca').value,
+            frequenciaRespiratoria: document.getElementById('frequencia-respiratoria').value,
+            saturacaoO2: document.getElementById('saturacao-o2').value,
+            observacoesAdicionais: document.getElementById('observacoes-adicionais').value,
+        };
+
+        // UI para estado de carregamento
+    formContainer.style.display = 'none';
+    submitBtn.style.display = 'none';
+    resultsScreen.classList.remove('hidden');
+    resultsScreen.scrollIntoView({ behavior: 'smooth' });
+    const dict = translations[currentLang] || translations['pt'];
+    orientationContent.innerHTML = `<div class="loader mx-auto my-4"></div><p class="text-center font-semibold text-gray-600">${dict['analyzing_feedback'] || dict['analyzing_feedback']}</p>`;
+
+        try {
+            // Chamada para a API
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Erro na API: ${response.statusText}`);
+            }
+            
+            const result = await response.json();
+            renderAnalysis(result); // Renderiza o resultado JSON
+            
+        } catch (error) {
+            console.error("Erro ao gerar análise:", error);
+            const dict = translations[currentLang] || translations['pt'];
+            orientationContent.innerHTML = `<div class="text-center text-red-600 font-bold">
+                <p>${dict['api_error_label'] || 'Ocorreu um erro ao buscar a análise.'}</p>
+                <p class="text-sm mt-2 text-gray-700">${error.message}</p>
+            </div>`;
+        } finally {
+            // Mostra o botão de reiniciar
+            resultsFooter.classList.remove('hidden');
+        }
+    };
+
+    // Listeners dos botões principais
+    submitBtn.addEventListener('click', () => { if (!submitBtn.disabled) handleFormSubmit(); });
+    restartBtn.addEventListener('click', () => location.reload());
+
+    // Inicialização do tradutor centralizado
+    // O script shared assets/js/translator.js exporta window.Translator
+    // e define window.translations, window.currentLang e window.applyTranslations
+        // Ensure central translator is initialized (kept for compatibility)
+        (function(){
+            const s = document.createElement('script');
+            s.src = 'assets/js/translator.js';
+            s.defer = true;
+            document.head.appendChild(s);
+            s.addEventListener('load', () => {
+                if(window.Translator && typeof window.Translator.init === 'function'){
+                    window.Translator.init({ storageKey: 'triage_pediatric_lang', defaultLang: 'pt' });
+                }
+            });
+        })();
+
+    validateForm();
+});
+</script>
+</body>
+</html>

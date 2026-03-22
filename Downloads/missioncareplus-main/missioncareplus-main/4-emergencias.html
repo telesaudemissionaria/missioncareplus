@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" data-current-lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergências - MissionCare Plus</title>
+    
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="assets/js/api-config.js"></script>
+    
+    <style>
+        body { font-family: 'Lexend', 'Noto Sans', sans-serif; padding-bottom: 80px; }
+        .emergency-btn {
+            border: 2px solid #dc2626; background-color: #fee2e2; color: #991b1b;
+            transition: all 0.2s ease-in-out;
+        }
+        .emergency-btn:hover { background-color: #dc2626; color: white; transform: translateY(-2px); }
+        .loader {
+            width: 50px; aspect-ratio: 1; border-radius: 50%;
+            border: 8px solid #dc2626; border-right-color: #fee2e2;
+            animation: l2 1s infinite linear;
+        }
+        @keyframes l2 {to{transform: rotate(1turn)}}
+        
+        /* Language switcher styles */
+        .lang-switcher button {
+            background-color: #f3f4f6; border: 1px solid #d1d5db; color: #4b5563;
+            padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .lang-switcher button.active {
+            background-color: #dc2626; color: white; border-color: #dc2626;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div id="app-container" class="relative flex flex-col size-full min-h-screen max-w-4xl mx-auto bg-gray-50 shadow-lg">
+        
+        <header class="sticky top-0 z-10 grid grid-cols-3 items-center bg-gray-50/90 p-4 backdrop-blur-sm border-b border-gray-200">
+            <div class="flex justify-start">
+                 <button id="back-to-main" class="text-gray-600 hover:text-red-600 hidden w-10 h-10">
+                    <i class="fas fa-arrow-left fa-lg"></i>
+                </button>
+                <a href="index.html" id="home-link" class="text-gray-600 hover:text-red-600 w-10 h-10 flex items-center justify-center" title="Início">
+                    <i class="fas fa-home fa-lg"></i>
+                </a>
+            </div>
+            <h1 data-translate="pageTitle" class="text-gray-800 text-xl font-bold leading-tight text-center">Assistente de Emergência</h1>
+            <div class="lang-switcher flex justify-end items-center space-x-1">
+                <button data-lang="pt" class="active">PT</button>
+                <button data-lang="en">EN</button>
+                <button data-lang="es">ES</button>
+            </div>
+        </header>
+
+        <main class="flex-grow p-4 md:p-6">
+            <div id="main-view">
+                <div id="interactive-view" class="bg-white p-4 rounded-xl shadow-md border border-gray-200">
+                    <h2 data-translate="subtitle" class="text-center text-xl font-semibold text-gray-800 mb-4">Qual é a emergência?</h2>
+                    <div id="critical-buttons" class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                        <button data-key="chestPain" class="emergency-btn p-4 rounded-lg flex flex-col items-center justify-center text-center font-semibold">
+                            <i class="fas fa-heart-pulse text-3xl mb-2"></i>
+                            <span data-translate="chestPain">Dor forte no peito agora</span>
+                        </button>
+                        <button data-key="stroke" class="emergency-btn p-4 rounded-lg flex flex-col items-center justify-center text-center font-semibold">
+                            <i class="fas fa-brain text-3xl mb-2"></i>
+                            <span data-translate="stroke">Fraqueza face/braço ou fala alterada</span>
+                        </button>
+                        <button data-key="breathing" class="emergency-btn p-4 rounded-lg flex flex-col items-center justify-center text-center font-semibold">
+                            <i class="fas fa-lungs text-3xl mb-2"></i>
+                            <span data-translate="breathing">Respiração muito difícil agora</span>
+                        </button>
+                        <button data-key="bleeding" class="emergency-btn p-4 rounded-lg flex flex-col items-center justify-center text-center font-semibold">
+                            <i class="fas fa-tint text-3xl mb-2"></i>
+                            <span data-translate="bleeding">Sangramento incontrolável</span>
+                        </button>
+                        <button data-key="allergy" class="emergency-btn p-4 rounded-lg flex flex-col items-center justify-center text-center font-semibold">
+                            <i class="fas fa-allergies text-3xl mb-2"></i>
+                            <span data-translate="allergy">Reação alérgica grave</span>
+                        </button>
+                        <button data-key="fainting" class="emergency-btn p-4 rounded-lg flex flex-col items-center justify-center text-center font-semibold">
+                            <i class="fas fa-bolt text-3xl mb-2"></i>
+                            <span data-translate="fainting">Desmaio / Convulsão / Confusão</span>
+                        </button>
+                    </div>
+                    
+                    <!-- NOVO: Secção para Outras Emergências -->
+                    <div id="other-emergency-container" class="mt-6 pt-6 border-t border-gray-200">
+                        <button id="other-emergency-btn" data-translate="otherEmergency" class="w-full text-center py-3 px-4 border-2 border-gray-300 rounded-full font-bold text-gray-700 bg-gray-50 hover:bg-gray-200 transition">
+                            Nenhuma das opções / Outra situação
+                        </button>
+                        <div id="search-container" class="hidden mt-2">
+                            <div class="relative">
+                                <input type="text" id="search-input" placeholder="Descreva a situação..." class="w-full form-input pl-4 pr-12 py-3 rounded-full border-gray-300 focus:border-red-500 focus:ring-red-500 transition shadow-sm">
+                                <button id="search-btn" class="absolute inset-y-0 right-0 flex items-center justify-center w-12 h-full bg-red-600 text-white font-bold rounded-r-full hover:bg-red-700">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results-container" class="hidden">
+                 <div id="response-content" class="prose max-w-none p-5 bg-white rounded-lg shadow-lg border border-gray-200"></div>
+            </div>
+        </main>
+        
+        <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white">
+          <div class="mx-auto flex h-16 max-w-4xl items-center justify-around">
+            <a href="index.html" class="flex h-full w-full flex-col items-center justify-center text-gray-600 hover:bg-gray-50 hover:text-teal-600">
+              <i class="fas fa-home text-2xl"></i>
+              <span data-translate="navHome" class="mt-1 text-xs font-bold uppercase">Início</span>
+            </a>
+          </div>
+        </nav>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const translations = {
+        pt: {
+            langName: "Português",
+            pageTitle: "Assistente de Emergência",
+            subtitle: "Qual é a emergência?",
+            navHome: "Início",
+            loading: "Buscando instruções...",
+            errorTitle: "Erro de Comunicação",
+            errorMessage: "Não foi possível obter as instruções. Verifique sua conexão e tente novamente.",
+            chestPain: "Dor forte no peito agora",
+            stroke: "Fraqueza face/braço ou fala alterada",
+            breathing: "Respiração muito difícil agora",
+            bleeding: "Sangramento incontrolável",
+            allergy: "Reação alérgica grave",
+            fainting: "Desmaio / Convulsão / Confusão",
+            otherEmergency: "Nenhuma das opções / Outra situação",
+            otherPlaceholder: "Ex: criança caiu e bateu a cabeça",
+            promptPrefix: "Instruções de primeiros socorros para",
+            prompts: {
+                chestPain: "Instruções de primeiros socorros para dor forte no peito, possível infarto.",
+                stroke: "Instruções de primeiros socorros para fraqueza súbita na face, braço ou perna, ou fala alterada, possível AVC.",
+                breathing: "Instruções de primeiros socorros para respiração com muita dificuldade, possível asfixia ou crise grave.",
+                bleeding: "Instruções de primeiros socorros para sangramento incontrolável, vômito com sangue vivo ou fezes pretas como piche.",
+                allergy: "Instruções de primeiros socorros para reação alérgica grave com inchaço na garganta ou falta de ar, possível anafilaxia.",
+                fainting: "Instruções de primeiros socorros para desmaio, convulsão ou confusão mental grave."
+            }
+        },
+        en: {
+            langName: "English",
+            pageTitle: "Emergency Assistant",
+            subtitle: "What is the emergency?",
+            navHome: "Home",
+            loading: "Fetching instructions...",
+            errorTitle: "Communication Error",
+            errorMessage: "Could not get instructions. Check your connection and try again.",
+            chestPain: "Severe chest pain now",
+            stroke: "Face/arm weakness or altered speech",
+            breathing: "Very difficult breathing now",
+            bleeding: "Uncontrollable bleeding",
+            allergy: "Severe allergic reaction",
+            fainting: "Fainting / Seizure / Confusion",
+            otherEmergency: "None of the above / Other situation",
+            otherPlaceholder: "Ex: child fell and hit head",
+            promptPrefix: "First aid instructions for",
+            prompts: {
+                chestPain: "First aid instructions for severe chest pain, possible heart attack.",
+                stroke: "First aid instructions for sudden weakness in the face, arm, or leg, or altered speech, possible stroke.",
+                breathing: "First aid instructions for a person with severe difficulty breathing, possible choking or severe crisis.",
+                bleeding: "First aid instructions for uncontrollable bleeding, vomiting bright red blood, or tar-like black stools.",
+                allergy: "First aid instructions for a severe allergic reaction with throat swelling or shortness of breath, possible anaphylaxis.",
+                fainting: "First aid instructions for fainting, seizure, or severe mental confusion."
+            }
+        },
+        es: {
+            langName: "Español",
+            pageTitle: "Asistente de Emergencia",
+            subtitle: "¿Cuál es la emergencia?",
+            navHome: "Inicio",
+            loading: "Buscando instrucciones...",
+            errorTitle: "Error de Comunicación",
+            errorMessage: "No se pudieron obtener las instrucciones. Verifique su conexión e intente de nuevo.",
+            chestPain: "Dolor de pecho fuerte ahora",
+            stroke: "Debilidad facial/brazo o habla alterada",
+            breathing: "Respiración muy difícil ahora",
+            bleeding: "Sangrado incontrolable",
+            allergy: "Reacción alérgica grave",
+            fainting: "Desmayo / Convulsión / Confusión",
+            otherEmergency: "Ninguna de las opciones / Otra situación",
+            otherPlaceholder: "Ej: niño se cayó y se golpeó la cabeza",
+            promptPrefix: "Instrucciones de primeros auxilios para",
+            prompts: {
+                chestPain: "Instrucciones de primeros auxilios para dolor severo en el pecho, posible infarto.",
+                stroke: "Instrucciones de primeros auxilios para debilidad súbita en la cara, brazo o pierna, o habla alterada, posible ACV.",
+                breathing: "Instrucciones de primeros auxilios para una persona con dificultad respiratoria severa, posible asfixia o crisis grave.",
+                bleeding: "Instrucciones de primeros auxilios para sangrado incontrolable, vómito con sangre roja brillante o heces negras como el alquitrán.",
+                allergy: "Instrucciones de primeros auxilios para una reacción alérgica grave con hinchazón de garganta o falta de aire, posible anafilaxia.",
+                fainting: "Instrucciones de primeros auxilios para desmayo, convulsión o confusión mental grave."
+            }
+        }
+    };
+
+    const mainView = document.getElementById('main-view');
+    const resultsContainer = document.getElementById('results-container');
+    const responseContent = document.getElementById('response-content');
+    const criticalButtons = document.getElementById('critical-buttons');
+    const backToMainBtn = document.getElementById('back-to-main');
+    const langSwitcher = document.querySelector('.lang-switcher');
+    const otherEmergencyBtn = document.getElementById('other-emergency-btn');
+    const searchContainer = document.getElementById('search-container');
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const homeLink = document.getElementById('home-link');
+
+    function updateLanguage(lang) {
+        document.documentElement.lang = lang;
+        document.documentElement.setAttribute('data-current-lang', lang);
+        const langTexts = translations[lang];
+        
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            const key = el.dataset.translate;
+            if (langTexts[key]) el.textContent = langTexts[key];
+        });
+        
+        searchInput.placeholder = langTexts.otherPlaceholder;
+        
+        langSwitcher.querySelector('button.active').classList.remove('active');
+        langSwitcher.querySelector(`button[data-lang="${lang}"]`).classList.add('active');
+    }
+
+    langSwitcher.addEventListener('click', (e) => {
+        const button = e.target.closest('button[data-lang]');
+        if (button) {
+            const lang = button.dataset.lang;
+            localStorage.setItem('preferredLang', lang);
+            updateLanguage(lang);
+        }
+    });
+    
+    criticalButtons.addEventListener('click', e => {
+        const button = e.target.closest('button[data-key]');
+        if (button) {
+            const key = button.dataset.key;
+            const currentLang = document.documentElement.getAttribute('data-current-lang') || 'pt';
+            const userPrompt = translations[currentLang].prompts[key];
+            getEmergencyHelp(userPrompt, currentLang);
+        }
+    });
+    
+    otherEmergencyBtn.addEventListener('click', () => {
+        otherEmergencyBtn.classList.add('hidden');
+        searchContainer.classList.remove('hidden');
+        searchInput.focus();
+    });
+
+    const handleSearch = () => {
+        const searchText = searchInput.value.trim();
+        if (searchText) {
+            const currentLang = document.documentElement.getAttribute('data-current-lang') || 'pt';
+            const prefix = translations[currentLang].promptPrefix;
+            const userPrompt = `${prefix} ${searchText}`;
+            getEmergencyHelp(userPrompt, currentLang);
+        }
+    };
+
+    searchBtn.addEventListener('click', handleSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSearch();
+    });
+
+    backToMainBtn.addEventListener('click', () => {
+        resultsContainer.classList.add('hidden');
+        mainView.classList.remove('hidden');
+        backToMainBtn.classList.add('hidden');
+        homeLink.classList.remove('hidden');
+        responseContent.innerHTML = '';
+        // Reset search field
+        searchInput.value = '';
+        searchContainer.classList.add('hidden');
+        otherEmergencyBtn.classList.remove('hidden');
+    });
+
+    async function getEmergencyHelp(userPrompt, langCode) {
+        const langData = translations[langCode];
+        const finalPrompt = `Please provide the response in ${langData.langName}. The user's request is: "${userPrompt}"`;
+
+        mainView.classList.add('hidden');
+        resultsContainer.classList.remove('hidden');
+        backToMainBtn.classList.remove('hidden');
+        homeLink.classList.add('hidden'); // Hide home button on results
+
+        responseContent.innerHTML = `<div class="loader mx-auto my-8"></div><p class="text-center font-semibold text-gray-600">${langData.loading}</p>`;
+
+        try {
+            if (!navigator.onLine) throw new Error('OFFLINE');
+
+            const response = await fetch(API_CONFIG.ENDPOINTS.EMERGENCIA, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: finalPrompt })
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            const data = await response.json();
+            if (data.response) {
+                 responseContent.innerHTML = window.marked.parse(data.response);
+            } else {
+                 throw new Error("Unexpected API response format.");
+            }
+
+        } catch (error) {
+            console.error('Fetch error:', error);
+            if (!navigator.onLine || error.message === 'OFFLINE' || error.message.includes('Failed to fetch')) {
+                responseContent.innerHTML = getOfflineEmergencyFallback(userPrompt, langCode);
+            } else {
+                responseContent.innerHTML = `<div class="text-center p-4 bg-red-100 text-red-800 rounded-lg"><p class="font-bold">${langData.errorTitle}</p><p>${langData.errorMessage}</p></div>`;
+            }
+        }
+    }
+    
+    const offlineProtocols = {
+        pt: {
+            chestPain: { title: 'Dor no Peito — Possível Infarto', steps: ['Sente a pessoa e mantenha-a em repouso absoluto.', 'Afrouxe roupas apertadas (gravata, cinto, botões).', 'Se disponível e sem alergia, dê 1 aspirina (AAS 100mg) para mastigar.', 'NÃO dê água ou comida.', 'Se a pessoa perder a consciência, inicie compressões torácicas (RCP).', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            stroke: { title: 'AVC — Fraqueza ou Fala Alterada', steps: ['Use o teste SAMU: Sorriso (assimétrico?), Abraço (fraqueza?), Mensagem (fala confusa?), Urgência.', 'NÃO dê medicamentos, água ou comida.', 'Deite a pessoa com a cabeça elevada (~30°).', 'Anote o horário exato de início dos sintomas.', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            breathing: { title: 'Dificuldade Respiratória Grave', steps: ['Sente a pessoa em posição vertical (não deitar).', 'Afrouxe roupas apertadas.', 'Se tiver bombinha de asma, ajude a usar.', 'Se suspeita de engasgo: aplique a manobra de Heimlich.', 'Monitore a respiração constantemente.', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            bleeding: { title: 'Sangramento Incontrolável', steps: ['Aplique pressão FIRME e constante com pano limpo sobre o ferimento.', 'NÃO retire o pano se encharcar, coloque outro por cima.', 'Eleve a área afetada acima do nível do coração.', 'Se sangramento em membro, aplique torniquete se treinado.', 'Mantenha a pessoa aquecida e deitada.', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            allergy: { title: 'Reação Alérgica Grave (Anafilaxia)', steps: ['Se disponível, use a caneta de epinefrina (EpiPen) na coxa lateral.', 'Deite a pessoa e eleve as pernas.', 'Se houver inchaço na garganta, NÃO dê líquidos.', 'Afrouxe roupas e mantenha vias aéreas livres.', 'Se parar de respirar, inicie RCP.', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            fainting: { title: 'Desmaio / Convulsão / Confusão', steps: ['Coloque a pessoa deitada de lado (posição de recuperação).', 'NÃO coloque nada na boca.', 'Proteja a cabeça durante convulsões (coloque algo macio embaixo).', 'NÃO tente segurar os movimentos da convulsão.', 'Cronometre a duração da convulsão.', 'Se convulsão durar >5 minutos, é emergência absoluta.'] }
+        },
+        en: {
+            chestPain: { title: 'Chest Pain — Possible Heart Attack', steps: ['Sit the person down and keep them at complete rest.', 'Loosen tight clothing (tie, belt, buttons).', 'If available and not allergic, give 1 aspirin to chew.', 'Do NOT give water or food.', 'If the person loses consciousness, start chest compressions (CPR).', 'Seek emergency medical attention IMMEDIATELY.'] },
+            stroke: { title: 'Stroke — Weakness or Altered Speech', steps: ['Use the FAST test: Face (drooping?), Arms (weakness?), Speech (slurred?), Time (call emergency).', 'Do NOT give medications, water, or food.', 'Lay the person down with head elevated (~30°).', 'Note the exact time symptoms started.', 'Seek emergency medical attention IMMEDIATELY.'] },
+            breathing: { title: 'Severe Breathing Difficulty', steps: ['Sit the person upright (do not lay down).', 'Loosen tight clothing.', 'If they have an asthma inhaler, help them use it.', 'If choking suspected: perform Heimlich maneuver.', 'Monitor breathing constantly.', 'Seek emergency medical attention IMMEDIATELY.'] },
+            bleeding: { title: 'Uncontrollable Bleeding', steps: ['Apply FIRM, constant pressure with a clean cloth on the wound.', 'Do NOT remove the cloth if soaked, place another on top.', 'Elevate the affected area above heart level.', 'If limb bleeding, apply tourniquet if trained.', 'Keep the person warm and lying down.', 'Seek emergency medical attention IMMEDIATELY.'] },
+            allergy: { title: 'Severe Allergic Reaction (Anaphylaxis)', steps: ['If available, use epinephrine pen (EpiPen) on outer thigh.', 'Lay the person down and elevate legs.', 'If throat swelling, do NOT give fluids.', 'Loosen clothing and keep airways clear.', 'If they stop breathing, start CPR.', 'Seek emergency medical attention IMMEDIATELY.'] },
+            fainting: { title: 'Fainting / Seizure / Confusion', steps: ['Place the person on their side (recovery position).', 'Do NOT put anything in the mouth.', 'Protect the head during seizures (place something soft underneath).', 'Do NOT try to restrain seizure movements.', 'Time the seizure duration.', 'If seizure lasts >5 minutes, it is an absolute emergency.'] }
+        },
+        es: {
+            chestPain: { title: 'Dolor de Pecho — Posible Infarto', steps: ['Siente a la persona y manténgala en reposo absoluto.', 'Afloje ropa ajustada (corbata, cinturón, botones).', 'Si disponible y sin alergia, dé 1 aspirina para masticar.', 'NO dé agua ni comida.', 'Si pierde la conciencia, inicie compresiones torácicas (RCP).', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            stroke: { title: 'ACV — Debilidad o Habla Alterada', steps: ['Use la prueba RÁPIDA: Rostro (asimétrico?), Alzar brazos (debilidad?), Pronunciar (confuso?), Tiempo (llame emergencia).', 'NO dé medicamentos, agua ni comida.', 'Acueste a la persona con cabeza elevada (~30°).', 'Anote la hora exacta de inicio de síntomas.', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            breathing: { title: 'Dificultad Respiratoria Grave', steps: ['Siente a la persona en posición vertical (no acostar).', 'Afloje ropa ajustada.', 'Si tiene inhalador de asma, ayude a usarlo.', 'Si sospecha atragantamiento: aplique maniobra de Heimlich.', 'Monitoree la respiración constantemente.', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            bleeding: { title: 'Sangrado Incontrolable', steps: ['Aplique presión FIRME y constante con paño limpio sobre la herida.', 'NO retire el paño si se empapa, coloque otro encima.', 'Eleve el área afectada por encima del nivel del corazón.', 'Si sangrado en extremidad, aplique torniquete si entrenado.', 'Mantenga a la persona abrigada y acostada.', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            allergy: { title: 'Reacción Alérgica Grave (Anafilaxia)', steps: ['Si disponible, use pluma de epinefrina (EpiPen) en muslo lateral.', 'Acueste a la persona y eleve las piernas.', 'Si hay hinchazón en garganta, NO dé líquidos.', 'Afloje ropa y mantenga vías aéreas libres.', 'Si deja de respirar, inicie RCP.', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            fainting: { title: 'Desmayo / Convulsión / Confusión', steps: ['Coloque a la persona de lado (posición de recuperación).', 'NO coloque nada en la boca.', 'Proteja la cabeza durante convulsiones.', 'NO intente sujetar los movimientos de la convulsión.', 'Cronometre la duración de la convulsión.', 'Si dura >5 minutos, es emergencia absoluta.'] }
+        }
+    };
+
+    const offlineLabels = {
+        pt: { title: 'Modo Offline', subtitle: 'Protocolo de primeiros socorros armazenado localmente.', warning: 'Quando a conexão for restabelecida, consulte o Assistente de Emergência para orientações mais completas.' },
+        en: { title: 'Offline Mode', subtitle: 'Locally stored first aid protocol.', warning: 'When connection is restored, consult the Emergency Assistant for more complete guidance.' },
+        es: { title: 'Modo Sin Conexión', subtitle: 'Protocolo de primeros auxilios almacenado localmente.', warning: 'Cuando se restablezca la conexión, consulte el Asistente de Emergencia para orientaciones más completas.' }
+    };
+
+    function getOfflineEmergencyFallback(userPrompt, langCode) {
+        const protocols = offlineProtocols[langCode] || offlineProtocols.pt;
+        const labels = offlineLabels[langCode] || offlineLabels.pt;
+        const promptLower = userPrompt.toLowerCase();
+
+        // Match the prompt to a protocol
+        let matched = null;
+        const keywordMap = {
+            chestPain: ['peito', 'chest', 'pecho', 'infarto', 'heart', 'corazón'],
+            stroke: ['avc', 'stroke', 'acv', 'fraqueza', 'weakness', 'debilidad', 'fala', 'speech', 'habla'],
+            breathing: ['respirar', 'breath', 'respirat', 'asfixia', 'chok', 'asma'],
+            bleeding: ['sangr', 'bleed', 'hemorr'],
+            allergy: ['alerg', 'anafilax', 'anaphyl', 'inchaço', 'swell', 'hinch'],
+            fainting: ['desmai', 'convuls', 'confus', 'faint', 'seizure', 'desmayo']
+        };
+
+        for (const [key, keywords] of Object.entries(keywordMap)) {
+            if (keywords.some(k => promptLower.includes(k))) {
+                matched = protocols[key];
+                break;
+            }
+        }
+
+        if (!matched) {
+            // Generic emergency fallback
+            matched = {
+                title: langCode === 'en' ? 'General Emergency' : langCode === 'es' ? 'Emergencia General' : 'Emergência Geral',
+                steps: protocols.chestPain.steps.slice(-2) // Use last 2 generic steps
+            };
+        }
+
+        const stepsHtml = matched.steps.map((s, i) => `<li class="mb-2"><strong>${i + 1}.</strong> ${s}</li>`).join('');
+        return `
+            <div class="p-4 rounded-lg border-2 border-red-500 bg-red-50 mb-4">
+                <h2 class="text-xl font-bold text-red-700 mb-1"><i class="fas fa-wifi-slash mr-2"></i>${labels.title}</h2>
+                <p class="text-sm text-red-600">${labels.subtitle}</p>
+            </div>
+            <div class="p-4 bg-white rounded-lg border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-3"><i class="fas fa-kit-medical mr-2 text-red-500"></i>${matched.title}</h3>
+                <ol class="list-none pl-0 text-gray-700 leading-relaxed">${stepsHtml}</ol>
+            </div>
+            <div class="mt-4 p-3 bg-amber-50 border border-amber-300 rounded-lg text-sm text-amber-800">
+                <i class="fas fa-exclamation-triangle mr-1"></i> ${labels.warning}
+            </div>
+        `;
+    }
+
+    const initialLang = localStorage.getItem('preferredLang') || 'pt';
+    updateLanguage(initialLang);
+});
+</script>
+
+</body>
+</html>
