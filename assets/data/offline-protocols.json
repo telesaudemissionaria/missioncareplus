@@ -7,29 +7,35 @@
           "urgency": "Emergência",
           "recommendations": [
             "Procure atendimento médico imediatamente",
-            "Mantenha-se em repouso",
-            "Evite esforços físicos",
-            "Tome aspirina se disponível e não alérgico"
+            "Mantenha-se em repouso absoluto",
+            "Tome 1 aspirina (AAS 100mg) se disponível e sem alergia — mastigar",
+            "Afrouxe roupas apertadas",
+            "NÃO dê água ou comida",
+            "Se perder a consciência, inicie RCP"
           ]
         },
         {
           "symptom": "Falta de ar",
           "urgency": "Emergência",
           "recommendations": [
-            "Procure atendimento médico imediatamente",
-            "Mantenha-se calmo",
-            "Sente-se em posição ereta",
-            "Afrouxe roupas apertadas"
+            "Sente a pessoa em posição vertical (não deitar)",
+            "Afrouxe roupas apertadas",
+            "Se tiver bombinha de asma, ajude a usar",
+            "Se suspeita de engasgo: manobra de Heimlich",
+            "Monitore a respiração constantemente",
+            "Procure atendimento de emergência"
           ]
         },
         {
           "symptom": "Sangramento intenso",
-          "urgency": "Urgente",
+          "urgency": "Emergência",
           "recommendations": [
-            "Aplique pressão direta no ferimento",
-            "Eleve a área afetada se possível",
-            "Procure atendimento médico",
-            "Mantenha-se hidratado"
+            "Aplique pressão FIRME e constante com pano limpo",
+            "NÃO retire o pano se encharcar — coloque outro por cima",
+            "Eleve a área afetada acima do coração",
+            "Mantenha a pessoa aquecida e deitada",
+            "Se sangramento em membro, aplique torniquete se treinado",
+            "Procure atendimento de emergência"
           ]
         },
         {
@@ -37,51 +43,47 @@
           "urgency": "Emergência",
           "recommendations": [
             "Verifique se está respirando",
+            "Coloque em posição de recuperação (de lado)",
             "Inicie RCP se treinado e necessário",
-            "Procure atendimento médico de emergência",
-            "Coloque em posição de recuperação"
-          ]
-        }
-      ],
-      "es": [
-        {
-          "symptom": "Dolor en el pecho",
-          "urgency": "Emergencia",
-          "recommendations": [
-            "Busque atención médica inmediatamente",
-            "Manténgase en reposo",
-            "Evite esfuerzos físicos",
-            "Tome aspirina si está disponible y no es alérgico"
+            "NÃO coloque nada na boca",
+            "Procure atendimento de emergência",
+            "Cronometre a duração se houver convulsão"
           ]
         },
         {
-          "symptom": "Falta de aire",
-          "urgency": "Emergencia",
+          "symptom": "Convulsão",
+          "urgency": "Emergência",
           "recommendations": [
-            "Busque atención médica inmediatamente",
-            "Manténgase calmado",
-            "Siéntese en posición erguida",
-            "Afloje la ropa ajustada"
+            "Coloque a pessoa de lado (posição de recuperação)",
+            "Proteja a cabeça com algo macio",
+            "NÃO segure os movimentos da convulsão",
+            "NÃO coloque nada na boca",
+            "Cronometre a duração — se >5 min é emergência absoluta",
+            "Após a crise, mantenha de lado até recuperar consciência"
           ]
         },
         {
-          "symptom": "Sangrado intenso",
-          "urgency": "Urgente",
+          "symptom": "AVC / Derrame",
+          "urgency": "Emergência",
           "recommendations": [
-            "Aplique presión directa en la herida",
-            "Eleve el área afectada si es posible",
-            "Busque atención médica",
-            "Manténgase hidratado"
+            "Teste SAMU: Sorriso (assimétrico?), Abraço (fraqueza?), Mensagem (fala confusa?), Urgência",
+            "Anote o HORÁRIO EXATO de início dos sintomas",
+            "NÃO dê medicamentos, água ou comida",
+            "Deite com a cabeça elevada (~30°)",
+            "Procure atendimento de emergência IMEDIATO",
+            "Tempo é fundamental — cada minuto conta"
           ]
         },
         {
-          "symptom": "Pérdida de conocimiento",
-          "urgency": "Emergencia",
+          "symptom": "Reação alérgica grave / Anafilaxia",
+          "urgency": "Emergência",
           "recommendations": [
-            "Verifique si está respirando",
-            "Inicie RCP si está entrenado y es necesario",
-            "Busque atención médica de emergencia",
-            "Colóquelo en posición de recuperación"
+            "Use caneta de epinefrina (EpiPen) na coxa lateral, se disponível",
+            "Deite a pessoa e eleve as pernas",
+            "Se inchaço na garganta, NÃO dê líquidos",
+            "Afrouxe roupas e mantenha vias aéreas livres",
+            "Se parar de respirar, inicie RCP",
+            "Procure atendimento de emergência"
           ]
         }
       ],
@@ -91,29 +93,35 @@
           "urgency": "Emergency",
           "recommendations": [
             "Seek immediate medical attention",
-            "Keep resting",
-            "Avoid physical exertion",
-            "Take aspirin if available and not allergic"
+            "Keep at complete rest",
+            "Take 1 aspirin (100mg) if available and not allergic — chew it",
+            "Loosen tight clothing",
+            "Do NOT give water or food",
+            "If loses consciousness, start CPR"
           ]
         },
         {
           "symptom": "Shortness of breath",
           "urgency": "Emergency",
           "recommendations": [
-            "Seek immediate medical attention",
-            "Stay calm",
-            "Sit in an upright position",
-            "Loosen tight clothing"
+            "Sit the person upright (do not lay down)",
+            "Loosen tight clothing",
+            "If they have an asthma inhaler, help them use it",
+            "If choking suspected: perform Heimlich maneuver",
+            "Monitor breathing constantly",
+            "Seek emergency medical attention"
           ]
         },
         {
           "symptom": "Severe bleeding",
-          "urgency": "Urgent",
+          "urgency": "Emergency",
           "recommendations": [
-            "Apply direct pressure to the wound",
-            "Elevate the affected area if possible",
-            "Seek medical attention",
-            "Stay hydrated"
+            "Apply FIRM, constant pressure with a clean cloth",
+            "Do NOT remove the cloth if soaked — place another on top",
+            "Elevate the affected area above heart level",
+            "Keep the person warm and lying down",
+            "If limb bleeding, apply tourniquet if trained",
+            "Seek emergency medical attention"
           ]
         },
         {
@@ -121,9 +129,133 @@
           "urgency": "Emergency",
           "recommendations": [
             "Check if breathing",
+            "Place in recovery position (on their side)",
             "Start CPR if trained and necessary",
+            "Do NOT put anything in the mouth",
             "Seek emergency medical attention",
-            "Place in recovery position"
+            "Time the seizure duration if applicable"
+          ]
+        },
+        {
+          "symptom": "Seizure",
+          "urgency": "Emergency",
+          "recommendations": [
+            "Place the person on their side (recovery position)",
+            "Protect the head with something soft",
+            "Do NOT restrain seizure movements",
+            "Do NOT put anything in the mouth",
+            "Time the seizure — if >5 min it is an absolute emergency",
+            "After the seizure, keep on their side until fully conscious"
+          ]
+        },
+        {
+          "symptom": "Stroke",
+          "urgency": "Emergency",
+          "recommendations": [
+            "Use FAST test: Face (drooping?), Arms (weakness?), Speech (slurred?), Time (call emergency)",
+            "Note the EXACT TIME symptoms started",
+            "Do NOT give medications, water, or food",
+            "Lay down with head elevated (~30°)",
+            "Seek IMMEDIATE emergency medical attention",
+            "Time is critical — every minute counts"
+          ]
+        },
+        {
+          "symptom": "Severe allergic reaction / Anaphylaxis",
+          "urgency": "Emergency",
+          "recommendations": [
+            "Use epinephrine pen (EpiPen) on outer thigh if available",
+            "Lay the person down and elevate legs",
+            "If throat swelling, do NOT give fluids",
+            "Loosen clothing and keep airways clear",
+            "If they stop breathing, start CPR",
+            "Seek emergency medical attention"
+          ]
+        }
+      ],
+      "es": [
+        {
+          "symptom": "Dolor en el pecho",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Busque atención médica inmediatamente",
+            "Manténgase en reposo absoluto",
+            "Tome 1 aspirina (AAS 100mg) si disponible y sin alergia — masticar",
+            "Afloje ropa ajustada",
+            "NO dé agua ni comida",
+            "Si pierde la conciencia, inicie RCP"
+          ]
+        },
+        {
+          "symptom": "Falta de aire",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Siente a la persona en posición vertical (no acostar)",
+            "Afloje ropa ajustada",
+            "Si tiene inhalador de asma, ayude a usarlo",
+            "Si sospecha atragantamiento: maniobra de Heimlich",
+            "Monitoree la respiración constantemente",
+            "Busque atención de emergencia"
+          ]
+        },
+        {
+          "symptom": "Sangrado intenso",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Aplique presión FIRME y constante con paño limpio",
+            "NO retire el paño si se empapa — coloque otro encima",
+            "Eleve el área afectada por encima del corazón",
+            "Mantenga a la persona abrigada y acostada",
+            "Si sangrado en extremidad, aplique torniquete si entrenado",
+            "Busque atención de emergencia"
+          ]
+        },
+        {
+          "symptom": "Pérdida de conocimiento",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Verifique si está respirando",
+            "Colóquelo en posición de recuperación (de lado)",
+            "Inicie RCP si entrenado y necesario",
+            "NO coloque nada en la boca",
+            "Busque atención médica de emergencia",
+            "Cronometre la duración si hay convulsión"
+          ]
+        },
+        {
+          "symptom": "Convulsión",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Coloque a la persona de lado (posición de recuperación)",
+            "Proteja la cabeza con algo suave",
+            "NO sujete los movimientos de la convulsión",
+            "NO coloque nada en la boca",
+            "Cronometre — si dura >5 min es emergencia absoluta",
+            "Después de la crisis, mantenga de lado hasta recuperar conciencia"
+          ]
+        },
+        {
+          "symptom": "ACV / Derrame",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Prueba RÁPIDA: Rostro (asimétrico?), Alzar brazos (debilidad?), Pronunciar (confuso?), Tiempo",
+            "Anote la HORA EXACTA de inicio de síntomas",
+            "NO dé medicamentos, agua ni comida",
+            "Acueste con cabeza elevada (~30°)",
+            "Busque atención de emergencia INMEDIATA",
+            "El tiempo es fundamental — cada minuto cuenta"
+          ]
+        },
+        {
+          "symptom": "Reacción alérgica grave / Anafilaxia",
+          "urgency": "Emergencia",
+          "recommendations": [
+            "Use pluma de epinefrina (EpiPen) en muslo lateral si disponible",
+            "Acueste a la persona y eleve las piernas",
+            "Si hay hinchazón en garganta, NO dé líquidos",
+            "Afloje ropa y mantenga vías aéreas libres",
+            "Si deja de respirar, inicie RCP",
+            "Busque atención de emergencia"
           ]
         }
       ]
@@ -131,63 +263,168 @@
     "common_symptoms": {
       "pt": {
         "febre": {
-          "recommendations": [
-            "Repouse e mantenha-se hidratado",
-            "Tome antitérmico se disponível",
-            "Vista roupas leves",
-            "Procure ajuda se persistir por mais de 3 dias"
-          ]
+          "recommendations": ["Repouse e mantenha-se hidratado (água, soro caseiro)", "Tome antitérmico: Paracetamol 500-750mg ou Dipirona 500mg a cada 6h", "Vista roupas leves e mantenha ambiente ventilado", "Compressas mornas (NÃO geladas) na testa e axilas", "Procure ajuda se persistir por mais de 3 dias ou >39.5°C"]
         },
         "dor de cabeça": {
-          "recommendations": [
-            "Repouse em ambiente tranquilo",
-            "Tome analgésico se disponível",
-            "Evite luzes brilhantes e ruídos",
-            "Procure ajuda se for intensa ou persistente"
-          ]
-        }
-      },
-      "es": {
-        "fiebre": {
-          "recommendations": [
-            "Descanse y manténgase hidratado",
-            "Tome antitérmico si está disponible",
-            "Vista ropa ligera",
-            "Busque ayuda si persiste por más de 3 días"
-          ]
+          "recommendations": ["Repouse em ambiente escuro e silencioso", "Tome analgésico: Paracetamol 500-750mg ou Ibuprofeno 400mg", "Mantenha-se hidratado", "Compressas frias na testa podem aliviar", "Procure ajuda se for intensa, súbita ou com rigidez no pescoço"]
         },
-        "dolor de cabeza": {
-          "recommendations": [
-            "Descanse en un ambiente tranquilo",
-            "Tome analgésico si está disponible",
-            "Evite luces brillantes y ruidos",
-            "Busque ayuda si es intenso o persistente"
-          ]
+        "diarreia": {
+          "recommendations": ["Soro de reidratação oral: 1L de água + 3 col. sopa de açúcar + 1 col. chá de sal", "Ofereça líquidos em pequenos goles frequentes", "Mantenha alimentação leve (arroz, banana, torrada)", "Evite leite, frituras e alimentos gordurosos", "Procure ajuda se: sangue nas fezes, febre alta, ou >3 dias sem melhora"]
+        },
+        "vômito": {
+          "recommendations": ["Suspenda alimentos sólidos por 2-4 horas", "Ofereça líquidos claros em pequenos goles (água, chá, soro)", "Retome alimentação leve gradualmente", "Evite deitar logo após comer", "Procure ajuda se: vômito com sangue, >24h sem reter líquidos, ou dor abdominal intensa"]
+        },
+        "queimadura": {
+          "recommendations": ["Resfrie IMEDIATAMENTE com água corrente por 10-20 minutos", "NÃO aplique pasta de dente, manteiga ou remédios caseiros", "NÃO estoure bolhas", "Cubra com pano limpo e úmido", "Ofereça analgésico para dor", "Procure atendimento se: >10% do corpo, face/mãos/genitais, ou queimadura profunda"]
+        },
+        "fratura ou trauma": {
+          "recommendations": ["Imobilize a área afetada na posição encontrada", "NÃO tente alinhar o osso", "Aplique gelo envolto em pano por 15-20 min a cada hora", "Eleve o membro se possível", "Ofereça analgésico para dor", "Procure atendimento médico — pode precisar de raio-X"]
+        },
+        "picada de cobra": {
+          "recommendations": ["Mantenha a pessoa CALMA e em REPOUSO absoluto", "NÃO faça torniquete, NÃO corte, NÃO chupe o local", "Lave o local com água e sabão", "Imobilize o membro afetado abaixo do nível do coração", "Fotografe a cobra se possível (ajuda a identificar o soro)", "Procure atendimento de emergência — soro antiofídico é essencial"]
+        },
+        "picada de inseto ou escorpião": {
+          "recommendations": ["Lave o local com água e sabão", "Aplique gelo envolto em pano por 10-15 min", "Use antialérgico (Loratadina 10mg) se coceira intensa", "Monitore sinais de reação alérgica grave (inchaço, falta de ar)", "Em caso de escorpião: analgésico forte e atendimento médico urgente", "Procure emergência se: falta de ar, inchaço na garganta, ou em crianças <7 anos"]
+        },
+        "desidratação": {
+          "recommendations": ["Soro caseiro: 1L água + 3 col. sopa açúcar + 1 col. chá sal", "Ofereça pequenos goles a cada 5-10 minutos", "Se criança: amamentação frequente + SRO entre mamadas", "Sinais de alarme: olhos fundos, choro sem lágrimas, boca muito seca", "Se não urinar por >6h ou letargia: atendimento urgente", "Continue oferecendo líquidos mesmo se vomitar — em goles menores"]
+        },
+        "intoxicação alimentar": {
+          "recommendations": ["Mantenha hidratação intensa (soro oral, água, chá)", "NÃO provoque vômito a menos que orientado por profissional", "Repouse e evite alimentos sólidos nas primeiras horas", "Se souber o que causou, guarde a embalagem/amostra", "Procure emergência se: sangue no vômito/fezes, febre >38.5°C, ou confusão mental", "Em caso de ingestão de produto químico: ligue para Centro de Intoxicação"]
+        },
+        "infecção urinária": {
+          "recommendations": ["Aumente a ingestão de água (2-3 litros por dia)", "NÃO segure a urina — vá ao banheiro sempre que sentir vontade", "Analgésico para dor (Paracetamol ou Ibuprofeno)", "Compressas mornas na região pélvica para alívio", "Procure atendimento para confirmar diagnóstico e iniciar antibiótico", "Se febre, dor lombar ou sangue na urina: atendimento urgente"]
+        },
+        "dor abdominal": {
+          "recommendations": ["Mantenha-se em jejum se a dor for intensa", "Deite em posição confortável (de lado com joelhos flexionados)", "Compressas mornas na barriga podem aliviar cólicas", "Evite anti-inflamatórios (podem piorar gastrite/úlcera)", "Sinais de alarme: abdômen rígido, febre, vômito com sangue", "Procure atendimento se: dor que não melhora em 6h, febre, ou vômitos persistentes"]
+        },
+        "crise de ansiedade ou pânico": {
+          "recommendations": ["Mantenha-se em local seguro e tranquilo", "Respire lentamente: inspire por 4s, segure 4s, expire por 6s", "Lembre: a crise é temporária e vai passar", "Se possível, peça para alguém ficar junto", "Evite cafeína, álcool e estimulantes", "Se crises recorrentes, procure acompanhamento profissional"]
+        },
+        "ideação suicida ou crise emocional grave": {
+          "recommendations": ["NÃO deixe a pessoa sozinha", "Ouça sem julgar — presença e acolhimento são fundamentais", "Remova acesso a objetos perigosos (medicamentos, objetos cortantes)", "CVV (Centro de Valorização da Vida): ligue 188 ou acesse cvv.org.br", "Procure atendimento em saúde mental o mais rápido possível", "Ore com a pessoa se ela aceitar — apoio espiritual pode ajudar"]
+        },
+        "dor de ouvido ou otite": {
+          "recommendations": ["Analgésico para dor: Paracetamol ou Ibuprofeno", "Compressas mornas sobre o ouvido por 15-20 min", "NÃO coloque nada dentro do ouvido (nem algodão, nem óleo)", "Evite que entre água no ouvido", "Procure atendimento se: febre >38.5°C, secreção com pus, ou dor >48h"]
+        },
+        "dor de garganta": {
+          "recommendations": ["Gargarejo com água morna e sal (1 col. chá de sal em 1 copo d'água)", "Analgésico: Paracetamol 500mg a cada 6h", "Mantenha-se hidratado com líquidos mornos", "Pastilhas para garganta podem aliviar", "Procure atendimento se: dor >5 dias, febre >38.5°C, ou dificuldade para engolir/respirar"]
+        },
+        "complicações obstétricas básicas": {
+          "recommendations": ["Sangramento vaginal na gravidez: deite do lado esquerdo e procure emergência", "Contrações antes de 37 semanas: repouso + hidratação + atendimento urgente", "Pressão alta >140/90 + dor de cabeça: possível pré-eclâmpsia — emergência", "Perda de líquido: pode ser ruptura de bolsa — atendimento imediato", "Diminuição dos movimentos fetais: deite do lado esquerdo, conte movimentos por 1h", "Se <6 movimentos em 1 hora: procure atendimento urgente"]
         }
       },
       "en": {
         "fever": {
-          "recommendations": [
-            "Rest and stay hydrated",
-            "Take fever medication if available",
-            "Wear light clothing",
-            "Seek help if persists for more than 3 days"
-          ]
+          "recommendations": ["Rest and stay hydrated (water, oral rehydration salts)", "Take antipyretic: Acetaminophen 500-750mg or Ibuprofen 400mg every 6h", "Wear light clothing and keep room ventilated", "Warm compresses (NOT cold) on forehead and armpits", "Seek help if persists more than 3 days or >39.5°C"]
         },
         "headache": {
-          "recommendations": [
-            "Rest in a quiet environment",
-            "Take pain medication if available",
-            "Avoid bright lights and noises",
-            "Seek help if severe or persistent"
-          ]
+          "recommendations": ["Rest in a dark, quiet room", "Take pain medication: Acetaminophen 500-750mg or Ibuprofen 400mg", "Stay hydrated", "Cold compresses on forehead may help", "Seek help if severe, sudden, or with neck stiffness"]
+        },
+        "diarrhea": {
+          "recommendations": ["Oral rehydration: 1L water + 6 tsp sugar + ½ tsp salt", "Offer fluids in small frequent sips", "Maintain bland diet (rice, banana, toast)", "Avoid dairy, fried or fatty foods", "Seek help if: blood in stool, high fever, or >3 days without improvement"]
+        },
+        "vomiting": {
+          "recommendations": ["Stop solid foods for 2-4 hours", "Offer clear fluids in small sips (water, tea, ORS)", "Gradually resume bland diet", "Avoid lying down right after eating", "Seek help if: blood in vomit, >24h without retaining fluids, or severe abdominal pain"]
+        },
+        "burn": {
+          "recommendations": ["Cool IMMEDIATELY with running water for 10-20 minutes", "Do NOT apply toothpaste, butter, or home remedies", "Do NOT pop blisters", "Cover with clean, damp cloth", "Offer pain medication", "Seek care if: >10% body area, face/hands/genitals, or deep burn"]
+        },
+        "fracture or trauma": {
+          "recommendations": ["Immobilize the affected area in the position found", "Do NOT try to realign the bone", "Apply ice wrapped in cloth for 15-20 min every hour", "Elevate the limb if possible", "Offer pain medication", "Seek medical care — may need X-ray"]
+        },
+        "snake bite": {
+          "recommendations": ["Keep the person CALM and at COMPLETE REST", "Do NOT apply tourniquet, do NOT cut, do NOT suck the wound", "Wash the area with soap and water", "Immobilize the affected limb below heart level", "Photograph the snake if possible (helps identify antivenom)", "Seek emergency care — antivenom is essential"]
+        },
+        "insect or scorpion sting": {
+          "recommendations": ["Wash the area with soap and water", "Apply ice wrapped in cloth for 10-15 min", "Use antihistamine (Loratadine 10mg) for intense itching", "Monitor for severe allergic reaction (swelling, shortness of breath)", "For scorpion stings: strong analgesic and urgent medical care", "Seek emergency if: shortness of breath, throat swelling, or children <7 years"]
+        },
+        "dehydration": {
+          "recommendations": ["Homemade ORS: 1L water + 6 tsp sugar + ½ tsp salt", "Offer small sips every 5-10 minutes", "For infants: frequent breastfeeding + ORS between feedings", "Warning signs: sunken eyes, crying without tears, very dry mouth", "If no urination for >6h or lethargy: urgent care needed", "Continue offering fluids even if vomiting — in smaller sips"]
+        },
+        "food poisoning": {
+          "recommendations": ["Maintain intense hydration (ORS, water, tea)", "Do NOT induce vomiting unless instructed by a professional", "Rest and avoid solid foods in the first hours", "If you know what caused it, keep the packaging/sample", "Seek emergency if: blood in vomit/stool, fever >38.5°C, or confusion", "For chemical ingestion: call Poison Control immediately"]
+        },
+        "urinary infection": {
+          "recommendations": ["Increase water intake (2-3 liters per day)", "Do NOT hold urine — go whenever you feel the urge", "Pain medication (Acetaminophen or Ibuprofen)", "Warm compresses on pelvic area for relief", "Seek care to confirm diagnosis and start antibiotics", "If fever, lower back pain, or blood in urine: urgent care"]
+        },
+        "abdominal pain": {
+          "recommendations": ["Fast if pain is severe", "Lie in comfortable position (usually on side with knees bent)", "Warm compresses on abdomen may relieve cramps", "Avoid anti-inflammatories (may worsen gastritis/ulcer)", "Warning signs: rigid abdomen, fever, blood in vomit", "Seek care if: pain doesn't improve in 6h, fever, or persistent vomiting"]
+        },
+        "anxiety or panic attack": {
+          "recommendations": ["Stay in a safe, quiet place", "Breathe slowly: inhale 4s, hold 4s, exhale 6s", "Remember: the episode is temporary and will pass", "If possible, ask someone to stay with you", "Avoid caffeine, alcohol, and stimulants", "If episodes recur, seek professional support"]
+        },
+        "suicidal ideation or severe emotional crisis": {
+          "recommendations": ["Do NOT leave the person alone", "Listen without judging — presence and care are essential", "Remove access to dangerous objects (medications, sharp objects)", "Crisis Hotline: call 988 (Suicide & Crisis Lifeline)", "Seek mental health care as soon as possible", "Pray with the person if they are open to it — spiritual support can help"]
+        },
+        "ear pain or otitis": {
+          "recommendations": ["Pain medication: Acetaminophen or Ibuprofen", "Warm compresses over the ear for 15-20 min", "Do NOT put anything inside the ear (no cotton, no oil)", "Keep water out of the ear", "Seek care if: fever >38.5°C, pus discharge, or pain >48h"]
+        },
+        "sore throat": {
+          "recommendations": ["Gargle with warm salt water (1 tsp salt in 1 glass of water)", "Pain medication: Acetaminophen 500mg every 6h", "Stay hydrated with warm fluids", "Throat lozenges may help", "Seek care if: pain >5 days, fever >38.5°C, or difficulty swallowing/breathing"]
+        },
+        "basic obstetric complications": {
+          "recommendations": ["Vaginal bleeding in pregnancy: lie on left side and seek emergency care", "Contractions before 37 weeks: rest + hydration + urgent care", "High BP >140/90 + headache: possible preeclampsia — emergency", "Fluid leaking: may be ruptured membranes — immediate care", "Decreased fetal movement: lie on left side, count movements for 1h", "If <6 movements in 1 hour: seek urgent care"]
+        }
+      },
+      "es": {
+        "fiebre": {
+          "recommendations": ["Descanse y manténgase hidratado (agua, suero oral)", "Tome antitérmico: Paracetamol 500-750mg o Ibuprofeno 400mg cada 6h", "Vista ropa ligera y mantenga ambiente ventilado", "Compresas tibias (NO frías) en frente y axilas", "Busque ayuda si persiste más de 3 días o >39.5°C"]
+        },
+        "dolor de cabeza": {
+          "recommendations": ["Descanse en ambiente oscuro y silencioso", "Tome analgésico: Paracetamol 500-750mg o Ibuprofeno 400mg", "Manténgase hidratado", "Compresas frías en la frente pueden ayudar", "Busque ayuda si es intenso, súbito o con rigidez en el cuello"]
+        },
+        "diarrea": {
+          "recommendations": ["Suero oral: 1L agua + 6 cdtas azúcar + ½ cdta sal", "Ofrezca líquidos en pequeños sorbos frecuentes", "Mantenga dieta blanda (arroz, banana, tostada)", "Evite lácteos, frituras y alimentos grasosos", "Busque ayuda si: sangre en heces, fiebre alta, o >3 días sin mejoría"]
+        },
+        "vómito": {
+          "recommendations": ["Suspenda alimentos sólidos por 2-4 horas", "Ofrezca líquidos claros en pequeños sorbos (agua, té, suero)", "Retome alimentación blanda gradualmente", "Evite acostarse justo después de comer", "Busque ayuda si: sangre en vómito, >24h sin retener líquidos, o dolor abdominal intenso"]
+        },
+        "quemadura": {
+          "recommendations": ["Enfríe INMEDIATAMENTE con agua corriente por 10-20 minutos", "NO aplique pasta de dientes, mantequilla ni remedios caseros", "NO reviente ampollas", "Cubra con paño limpio y húmedo", "Ofrezca analgésico para el dolor", "Busque atención si: >10% del cuerpo, cara/manos/genitales, o quemadura profunda"]
+        },
+        "fractura o trauma": {
+          "recommendations": ["Inmovilice el área afectada en la posición encontrada", "NO intente alinear el hueso", "Aplique hielo envuelto en paño por 15-20 min cada hora", "Eleve el miembro si es posible", "Ofrezca analgésico para el dolor", "Busque atención médica — puede necesitar radiografía"]
+        },
+        "mordedura de serpiente": {
+          "recommendations": ["Mantenga a la persona CALMADA y en REPOSO absoluto", "NO aplique torniquete, NO corte, NO succione la herida", "Lave el área con agua y jabón", "Inmovilice el miembro afectado debajo del nivel del corazón", "Fotografíe la serpiente si es posible", "Busque atención de emergencia — el suero antiofídico es esencial"]
+        },
+        "picadura de insecto o escorpión": {
+          "recommendations": ["Lave el área con agua y jabón", "Aplique hielo envuelto en paño por 10-15 min", "Use antialérgico (Loratadina 10mg) si picazón intensa", "Monitoree signos de reacción alérgica grave", "Para escorpión: analgésico fuerte y atención médica urgente", "Busque emergencia si: falta de aire, hinchazón en garganta, o niños <7 años"]
+        },
+        "deshidratación": {
+          "recommendations": ["Suero casero: 1L agua + 6 cdtas azúcar + ½ cdta sal", "Ofrezca pequeños sorbos cada 5-10 minutos", "Para bebés: lactancia frecuente + suero entre tomas", "Signos de alarma: ojos hundidos, llanto sin lágrimas, boca muy seca", "Si no orina por >6h o letargia: atención urgente", "Continue ofreciendo líquidos aunque vomite — en sorbos más pequeños"]
+        },
+        "intoxicación alimentaria": {
+          "recommendations": ["Mantenga hidratación intensa (suero oral, agua, té)", "NO provoque vómito a menos que un profesional lo indique", "Descanse y evite alimentos sólidos las primeras horas", "Si sabe qué lo causó, guarde el envase/muestra", "Busque emergencia si: sangre en vómito/heces, fiebre >38.5°C, o confusión mental", "En caso de ingestión de producto químico: llame al Centro de Intoxicaciones"]
+        },
+        "infección urinaria": {
+          "recommendations": ["Aumente la ingesta de agua (2-3 litros por día)", "NO retenga la orina", "Analgésico para el dolor (Paracetamol o Ibuprofeno)", "Compresas tibias en región pélvica para alivio", "Busque atención para confirmar diagnóstico e iniciar antibiótico", "Si fiebre, dolor lumbar o sangre en orina: atención urgente"]
+        },
+        "dolor abdominal": {
+          "recommendations": ["Mantenga ayuno si el dolor es intenso", "Acuéstese en posición cómoda (de lado con rodillas flexionadas)", "Compresas tibias en el abdomen pueden aliviar cólicos", "Evite antiinflamatorios (pueden empeorar gastritis/úlcera)", "Signos de alarma: abdomen rígido, fiebre, sangre en vómito", "Busque atención si: dolor que no mejora en 6h, fiebre, o vómitos persistentes"]
+        },
+        "crisis de ansiedad o pánico": {
+          "recommendations": ["Permanezca en un lugar seguro y tranquilo", "Respire lentamente: inhale 4s, sostenga 4s, exhale 6s", "Recuerde: la crisis es temporal y pasará", "Si es posible, pida a alguien que se quede con usted", "Evite cafeína, alcohol y estimulantes", "Si las crisis son recurrentes, busque acompañamiento profesional"]
+        },
+        "ideación suicida o crisis emocional grave": {
+          "recommendations": ["NO deje a la persona sola", "Escuche sin juzgar — la presencia y el cuidado son fundamentales", "Retire acceso a objetos peligrosos", "Línea de crisis: llame al teléfono de la esperanza de su país", "Busque atención en salud mental lo antes posible", "Ore con la persona si ella acepta — el apoyo espiritual puede ayudar"]
+        },
+        "dolor de oído u otitis": {
+          "recommendations": ["Analgésico para el dolor: Paracetamol o Ibuprofeno", "Compresas tibias sobre el oído por 15-20 min", "NO coloque nada dentro del oído", "Evite que entre agua en el oído", "Busque atención si: fiebre >38.5°C, secreción con pus, o dolor >48h"]
+        },
+        "dolor de garganta": {
+          "recommendations": ["Gárgaras con agua tibia y sal (1 cdta de sal en 1 vaso de agua)", "Analgésico: Paracetamol 500mg cada 6h", "Manténgase hidratado con líquidos tibios", "Pastillas para la garganta pueden aliviar", "Busque atención si: dolor >5 días, fiebre >38.5°C, o dificultad para tragar/respirar"]
+        },
+        "complicaciones obstétricas básicas": {
+          "recommendations": ["Sangrado vaginal en embarazo: acuéstese del lado izquierdo y busque emergencia", "Contracciones antes de 37 semanas: reposo + hidratación + atención urgente", "Presión alta >140/90 + dolor de cabeza: posible preeclampsia — emergencia", "Pérdida de líquido: puede ser ruptura de membranas — atención inmediata", "Disminución de movimientos fetales: acuéstese del lado izquierdo, cuente movimientos por 1h", "Si <6 movimientos en 1 hora: busque atención urgente"]
         }
       }
     },
     "warning_signs": {
-      "pt": "Procure atendimento médico imediatamente se apresentar: dificuldade para respirar, dor no peito intensa, confusão mental, sangramento que não para, perda de consciência, ou febre muito alta que não responde a medicamentos.",
-      "es": "Busque atención médica inmediatamente si presenta: dificultad para respirar, dolor en el pecho intenso, confusión mental, sangrado que no se detiene, pérdida de conocimiento, o fiebre muy alta que no responde a medicamentos.",
-      "en": "Seek immediate medical attention if you experience: difficulty breathing, severe chest pain, confusion, uncontrolled bleeding, loss of consciousness, or very high fever that does not respond to medication."
+      "pt": "Procure atendimento médico imediatamente se apresentar: dificuldade para respirar, dor no peito intensa, confusão mental, sangramento que não para, perda de consciência, convulsão, febre muito alta que não responde a medicamentos, rigidez no pescoço com febre, ou manchas roxas na pele.",
+      "es": "Busque atención médica inmediatamente si presenta: dificultad para respirar, dolor en el pecho intenso, confusión mental, sangrado que no se detiene, pérdida de conocimiento, convulsión, fiebre muy alta que no responde a medicamentos, rigidez en el cuello con fiebre, o manchas moradas en la piel.",
+      "en": "Seek immediate medical attention if you experience: difficulty breathing, severe chest pain, confusion, uncontrolled bleeding, loss of consciousness, seizure, very high fever unresponsive to medication, neck stiffness with fever, or purple spots on the skin."
     }
   }
 }

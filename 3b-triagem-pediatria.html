@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="assets/js/api-config.js"></script>
+    <script src="assets/js/offline-banner.js" defer></script>
     
     <style>
         :root {
@@ -314,7 +315,8 @@ document.addEventListener('DOMContentLoaded', () => {
     orientationContent.innerHTML = `<div class="loader mx-auto my-4"></div><p class="text-center font-semibold text-gray-600">${dict['analyzing_feedback'] || dict['analyzing_feedback']}</p>`;
 
         try {
-            // Chamada para a API
+            if (!navigator.onLine) throw new Error('OFFLINE');
+
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -325,17 +327,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 const errorData = await response.json();
                 throw new Error(errorData.error || `Erro na API: ${response.statusText}`);
             }
-            
+
             const result = await response.json();
-            renderAnalysis(result); // Renderiza o resultado JSON
-            
+            renderAnalysis(result);
+
         } catch (error) {
             console.error("Erro ao gerar análise:", error);
-            const dict = translations[currentLang] || translations['pt'];
-            orientationContent.innerHTML = `<div class="text-center text-red-600 font-bold">
-                <p>${dict['api_error_label'] || 'Ocorreu um erro ao buscar a análise.'}</p>
-                <p class="text-sm mt-2 text-gray-700">${error.message}</p>
-            </div>`;
+            if (!navigator.onLine || error.message === 'OFFLINE' || error.message.includes('Failed to fetch')) {
+                const offlineResult = generatePediatricOfflineFallback(payload);
+                renderAnalysis(offlineResult);
+                const dict = translations[currentLang] || translations['pt'];
+                orientationContent.insertAdjacentHTML('afterbegin', `
+                    <div class="p-3 mb-4 rounded-lg border-2 border-amber-400 bg-amber-50 text-amber-800 text-sm">
+                        <i class="fas fa-wifi-slash mr-1"></i>
+                        <strong>${dict['offline_mode_label'] || 'Modo Offline'}</strong> —
+                        ${dict['offline_mode_msg'] || 'Classificação local limitada. Quando a conexão voltar, refaça a avaliação para orientações personalizadas da IA.'}
+                    </div>
+                `);
+            } else {
+                const dict = translations[currentLang] || translations['pt'];
+                orientationContent.innerHTML = `<div class="text-center text-red-600 font-bold">
+                    <p>${dict['api_error_label'] || 'Ocorreu um erro ao buscar a análise.'}</p>
+                    <p class="text-sm mt-2 text-gray-700">${error.message}</p>
+                </div>`;
+            }
         } finally {
             // Mostra o botão de reiniciar
             resultsFooter.classList.remove('hidden');
@@ -361,6 +376,100 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         })();
+
+    function generatePediatricOfflineFallback(payload) {
+        const queixa = (payload.queixaPrincipal || '').toLowerCase();
+        const historia = (payload.historiaDoenca || '').toLowerCase();
+        const texto = queixa + ' ' + historia;
+        const temp = parseFloat(payload.temperatura) || 0;
+        const fc = parseFloat(payload.frequenciaCardiaca) || 0;
+        const fr = parseFloat(payload.frequenciaRespiratoria) || 0;
+        const spo2 = parseFloat(payload.saturacaoO2) || 100;
+        const estado = (payload.estadoGeral || '').toLowerCase();
+        const consciencia = (payload.nivelConsciencia || '').toLowerCase();
+
+        const sinaisGravidade = [];
+        const orientacoes = [];
+        const sinaisPiora = [];
+        let urgencia = false;
+
+        // Sinais vitais críticos
+        if (temp >= 39.5) sinaisGravidade.push('Febre muito alta (≥39.5°C)');
+        else if (temp >= 38) sinaisGravidade.push('Febre (≥38°C)');
+        if (spo2 > 0 && spo2 < 92) { sinaisGravidade.push('Saturação de oxigênio baixa (<92%)'); urgencia = true; }
+        else if (spo2 > 0 && spo2 < 95) sinaisGravidade.push('Saturação de oxigênio limítrofe (<95%)');
+        if (fr > 60) { sinaisGravidade.push('Frequência respiratória muito elevada (>60 irpm)'); urgencia = true; }
+        else if (fr > 40) sinaisGravidade.push('Frequência respiratória elevada (>40 irpm)');
+        if (fc > 180) { sinaisGravidade.push('Frequência cardíaca muito elevada (>180 bpm)'); urgencia = true; }
+
+        // Estado geral
+        if (estado === 'ruim') { sinaisGravidade.push('Estado geral ruim'); urgencia = true; }
+        if (consciencia.includes('sonolento')) sinaisGravidade.push('Sonolência — nível de consciência alterado');
+        if (consciencia.includes('irritado') || consciencia.includes('inconsolável')) sinaisGravidade.push('Irritabilidade/Inconsolabilidade');
+
+        // Keywords de emergência
+        const emergencyKeys = ['convulsão', 'convulsao', 'não respira', 'nao respira', 'inconsciente', 'desmaio', 'cianose', 'roxo', 'roxa', 'parada'];
+        const urgentKeys = ['sangue', 'sangramento', 'vômito', 'vomito', 'desidrat', 'não bebe', 'nao bebe', 'recusa líquido', 'diarréia', 'diarreia', 'gemência', 'gemencia', 'tiragem'];
+        const attentionKeys = ['febre', 'tosse', 'coriza', 'dor', 'mancha', 'erupção', 'erupcao', 'coceira', 'otite', 'ouvido'];
+
+        if (emergencyKeys.some(k => texto.includes(k))) {
+            urgencia = true;
+            sinaisGravidade.push('Sintoma de emergência identificado na queixa');
+        }
+        if (urgentKeys.some(k => texto.includes(k))) {
+            if (!urgencia) sinaisGravidade.push('Sintoma de atenção identificado na queixa');
+        }
+
+        // Orientações baseadas no nível
+        if (urgencia) {
+            orientacoes.push(
+                'Procure atendimento médico de emergência imediatamente.',
+                'Mantenha a criança em posição confortável e vias aéreas livres.',
+                'Não administre medicamentos sem orientação médica.',
+                'Monitore respiração e nível de consciência constantemente.',
+                'Se parar de respirar, inicie RCP pediátrica se treinado.'
+            );
+        } else if (sinaisGravidade.length > 0) {
+            orientacoes.push(
+                'Procure avaliação médica nas próximas horas.',
+                'Mantenha a criança hidratada com líquidos em pequenas quantidades.',
+                'Monitore a temperatura a cada 2-4 horas.',
+                'Mantenha a criança em repouso e em ambiente arejado.',
+                'Antitérmico (paracetamol/dipirona) se febre ≥38.5°C, conforme dose pediátrica.'
+            );
+        } else {
+            orientacoes.push(
+                'Manter observação domiciliar com acompanhamento dos sintomas.',
+                'Oferecer líquidos com frequência.',
+                'Manter alimentação leve e fracionada.',
+                'Procurar atendimento se não houver melhora em 48h.'
+            );
+        }
+
+        // Sinais de piora universais
+        sinaisPiora.push(
+            'Aumento do esforço para respirar (tiragem, gemência)',
+            'Recusa total de líquidos por mais de 6 horas',
+            'Aparecimento de manchas roxas na pele',
+            'Sonolência excessiva ou dificuldade para acordar',
+            'Febre que não cede com antitérmico',
+            'Piora do estado geral'
+        );
+
+        return {
+            sinais_de_gravidade: sinaisGravidade.length > 0 ? sinaisGravidade : ['Nenhum sinal de gravidade identificado na avaliação offline.'],
+            conduta_recomendada: {
+                urgencia: urgencia,
+                justificativa: urgencia
+                    ? 'Classificação OFFLINE: Sinais de alarme identificados. Avaliação presencial urgente necessária.'
+                    : sinaisGravidade.length > 0
+                        ? 'Classificação OFFLINE: Sinais que merecem atenção identificados. Monitorar evolução.'
+                        : 'Classificação OFFLINE: Sem sinais de alarme aparentes. Manter observação.',
+                orientacoes: orientacoes
+            },
+            sinais_de_piora: sinaisPiora
+        };
+    }
 
     validateForm();
 });

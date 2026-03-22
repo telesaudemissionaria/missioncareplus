@@ -12,7 +12,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <script src="assets/js/api-config.js"></script>
-  
+  <script src="assets/js/offline-banner.js" defer></script>
+
   <meta name="theme-color" content="#0f766e"/>
   <style>
     body { font-family: 'Noto Sans', sans-serif; padding-bottom: 80px; }
@@ -356,6 +357,27 @@
         };
       }
       
+      // Se offline, ir direto para classificação local
+      if (!navigator.onLine) {
+        console.log("Modo offline detectado, usando classificação local");
+        const emergencia = verificarEmergencia(sintomas, state.profile, IG, sinaisVitais);
+        if (emergencia) return emergencia;
+        const urgencia = verificarUrgencia(sintomas, state.profile, IG);
+        if (urgencia) return urgencia;
+        const atencao = verificarAtencao(sintomas);
+        if (atencao) return atencao;
+        return {
+          nivel: '🟢 Verde — Não Urgente (Offline)',
+          classe: 'border-emerald-500 bg-emerald-50',
+          plano: [
+            '<strong>Modo Offline:</strong> Classificação local baseada em regras. Conecte-se para análise completa da IA.',
+            '<strong>Conduta:</strong> Manter acompanhamento de rotina (pré-natal ou ginecológico).',
+            '<strong>Autocuidado:</strong> Focar em descanso, hidratação e alimentação saudável.',
+            '<strong>Sinais de Alerta:</strong> Observar surgimento de sangramento, piora da dor, febre, desmaio ou falta de ar.'
+          ]
+        };
+      }
+
       try {
         // Preparar dados para envio ao backend
         const gobData = {

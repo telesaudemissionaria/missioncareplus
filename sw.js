@@ -1,4 +1,4 @@
-const CACHE = \'missioncare-v1.5\';
+const CACHE = \'missioncare-v1.6\';
 const PRECACHE = [
   \'./\',
   \'./index.html\',
@@ -16,6 +16,7 @@ const PRECACHE = [
   \'./sintomas-graves.html\',
   // Scripts do aplicativo
   \'./assets/js/api-config.js\',
+  \'./assets/js/offline-banner.js\',
   \'./assets/data/offline-protocols.json\',
   // Dependências Externas Essenciais
   \'https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900\',
