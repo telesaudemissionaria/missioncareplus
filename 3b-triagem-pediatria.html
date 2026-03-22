@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="assets/js/api-config.js"></script>
     
     <style>
         :root {
@@ -217,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orientationContent = document.getElementById('orientation-content');
     
     // URL da API
-    const API_URL = 'https://missioncareplus-jca0.onrender.com/analise-triagem';
+    const API_URL = API_CONFIG.ENDPOINTS.TRIAGEM_PEDIATRICA;
 
     // Função para validar o formulário e habilitar/desabilitar o botão de envio
     const validateForm = () => {

@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="assets/js/api-config.js"></script>
     
     <style>
         body { font-family: 'Lexend', 'Noto Sans', sans-serif; padding-bottom: 80px; }
@@ -297,14 +298,16 @@ document.addEventListener('DOMContentLoaded', () => {
         responseContent.innerHTML = `<div class="loader mx-auto my-8"></div><p class="text-center font-semibold text-gray-600">${langData.loading}</p>`;
 
         try {
-            const response = await fetch('https://missioncareplus-jca0.onrender.com/api/v1/assistente', {
+            if (!navigator.onLine) throw new Error('OFFLINE');
+
+            const response = await fetch(API_CONFIG.ENDPOINTS.EMERGENCIA, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: finalPrompt })
             });
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            
+
             const data = await response.json();
             if (data.response) {
                  responseContent.innerHTML = window.marked.parse(data.response);
@@ -314,10 +317,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Fetch error:', error);
-            responseContent.innerHTML = `<div class="text-center p-4 bg-red-100 text-red-800 rounded-lg"><p class="font-bold">${langData.errorTitle}</p><p>${langData.errorMessage}</p></div>`;
+            if (!navigator.onLine || error.message === 'OFFLINE' || error.message.includes('Failed to fetch')) {
+                responseContent.innerHTML = getOfflineEmergencyFallback(userPrompt, langCode);
+            } else {
+                responseContent.innerHTML = `<div class="text-center p-4 bg-red-100 text-red-800 rounded-lg"><p class="font-bold">${langData.errorTitle}</p><p>${langData.errorMessage}</p></div>`;
+            }
         }
     }
     
+    const offlineProtocols = {
+        pt: {
+            chestPain: { title: 'Dor no Peito — Possível Infarto', steps: ['Sente a pessoa e mantenha-a em repouso absoluto.', 'Afrouxe roupas apertadas (gravata, cinto, botões).', 'Se disponível e sem alergia, dê 1 aspirina (AAS 100mg) para mastigar.', 'NÃO dê água ou comida.', 'Se a pessoa perder a consciência, inicie compressões torácicas (RCP).', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            stroke: { title: 'AVC — Fraqueza ou Fala Alterada', steps: ['Use o teste SAMU: Sorriso (assimétrico?), Abraço (fraqueza?), Mensagem (fala confusa?), Urgência.', 'NÃO dê medicamentos, água ou comida.', 'Deite a pessoa com a cabeça elevada (~30°).', 'Anote o horário exato de início dos sintomas.', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            breathing: { title: 'Dificuldade Respiratória Grave', steps: ['Sente a pessoa em posição vertical (não deitar).', 'Afrouxe roupas apertadas.', 'Se tiver bombinha de asma, ajude a usar.', 'Se suspeita de engasgo: aplique a manobra de Heimlich.', 'Monitore a respiração constantemente.', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            bleeding: { title: 'Sangramento Incontrolável', steps: ['Aplique pressão FIRME e constante com pano limpo sobre o ferimento.', 'NÃO retire o pano se encharcar, coloque outro por cima.', 'Eleve a área afetada acima do nível do coração.', 'Se sangramento em membro, aplique torniquete se treinado.', 'Mantenha a pessoa aquecida e deitada.', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            allergy: { title: 'Reação Alérgica Grave (Anafilaxia)', steps: ['Se disponível, use a caneta de epinefrina (EpiPen) na coxa lateral.', 'Deite a pessoa e eleve as pernas.', 'Se houver inchaço na garganta, NÃO dê líquidos.', 'Afrouxe roupas e mantenha vias aéreas livres.', 'Se parar de respirar, inicie RCP.', 'Procure atendimento de emergência IMEDIATAMENTE.'] },
+            fainting: { title: 'Desmaio / Convulsão / Confusão', steps: ['Coloque a pessoa deitada de lado (posição de recuperação).', 'NÃO coloque nada na boca.', 'Proteja a cabeça durante convulsões (coloque algo macio embaixo).', 'NÃO tente segurar os movimentos da convulsão.', 'Cronometre a duração da convulsão.', 'Se convulsão durar >5 minutos, é emergência absoluta.'] }
+        },
+        en: {
+            chestPain: { title: 'Chest Pain — Possible Heart Attack', steps: ['Sit the person down and keep them at complete rest.', 'Loosen tight clothing (tie, belt, buttons).', 'If available and not allergic, give 1 aspirin to chew.', 'Do NOT give water or food.', 'If the person loses consciousness, start chest compressions (CPR).', 'Seek emergency medical attention IMMEDIATELY.'] },
+            stroke: { title: 'Stroke — Weakness or Altered Speech', steps: ['Use the FAST test: Face (drooping?), Arms (weakness?), Speech (slurred?), Time (call emergency).', 'Do NOT give medications, water, or food.', 'Lay the person down with head elevated (~30°).', 'Note the exact time symptoms started.', 'Seek emergency medical attention IMMEDIATELY.'] },
+            breathing: { title: 'Severe Breathing Difficulty', steps: ['Sit the person upright (do not lay down).', 'Loosen tight clothing.', 'If they have an asthma inhaler, help them use it.', 'If choking suspected: perform Heimlich maneuver.', 'Monitor breathing constantly.', 'Seek emergency medical attention IMMEDIATELY.'] },
+            bleeding: { title: 'Uncontrollable Bleeding', steps: ['Apply FIRM, constant pressure with a clean cloth on the wound.', 'Do NOT remove the cloth if soaked, place another on top.', 'Elevate the affected area above heart level.', 'If limb bleeding, apply tourniquet if trained.', 'Keep the person warm and lying down.', 'Seek emergency medical attention IMMEDIATELY.'] },
+            allergy: { title: 'Severe Allergic Reaction (Anaphylaxis)', steps: ['If available, use epinephrine pen (EpiPen) on outer thigh.', 'Lay the person down and elevate legs.', 'If throat swelling, do NOT give fluids.', 'Loosen clothing and keep airways clear.', 'If they stop breathing, start CPR.', 'Seek emergency medical attention IMMEDIATELY.'] },
+            fainting: { title: 'Fainting / Seizure / Confusion', steps: ['Place the person on their side (recovery position).', 'Do NOT put anything in the mouth.', 'Protect the head during seizures (place something soft underneath).', 'Do NOT try to restrain seizure movements.', 'Time the seizure duration.', 'If seizure lasts >5 minutes, it is an absolute emergency.'] }
+        },
+        es: {
+            chestPain: { title: 'Dolor de Pecho — Posible Infarto', steps: ['Siente a la persona y manténgala en reposo absoluto.', 'Afloje ropa ajustada (corbata, cinturón, botones).', 'Si disponible y sin alergia, dé 1 aspirina para masticar.', 'NO dé agua ni comida.', 'Si pierde la conciencia, inicie compresiones torácicas (RCP).', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            stroke: { title: 'ACV — Debilidad o Habla Alterada', steps: ['Use la prueba RÁPIDA: Rostro (asimétrico?), Alzar brazos (debilidad?), Pronunciar (confuso?), Tiempo (llame emergencia).', 'NO dé medicamentos, agua ni comida.', 'Acueste a la persona con cabeza elevada (~30°).', 'Anote la hora exacta de inicio de síntomas.', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            breathing: { title: 'Dificultad Respiratoria Grave', steps: ['Siente a la persona en posición vertical (no acostar).', 'Afloje ropa ajustada.', 'Si tiene inhalador de asma, ayude a usarlo.', 'Si sospecha atragantamiento: aplique maniobra de Heimlich.', 'Monitoree la respiración constantemente.', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            bleeding: { title: 'Sangrado Incontrolable', steps: ['Aplique presión FIRME y constante con paño limpio sobre la herida.', 'NO retire el paño si se empapa, coloque otro encima.', 'Eleve el área afectada por encima del nivel del corazón.', 'Si sangrado en extremidad, aplique torniquete si entrenado.', 'Mantenga a la persona abrigada y acostada.', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            allergy: { title: 'Reacción Alérgica Grave (Anafilaxia)', steps: ['Si disponible, use pluma de epinefrina (EpiPen) en muslo lateral.', 'Acueste a la persona y eleve las piernas.', 'Si hay hinchazón en garganta, NO dé líquidos.', 'Afloje ropa y mantenga vías aéreas libres.', 'Si deja de respirar, inicie RCP.', 'Busque atención de emergencia INMEDIATAMENTE.'] },
+            fainting: { title: 'Desmayo / Convulsión / Confusión', steps: ['Coloque a la persona de lado (posición de recuperación).', 'NO coloque nada en la boca.', 'Proteja la cabeza durante convulsiones.', 'NO intente sujetar los movimientos de la convulsión.', 'Cronometre la duración de la convulsión.', 'Si dura >5 minutos, es emergencia absoluta.'] }
+        }
+    };
+
+    const offlineLabels = {
+        pt: { title: 'Modo Offline', subtitle: 'Protocolo de primeiros socorros armazenado localmente.', warning: 'Quando a conexão for restabelecida, consulte o Assistente de Emergência para orientações mais completas.' },
+        en: { title: 'Offline Mode', subtitle: 'Locally stored first aid protocol.', warning: 'When connection is restored, consult the Emergency Assistant for more complete guidance.' },
+        es: { title: 'Modo Sin Conexión', subtitle: 'Protocolo de primeros auxilios almacenado localmente.', warning: 'Cuando se restablezca la conexión, consulte el Asistente de Emergencia para orientaciones más completas.' }
+    };
+
+    function getOfflineEmergencyFallback(userPrompt, langCode) {
+        const protocols = offlineProtocols[langCode] || offlineProtocols.pt;
+        const labels = offlineLabels[langCode] || offlineLabels.pt;
+        const promptLower = userPrompt.toLowerCase();
+
+        // Match the prompt to a protocol
+        let matched = null;
+        const keywordMap = {
+            chestPain: ['peito', 'chest', 'pecho', 'infarto', 'heart', 'corazón'],
+            stroke: ['avc', 'stroke', 'acv', 'fraqueza', 'weakness', 'debilidad', 'fala', 'speech', 'habla'],
+            breathing: ['respirar', 'breath', 'respirat', 'asfixia', 'chok', 'asma'],
+            bleeding: ['sangr', 'bleed', 'hemorr'],
+            allergy: ['alerg', 'anafilax', 'anaphyl', 'inchaço', 'swell', 'hinch'],
+            fainting: ['desmai', 'convuls', 'confus', 'faint', 'seizure', 'desmayo']
+        };
+
+        for (const [key, keywords] of Object.entries(keywordMap)) {
+            if (keywords.some(k => promptLower.includes(k))) {
+                matched = protocols[key];
+                break;
+            }
+        }
+
+        if (!matched) {
+            // Generic emergency fallback
+            matched = {
+                title: langCode === 'en' ? 'General Emergency' : langCode === 'es' ? 'Emergencia General' : 'Emergência Geral',
+                steps: protocols.chestPain.steps.slice(-2) // Use last 2 generic steps
+            };
+        }
+
+        const stepsHtml = matched.steps.map((s, i) => `<li class="mb-2"><strong>${i + 1}.</strong> ${s}</li>`).join('');
+        return `
+            <div class="p-4 rounded-lg border-2 border-red-500 bg-red-50 mb-4">
+                <h2 class="text-xl font-bold text-red-700 mb-1"><i class="fas fa-wifi-slash mr-2"></i>${labels.title}</h2>
+                <p class="text-sm text-red-600">${labels.subtitle}</p>
+            </div>
+            <div class="p-4 bg-white rounded-lg border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-3"><i class="fas fa-kit-medical mr-2 text-red-500"></i>${matched.title}</h3>
+                <ol class="list-none pl-0 text-gray-700 leading-relaxed">${stepsHtml}</ol>
+            </div>
+            <div class="mt-4 p-3 bg-amber-50 border border-amber-300 rounded-lg text-sm text-amber-800">
+                <i class="fas fa-exclamation-triangle mr-1"></i> ${labels.warning}
+            </div>
+        `;
+    }
+
     const initialLang = localStorage.getItem('preferredLang') || 'pt';
     updateLanguage(initialLang);
 });

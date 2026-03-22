@@ -1,9 +1,9 @@
-// index.js — v8 — CORS seguro + rate limit + thread cleanup + dotenv
-import 'dotenv/config';
+// index.js - v8 - Security, rate limiting, retry, caching, input sanitization
+
 import express from 'express';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
 import OpenAI from 'openai';
+import rateLimit from 'express-rate-limit';
 
 const app = express();
 const port = process.env.PORT || 10000;
@@ -18,54 +18,128 @@ const openai = new OpenAI({
 });
 
 const assistants = {
-  clinica:           'asst_qitIwbREUyPY1GRIYH7vYQx0',
-  triagem:           'asst_AMRI91iC8Efv90P41K3PVATV',
-  primeiros_socorros:'asst_NU2rjoLUZiECJ711IE1pXotZ',
+  clinica: 'asst_qitIwbREUyPY1GRIYH7vYQx0',
+  triagem: 'asst_AMRI91iC8Efv90P41K3PVATV',
+  primeiros_socorros: 'asst_NU2rjoLUZiECJ711IE1pXotZ',
 };
 
-// FIX 1 — CORS restrito aos domínios do projeto
+// --- CORS ---
 const allowedOrigins = [
-  'https://missioncareplus-jca0.onrender.com',
   'https://telesaudemissionaria.github.io',
-  'http://localhost:8000',
-  'http://localhost:3000',
+  'https://missioncareplus-jca0.onrender.com',
+  'https://missioncare-plus-backend.onrender.com',
 ];
 app.use(cors({
   origin: (origin, callback) => {
-    // Permite requisições sem origin (ex: Postman, mobile)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Origem não permitida pelo CORS'));
-    }
-  }
+    // Allow requests with no origin (mobile apps, curl, etc) in dev
+    if (!origin && process.env.NODE_ENV !== 'production') return callback(null, true);
+    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) return callback(null, true);
+    callback(new Error('Origem não permitida pelo CORS'));
+  },
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 
-// FIX 2 — Rate limiting: máx 10 requests por minuto por IP
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 10,
+// --- RATE LIMITING ---
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minuto
+  max: 10, // máximo 10 requests por IP por minuto
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Muitas requisições. Aguarde 1 minuto e tente novamente.' },
+  message: { error: 'Muitas requisições. Aguarde um momento antes de tentar novamente.' },
 });
-app.use('/analise-triagem', limiter);
-app.use('/api', limiter);
+
+// --- INPUT SANITIZATION ---
+function sanitizeInput(text, maxLength = 1000) {
+  if (typeof text !== 'string') return '';
+  return text
+    .slice(0, maxLength)
+    .replace(/[<>]/g, '') // Remove HTML tags
+    .trim();
+}
+
+function sanitizeTriagePayload(body) {
+  const sanitized = {};
+  const fields = ['problemaPrincipal', 'inicioSintomas', 'melhoraPiora', 'doencasCronicas', 'medicamentos', 'alergias'];
+  for (const field of fields) {
+    sanitized[field] = sanitizeInput(body[field] || '', 500);
+  }
+  return sanitized;
+}
+
+function sanitizePediatricPayload(body) {
+  const sanitized = {};
+  const textFields = ['idade', 'queixaPrincipal', 'historiaDoenca', 'estadoGeral', 'nivelConsciencia', 'observacoesAdicionais'];
+  for (const field of textFields) {
+    sanitized[field] = sanitizeInput(body[field] || '', 500);
+  }
+  // Numeric fields - parse and validate
+  const numericFields = ['temperatura', 'frequenciaCardiaca', 'frequenciaRespiratoria', 'saturacaoO2'];
+  for (const field of numericFields) {
+    const val = parseFloat(body[field]);
+    sanitized[field] = (!isNaN(val) && val >= 0 && val <= 500) ? String(val) : '';
+  }
+  return sanitized;
+}
+
+// --- RESPONSE CACHE (in-memory, TTL-based) ---
+const responseCache = new Map();
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutos
+const MAX_CACHE_SIZE = 100;
+
+function getCacheKey(prefix, data) {
+  const str = typeof data === 'string' ? data : JSON.stringify(data);
+  // Simple hash
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return `${prefix}:${hash}`;
+}
+
+function getFromCache(key) {
+  const entry = responseCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL) {
+    responseCache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setCache(key, data) {
+  // Evict oldest if cache is full
+  if (responseCache.size >= MAX_CACHE_SIZE) {
+    const oldestKey = responseCache.keys().next().value;
+    responseCache.delete(oldestKey);
+  }
+  responseCache.set(key, { data, timestamp: Date.now() });
+}
+
+// --- ROUTES ---
 
 app.get('/', (req, res) => {
   res.send('Servidor MissionCare+ v8 está no ar. Endpoints: /analise-triagem, /analise-triagem-adulto, /api/v1/assistente');
 });
 
-// --- ENDPOINT DE EMERGÊNCIAS ---
-app.post('/api/v1/assistente', async (req, res) => {
-  const { prompt } = req.body;
+// Endpoint de Emergências
+app.post('/api/v1/assistente', apiLimiter, async (req, res) => {
+  const prompt = sanitizeInput(req.body.prompt, 2000);
+
   if (!prompt) {
     return res.status(400).json({ error: 'O campo "prompt" é obrigatório.' });
   }
+
+  const cacheKey = getCacheKey('emergency', prompt);
+  const cached = getFromCache(cacheKey);
+  if (cached) {
+    return res.json({ response: cached });
+  }
+
   try {
-    const responseText = await getOpenAIResponse(assistants.primeiros_socorros, prompt);
+    const responseText = await getOpenAIResponseWithRetry(assistants.primeiros_socorros, prompt);
+    setCache(cacheKey, responseText);
     res.json({ response: responseText });
   } catch (error) {
     console.error("Erro no endpoint /api/v1/assistente:", error);
@@ -73,17 +147,18 @@ app.post('/api/v1/assistente', async (req, res) => {
   }
 });
 
-// --- TRIAGEM PEDIÁTRICA ---
-app.post('/analise-triagem', async (req, res) => {
-  const promptParaAnalise = createPediatricPrompt(req.body);
+// Endpoint de Triagem Pediátrica
+app.post('/analise-triagem', apiLimiter, async (req, res) => {
+  const dados = sanitizePediatricPayload(req.body);
+  const promptParaAnalise = createPediatricPrompt(dados);
   await processarAnaliseJSON(res, assistants.triagem, promptParaAnalise);
 });
 
-// --- TRIAGEM ADULTO ---
-app.post('/analise-triagem-adulto', async (req, res) => {
-  const dadosAdulto = req.body;
+// Endpoint de Triagem Adulto
+app.post('/analise-triagem-adulto', apiLimiter, async (req, res) => {
+  const dadosAdulto = sanitizeTriagePayload(req.body);
 
-  if (!dadosAdulto || !dadosAdulto.problemaPrincipal) {
+  if (!dadosAdulto.problemaPrincipal) {
     return res.status(400).json({ error: 'Dados de triagem insuficientes. O problema principal é obrigatório.' });
   }
 
@@ -101,7 +176,7 @@ app.post('/analise-triagem-adulto', async (req, res) => {
   `;
 
   try {
-    const responseText = await getOpenAIResponse(assistants.clinica, promptParaAnalise);
+    const responseText = await getOpenAIResponseWithRetry(assistants.clinica, promptParaAnalise);
     res.json({ response: responseText });
   } catch (error) {
     console.error("Erro no endpoint /analise-triagem-adulto:", error);
@@ -109,49 +184,97 @@ app.post('/analise-triagem-adulto', async (req, res) => {
   }
 });
 
-// --- FUNÇÕES HELPER ---
+// Endpoint GOB unificado (antes estava em backend separado)
+app.post('/api/assistants/run/gob', apiLimiter, async (req, res) => {
+  const message = sanitizeInput(req.body.message, 3000);
+
+  if (!message) {
+    return res.status(400).json({ ok: false, error: 'O campo "message" é obrigatório.' });
+  }
+
+  try {
+    const responseText = await getOpenAIResponseWithRetry(assistants.clinica, message);
+    res.json({ ok: true, text: responseText });
+  } catch (error) {
+    console.error("Erro no endpoint /api/assistants/run/gob:", error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// --- HELPER FUNCTIONS ---
+
+async function getOpenAIResponseWithRetry(assistantId, prompt, maxRetries = 2) {
+  let lastError;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await getOpenAIResponse(assistantId, prompt);
+    } catch (error) {
+      lastError = error;
+      console.warn(`Tentativa ${attempt + 1} falhou: ${error.message}`);
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+      }
+    }
+  }
+  throw lastError;
+}
 
 async function getOpenAIResponse(assistantId, prompt) {
   const thread = await openai.beta.threads.create();
-  try {
-    await openai.beta.threads.messages.create(thread.id, {
-      role: 'user',
-      content: prompt,
-    });
+  await openai.beta.threads.messages.create(thread.id, {
+    role: 'user',
+    content: prompt,
+  });
 
-    const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: assistantId,
-    });
+  const run = await openai.beta.threads.runs.create(thread.id, {
+    assistant_id: assistantId,
+  });
 
-    const runStatus = await waitForRunCompletion(thread.id, run.id);
+  const runStatus = await waitForRunCompletion(thread.id, run.id);
 
-    if (runStatus === 'completed') {
-      const messages = await openai.beta.threads.messages.list(thread.id);
-      const lastMessage = messages.data.find(m => m.run_id === run.id && m.role === 'assistant');
-      if (lastMessage && lastMessage.content[0].type === 'text') {
-        return lastMessage.content[0].text.value;
-      }
-      throw new Error('Nenhuma resposta de texto coerente do assistente.');
-    } else {
-      throw new Error(`A análise não pôde ser concluída. Status: ${runStatus}`);
+  if (runStatus === 'completed') {
+    const messages = await openai.beta.threads.messages.list(thread.id);
+    const lastMessage = messages.data.find(m => m.run_id === run.id && m.role === 'assistant');
+    if (lastMessage && lastMessage.content[0].type === 'text') {
+      return lastMessage.content[0].text.value;
     }
-  } finally {
-    // FIX 3 — Thread cleanup: evita acúmulo de threads na conta OpenAI
-    try {
-      await openai.beta.threads.del(thread.id);
-    } catch (cleanupErr) {
-      console.warn('Aviso: não foi possível deletar o thread:', cleanupErr.message);
-    }
+    throw new Error('Nenhuma resposta de texto coerente do assistente.');
+  } else {
+    throw new Error(`A análise não pôde ser concluída. Status: ${runStatus}`);
   }
 }
 
 async function processarAnaliseJSON(res, assistantId, prompt) {
   try {
-    const rawResponse = await getOpenAIResponse(assistantId, prompt);
-    const jsonMatch = rawResponse.match(/```json\n([\s\S]*?)\n```|({[\s\S]*})/);
-    if (!jsonMatch) throw new Error("Nenhum JSON válido encontrado na resposta da IA.");
-    const extractedJson = jsonMatch[1] || jsonMatch[2];
-    const parsedJson = JSON.parse(extractedJson);
+    const rawResponse = await getOpenAIResponseWithRetry(assistantId, prompt);
+
+    // Improved JSON extraction: try multiple strategies
+    let parsedJson = null;
+
+    // Strategy 1: markdown code block
+    const codeBlockMatch = rawResponse.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
+    if (codeBlockMatch) {
+      try { parsedJson = JSON.parse(codeBlockMatch[1].trim()); } catch {}
+    }
+
+    // Strategy 2: find outermost JSON object
+    if (!parsedJson) {
+      const firstBrace = rawResponse.indexOf('{');
+      const lastBrace = rawResponse.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        try { parsedJson = JSON.parse(rawResponse.slice(firstBrace, lastBrace + 1)); } catch {}
+      }
+    }
+
+    // Strategy 3: try the entire response as JSON
+    if (!parsedJson) {
+      try { parsedJson = JSON.parse(rawResponse.trim()); } catch {}
+    }
+
+    if (!parsedJson) {
+      throw new Error("Nenhum JSON válido encontrado na resposta da IA.");
+    }
+
     res.json(parsedJson);
   } catch (error) {
     console.error('Erro ao processar resposta JSON:', error);
@@ -161,7 +284,8 @@ async function processarAnaliseJSON(res, assistantId, prompt) {
 
 async function waitForRunCompletion(threadId, runId) {
   const startTime = Date.now();
-  while (Date.now() - startTime < 35000) {
+  const TIMEOUT = 45000; // 45 seconds (increased from 35s)
+  while (Date.now() - startTime < TIMEOUT) {
     const run = await openai.beta.threads.runs.retrieve(threadId, runId);
     if (['completed', 'failed', 'cancelled', 'expired'].includes(run.status)) {
       return run.status;
@@ -184,14 +308,15 @@ function createPediatricPrompt(dados) {
     - Nível de Consciência: ${dados.nivelConsciencia || 'Não informado'}
     - Observações Adicionais: ${dados.observacoesAdicionais || 'Nenhuma'}
     # ESTRUTURA JSON DE SAÍDA OBRIGATÓRIA
+    Responda SOMENTE com o JSON abaixo, sem texto adicional:
     {
-      "sinais_de_gravidade": ["Lista de achados preocupantes diretos."],
+      "sinais_de_gravidade": ["Lista de achados preocupantes diretos"],
       "conduta_recomendada": {
         "urgencia": true | false,
-        "justificativa": "Explicação concisa.",
-        "orientacoes": ["Lista de ações claras e diretas para o cuidador."]
+        "justificativa": "Explicação concisa",
+        "orientacoes": ["Lista de ações claras"]
       },
-      "sinais_de_piora": ["Lista de sinais específicos que indicariam piora do quadro."]
+      "sinais_de_piora": ["Lista de sinais que indicam piora"]
     }
   `;
 }

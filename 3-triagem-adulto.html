@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- NOVO: Adicionado para formatar a resposta do Dr. IA -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="assets/js/api-config.js"></script>
 
     <style>
         body { font-family: 'Lexend', 'Noto Sans', sans-serif; padding-bottom: 80px; background-color: #f9fafb; }
@@ -134,10 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const restartBtn = document.getElementById('restart-btn');
     const orientationContent = document.getElementById('orientation-content');
     
-    // FIX: detecta ambiente automaticamente — dev local vs produção
-    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:10000/analise-triagem-adulto'
-      : 'https://missioncareplus-jca0.onrender.com/analise-triagem-adulto';
+    const API_URL = API_CONFIG.ENDPOINTS.TRIAGEM_ADULTO;
 
     const validateForm = () => {
         const isProblemaValid = document.getElementById('problema-principal').value.trim() !== '';
@@ -166,6 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
         orientationContent.innerHTML = '<div class="loader mx-auto my-8"></div><p class="text-center font-semibold text-gray-600">Analisando informações com o Dr. IA...</p>';
 
         try {
+            if (!navigator.onLine) {
+                throw new Error('OFFLINE');
+            }
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -176,23 +177,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const errorData = await response.json().catch(() => ({ error: `Erro na API: ${response.statusText}` }));
                 throw new Error(errorData.error || 'Resposta inválida do servidor');
             }
-            
+
             const result = await response.json();
 
-            // SIMPLIFICADO: Renderiza a resposta de texto diretamente usando marked.js
             if (result.response) {
                 orientationContent.innerHTML = window.marked.parse(result.response);
             } else {
                 throw new Error("Formato de resposta inesperado do servidor.");
             }
-            
+
         } catch (error) {
             console.error("Erro ao gerar análise:", error);
-            orientationContent.innerHTML = `<div class="text-center text-red-600 font-bold p-4 bg-red-50 rounded-lg border border-red-200">
-                <p>ERRO: Não foi possível processar a análise.</p>
-                <p class="text-sm mt-2 text-gray-700 font-normal">Houve um problema ao comunicar com o servidor. Por favor, tente novamente mais tarde.</p>
-                <p class="text-xs mt-2 text-gray-500 font-normal">Detalhe: ${error.message}</p>
-            </div>`;
+            if (!navigator.onLine || error.message === 'OFFLINE' || error.message.includes('Failed to fetch')) {
+                orientationContent.innerHTML = generateOfflineFallback(payload);
+            } else {
+                orientationContent.innerHTML = `<div class="text-center text-red-600 font-bold p-4 bg-red-50 rounded-lg border border-red-200">
+                    <p>ERRO: Não foi possível processar a análise.</p>
+                    <p class="text-sm mt-2 text-gray-700 font-normal">Houve um problema ao comunicar com o servidor. Por favor, tente novamente mais tarde.</p>
+                    <p class="text-xs mt-2 text-gray-500 font-normal">Detalhe: ${error.message}</p>
+                </div>`;
+            }
         } finally {
             resultsFooter.classList.remove('hidden');
         }
@@ -200,6 +204,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
     submitBtn.addEventListener('click', () => { if (!submitBtn.disabled) handleFormSubmit(); });
     restartBtn.addEventListener('click', () => location.reload());
+
+    function generateOfflineFallback(payload) {
+        const problema = (payload.problemaPrincipal || '').toLowerCase();
+        const emergencyKeywords = ['peito', 'infarto', 'não respira', 'desmaio', 'convulsão', 'sangramento', 'inconsciente'];
+        const urgentKeywords = ['febre alta', 'dor forte', 'vômito', 'diarréia', 'alergia', 'inchaço'];
+
+        let nivel = 'CUIDADO';
+        let classCss = 'border-green-500 bg-green-50';
+        let icon = 'fa-shield-heart';
+        if (emergencyKeywords.some(k => problema.includes(k))) {
+            nivel = 'EMERGÊNCIA';
+            classCss = 'border-red-500 bg-red-50';
+            icon = 'fa-triangle-exclamation';
+        } else if (urgentKeywords.some(k => problema.includes(k))) {
+            nivel = 'ATENÇÃO';
+            classCss = 'border-yellow-400 bg-yellow-50';
+            icon = 'fa-circle-exclamation';
+        }
+
+        return `
+            <div class="p-4 rounded-lg border-2 ${classCss} mb-4">
+                <h2 class="text-xl font-bold mb-2"><i class="fas ${icon} mr-2"></i>Modo Offline — ${nivel}</h2>
+                <p class="text-sm text-gray-600 mb-3">Sem conexão com a internet. Esta é uma orientação básica local.</p>
+            </div>
+            <div class="p-4 bg-white rounded-lg border">
+                <h3 class="font-bold text-lg mb-2">Queixa: ${payload.problemaPrincipal}</h3>
+                ${payload.doencasCronicas !== 'Nenhuma informada' ? `<p class="text-sm text-gray-600 mb-2"><strong>Doenças crônicas:</strong> ${payload.doencasCronicas}</p>` : ''}
+                ${payload.alergias ? `<p class="text-sm text-gray-600 mb-2"><strong>Alergias:</strong> ${payload.alergias}</p>` : ''}
+                <hr class="my-3">
+                <h4 class="font-bold mb-2">Orientações gerais:</h4>
+                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                    ${nivel === 'EMERGÊNCIA' ? `
+                        <li><strong>Procure atendimento médico de emergência imediatamente.</strong></li>
+                        <li>Mantenha a calma e não faça esforço físico.</li>
+                        <li>Se possível, ligue para serviço de emergência local.</li>
+                        <li>Não administre medicamentos sem orientação médica.</li>
+                    ` : nivel === 'ATENÇÃO' ? `
+                        <li>Monitore os sintomas atentamente nas próximas horas.</li>
+                        <li>Mantenha-se hidratado e em repouso.</li>
+                        <li>Procure atendimento médico se os sintomas piorarem.</li>
+                        <li>Anote a evolução dos sintomas para informar ao médico.</li>
+                    ` : `
+                        <li>Mantenha repouso e boa hidratação.</li>
+                        <li>Observe a evolução dos sintomas.</li>
+                        <li>Use medicamentos básicos conforme orientação prévia.</li>
+                        <li>Procure atendimento se não houver melhora em 48-72h.</li>
+                    `}
+                </ul>
+                <div class="mt-4 p-3 bg-amber-50 border border-amber-300 rounded-lg text-sm">
+                    <p><strong>⚠ Aviso:</strong> Esta orientação offline é limitada. Quando a conexão for restabelecida, refaça a avaliação com o Dr. IA para orientações personalizadas.</p>
+                </div>
+            </div>
+        `;
+    }
 
     validateForm();
 });
