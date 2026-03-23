@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - MissionCare Plus</title>
+    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f9fafb; padding-bottom: 80px; }
+        h2 { color: #1e40af; font-weight: 700; font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        p, li { color: #374151; font-size: 0.9rem; line-height: 1.6; }
+        ul { list-style: disc; padding-left: 1.25rem; }
+        .section-card { background: white; border-radius: 0.75rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; }
+        .section-card.green { border-left-color: #10b981; }
+        .section-card.yellow { border-left-color: #f59e0b; }
+        .section-card.red { border-left-color: #ef4444; }
+        .section-card.purple { border-left-color: #8b5cf6; }
+        .section-card.gray { border-left-color: #6b7280; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- BANNER LEGAL FIXO -->
+    <div style="position:sticky;top:0;z-index:999;background:#fef3c7;border-bottom:2px solid #f59e0b;padding:6px 12px;text-align:center;font-size:12px;font-weight:600;color:#92400e;">
+      ⚠️ ORIENTAÇÃO EDUCATIVA — Não é diagnóstico médico. Em emergências, ligue <strong>SAMU 192</strong> ou <strong>Bombeiros 193</strong>.
+    </div>
+
+    <div class="max-w-2xl mx-auto bg-white shadow-lg min-h-screen">
+
+        <!-- Cabeçalho -->
+        <div class="bg-blue-700 text-white p-5">
+            <a href="index.html" class="flex items-center gap-2 text-blue-200 hover:text-white mb-4 text-sm">
+                <i class="fas fa-arrow-left"></i> Voltar ao início
+            </a>
+            <h1 class="text-2xl font-bold">Política de Privacidade</h1>
+            <p class="text-blue-200 text-sm mt-1">MissionCare Plus — Telesaúde Missionária</p>
+            <p class="text-blue-300 text-xs mt-1">Última atualização: Março de 2026 · Versão 1.0</p>
+        </div>
+
+        <div class="p-5">
+
+            <!-- Introdução -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p class="text-blue-800 text-sm font-medium">
+                    Este aplicativo foi desenvolvido com <strong>privacidade por design</strong>. Coletamos o mínimo necessário para funcionar e nunca armazenamos dados clínicos identificáveis.
+                </p>
+            </div>
+
+            <!-- 1. Quem somos -->
+            <div class="section-card">
+                <h2><i class="fas fa-building mr-2 text-blue-500"></i>1. Responsável pelo Aplicativo</h2>
+                <p><strong>Organização:</strong> Telesaúde Missionária</p>
+                <p class="mt-1">Este aplicativo é uma ferramenta educativa de apoio a leigos em situações de emergência. <strong>Não é um serviço médico.</strong></p>
+            </div>
+
+            <!-- 2. Dados coletados -->
+            <div class="section-card green">
+                <h2><i class="fas fa-database mr-2 text-green-500"></i>2. Dados que Coletamos (Mínimos)</h2>
+                <ul class="mt-2 space-y-1">
+                    <li><strong>Preferência de idioma</strong> — armazenada localmente no seu dispositivo (localStorage)</li>
+                    <li><strong>Aceite dos termos de uso</strong> — registrado localmente, sem envio a servidores</li>
+                    <li><strong>Protocolo de emergência acessado</strong> — apenas para funcionalidade offline, sem identificação do usuário</li>
+                </ul>
+            </div>
+
+            <!-- 3. Dados NÃO coletados -->
+            <div class="section-card red">
+                <h2><i class="fas fa-shield-alt mr-2 text-red-500"></i>3. Dados que NÃO Coletamos</h2>
+                <ul class="mt-2 space-y-1">
+                    <li>Histórico de saúde ou sintomas</li>
+                    <li>Diagnósticos ou condições médicas</li>
+                    <li>Nome, CPF, data de nascimento ou qualquer dado pessoal identificável</li>
+                    <li>Localização geográfica</li>
+                    <li>Dados biométricos</li>
+                    <li>Contatos do dispositivo</li>
+                </ul>
+                <p class="mt-3 text-red-700 font-medium text-sm">O app não exige cadastro. Você pode usar todas as funcionalidades sem criar conta.</p>
+            </div>
+
+            <!-- 4. IA / OpenAI -->
+            <div class="section-card yellow">
+                <h2><i class="fas fa-robot mr-2 text-yellow-600"></i>4. Uso de Inteligência Artificial (OpenAI)</h2>
+                <p>Quando você usa o assistente de IA (Dr. IA), as informações inseridas são enviadas à API da OpenAI para processar a resposta.</p>
+                <ul class="mt-2 space-y-1">
+                    <li>Não enviamos nome, CPF ou dados identificáveis à OpenAI</li>
+                    <li>As consultas são tratadas como anônimas</li>
+                    <li>A OpenAI possui sua própria política de privacidade disponível em <strong>openai.com/policies/privacy-policy</strong></li>
+                    <li>Quando offline, nenhum dado é enviado — o app usa protocolos locais</li>
+                </ul>
+            </div>
+
+            <!-- 5. Armazenamento -->
+            <div class="section-card purple">
+                <h2><i class="fas fa-lock mr-2 text-purple-600"></i>5. Armazenamento e Segurança</h2>
+                <ul class="mt-2 space-y-1">
+                    <li>Preferências são armazenadas <strong>somente no seu dispositivo</strong> (localStorage/sessionStorage)</li>
+                    <li>Não mantemos banco de dados de usuários</li>
+                    <li>Toda comunicação com servidores externos usa <strong>HTTPS (criptografia em trânsito)</strong></li>
+                    <li>Não compartilhamos dados com terceiros além da OpenAI para o assistente de IA</li>
+                </ul>
+            </div>
+
+            <!-- 6. LGPD -->
+            <div class="section-card">
+                <h2><i class="fas fa-balance-scale mr-2 text-blue-500"></i>6. Seus Direitos (LGPD — Lei 13.709/2018)</h2>
+                <p>Como coletamos dados mínimos e anônimos, a maioria dos direitos da LGPD não é aplicável neste contexto. Porém, você tem direito a:</p>
+                <ul class="mt-2 space-y-1">
+                    <li>Apagar seus dados locais a qualquer momento (limpar dados do navegador/app)</li>
+                    <li>Negar o uso do assistente de IA e usar apenas os protocolos offline</li>
+                    <li>Solicitar informações sobre o tratamento de dados pelo contato abaixo</li>
+                </ul>
+            </div>
+
+            <!-- 7. Cookies -->
+            <div class="section-card gray">
+                <h2><i class="fas fa-cookie-bite mr-2 text-gray-500"></i>7. Cookies e Rastreamento</h2>
+                <p>Este aplicativo <strong>não utiliza cookies de rastreamento</strong>, publicidade ou análise de comportamento. Usamos apenas localStorage para preferências técnicas do usuário.</p>
+            </div>
+
+            <!-- 8. Menores -->
+            <div class="section-card red">
+                <h2><i class="fas fa-child mr-2 text-red-500"></i>8. Uso por Menores de Idade</h2>
+                <p>Este aplicativo pode ser usado por adultos responsáveis em situações de emergência pediátrica. <strong>Não é direcionado a menores de 18 anos como usuários primários.</strong> Não coletamos dados de crianças.</p>
+            </div>
+
+            <!-- 9. Contato -->
+            <div class="section-card green">
+                <h2><i class="fas fa-envelope mr-2 text-green-600"></i>9. Contato e Dúvidas</h2>
+                <p>Para questões sobre privacidade, entre em contato:</p>
+                <p class="mt-2"><strong>Organização:</strong> Telesaúde Missionária</p>
+                <p><strong>Página de contato:</strong> <a href="9-contatos.html" class="text-blue-600 underline">Ver contatos</a></p>
+            </div>
+
+            <!-- 10. Atualizações -->
+            <div class="section-card gray">
+                <h2><i class="fas fa-history mr-2 text-gray-500"></i>10. Atualizações desta Política</h2>
+                <p>Esta política pode ser atualizada a cada 12 meses ou quando houver mudanças significativas no app. A data da última atualização sempre estará no cabeçalho desta página.</p>
+            </div>
+
+            <!-- Rodapé científico -->
+            <div class="mt-6 p-4 bg-gray-100 rounded-lg text-center">
+                <p class="text-xs text-gray-500">Conteúdo clínico baseado em diretrizes da <strong>OMS</strong>, <strong>BLS (AHA)</strong> e <strong>PHTLS</strong>.</p>
+                <p class="text-xs text-gray-400 mt-1">MissionCare Plus · Versão do conteúdo: Março 2026</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Navegação inferior -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40">
+        <nav class="flex justify-around max-w-2xl mx-auto">
+            <a href="index.html" class="flex flex-col items-center justify-center text-center text-gray-600 p-2 w-1/3 hover:bg-gray-100 transition-colors">
+                <i class="fas fa-home text-xl mb-1"></i>
+                <span class="text-xs font-medium">Início</span>
+            </a>
+            <a href="4-emergencias.html" class="flex flex-col items-center justify-center text-center text-gray-600 p-2 w-1/3 hover:bg-gray-100 transition-colors">
+                <i class="fas fa-kit-medical text-xl mb-1"></i>
+                <span class="text-xs font-medium">Emergências</span>
+            </a>
+            <a href="9-contatos.html" class="flex flex-col items-center justify-center text-center text-gray-600 p-2 w-1/3 hover:bg-gray-100 transition-colors">
+                <i class="fas fa-headset text-xl mb-1"></i>
+                <span class="text-xs font-medium">Contato</span>
+            </a>
+        </nav>
+    </footer>
+
+</body>
+</html>
