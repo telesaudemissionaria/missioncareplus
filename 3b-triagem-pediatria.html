@@ -82,7 +82,7 @@
                     </button>
                 </div>
                 <div class="w-1/2 text-center">
-                   <h1 id="header-title" data-i18n="headerTitle" class="text-gray-800 text-lg font-bold">Triagem Pediátrica</h1>
+                   <h1 id="header-title" data-i18n="headerTitle" class="text-gray-800 text-lg font-bold">Guia de Sinais Infantis</h1>
                 </div>
                 <div class="w-1/4 flex justify-end items-center gap-1">
                      <button data-lang="pt-BR" class="lang-btn p-2 text-xs font-bold rounded-md border selected" aria-label="Português (Brasil)">
@@ -125,20 +125,21 @@
 
             <!-- SEÇÃO 2: QUEIXA PRINCIPAL -->
              <div class="form-section space-y-4">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_section_title">2. Queixa Principal</h2>
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step1_section_title">2. O que está acontecendo?</h2>
                 <div>
-                    <label for="queixa-principal" class="font-semibold text-gray-700 mb-2 block" data-i18n="chief_complaint_label">Descreva a queixa principal:</label>
+                    <label for="queixa-principal" class="font-semibold text-gray-700 mb-2 block" data-i18n="chief_complaint_label">Descreva o que a criança está sentindo:</label>
                     <input type="text" id="queixa-principal" class="form-input w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="chief_complaint_placeholder" placeholder="Ex: Febre, tosse, dor de barriga...">
                 </div>
                  <div>
-                    <label for="historia-doenca" class="font-semibold text-gray-700 mb-2 block" data-i18n="history_label">Descreva a história da doença:</label>
+                    <label for="historia-doenca" class="font-semibold text-gray-700 mb-2 block" data-i18n="history_label">O que está acontecendo? Conte os detalhes:</label>
                     <textarea id="historia-doenca" rows="4" class="form-textarea w-full rounded-xl border-gray-300 bg-gray-100 transition p-3" data-i18n="history_placeholder" placeholder="Ex: Começou ontem com febre de 38.5°C, tosse seca e não quer comer."></textarea>
                 </div>
             </div>
 
             <!-- SEÇÃO 3: SINAIS VITAIS -->
             <div class="form-section space-y-6">
-                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_section_title">3. Sinais Vitais (Opcional)</h2>
+                 <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step2_section_title">3. Dados Observados (Opcional)</h2>
+                 <p class="text-xs text-center text-gray-400">Esses dados NÃO são armazenados.</p>
                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
                         <label for="temperatura" class="font-semibold text-gray-700 mb-1 block text-sm" data-i18n="label_temperature">Temperatura (°C)</label>
@@ -161,9 +162,9 @@
             
             <!-- SEÇÃO 4: AVALIAÇÃO GERAL -->
              <div class="form-section space-y-6">
-                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_section_title">4. Avaliação Geral</h2>
+                <h2 class="text-xl font-bold text-center text-gray-800" data-i18n="step3_section_title">4. Como a criança está?</h2>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="legend_general_state">Estado Geral</legend>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="legend_general_state">Como está o estado geral?</legend>
                     <div class="grid grid-cols-3 gap-2" data-form-key="estadoGeral">
                         <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Bom"><span class="text-xl">😊</span><span class="text-xs mt-1" data-i18n="state_good">Bom</span></button>
                         <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Regular"><span class="text-xl">😐</span><span class="text-xs mt-1" data-i18n="state_regular">Regular</span></button>
@@ -171,7 +172,7 @@
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="legend_consciousness">Nível de Consciência</legend>
+                    <legend class="font-semibold text-gray-700 mb-2" data-i18n="legend_consciousness">Como a criança está reagindo?</legend>
                      <div class="grid grid-cols-3 gap-2" data-form-key="nivelConsciencia">
                         <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Alerta"><span class="text-xl">👀</span><span class="text-xs mt-1" data-i18n="conscious_alert">Alerta</span></button>
                         <button class="choice-btn flex flex-col items-center p-2 rounded-lg border-2" data-value="Sonolento"><span class="text-xl">😴</span><span class="text-xs mt-1" data-i18n="conscious_drowsy">Sonolento</span></button>
@@ -192,7 +193,8 @@
         
         <!-- TELA DE RESULTADOS -->
             <div id="results-screen" class="hidden p-4 md:p-6 space-y-6">
-            <h1 class="text-2xl font-bold text-center text-gray-800" data-i18n="results_title">Análise Preliminar</h1>
+            <h1 class="text-2xl font-bold text-center text-gray-800" data-i18n="results_title">Orientação Educativa</h1>
+            <p class="text-xs text-center text-amber-600 mb-2">⚠️ Estas orientações não substituem avaliação profissional.</p>
             <div id="orientation-content" class="max-w-none bg-white p-1 rounded-lg">
                 <!-- Conteúdo da IA será inserido aqui -->
             </div>
@@ -200,11 +202,11 @@
 
         <footer id="main-footer" class="bg-white border-t border-gray-200 sticky bottom-0 z-10 p-4">
               <button id="submit-btn" class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 rounded-full shadow-lg text-lg font-bold text-white hover:bg-teal-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
-                  <i class="fas fa-check mr-2"></i> <span data-i18n="submit_btn_text">Gerar Análise</span>
+                  <i class="fas fa-check mr-2"></i> <span data-i18n="submit_btn_text">Ver Orientações</span>
               </button>
               <div id="results-footer" class="hidden flex flex-col sm:flex-row gap-4">
                    <button id="restart-btn" class="w-full flex items-center justify-center py-3 px-4 border-2 border-gray-300 rounded-full shadow-sm text-lg font-bold text-gray-600 bg-transparent hover:bg-gray-100 transition" data-i18n="restart_btn_text">
-                       Nova Avaliação
+                       Nova Consulta Educativa
                    </button>
               </div>
         </footer>
@@ -280,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             ${data.conduta_recomendada?.orientacoes ? `
-                <h4><i class="fas fa-clipboard-list mr-2"></i>${dict['recommended_conduct'] || 'Conduta Recomendada'}</h4>
+                <h4><i class="fas fa-clipboard-list mr-2"></i>${dict['recommended_conduct'] || 'O que fazer agora'}</h4>
                 ${createList(data.conduta_recomendada.orientacoes)}
             ` : ''}
 
@@ -290,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ` : ''}
             
              ${data.sinais_de_gravidade && data.sinais_de_gravidade.length > 0 ? `
-                <h4><i class="fas fa-bolt mr-2"></i>${dict['severity_signs'] || 'Sinais de Gravidade Identificados'}</h4>
+                <h4><i class="fas fa-bolt mr-2"></i>${dict['severity_signs'] || 'Sinais de Alerta Observados'}</h4>
                 ${createList(data.sinais_de_gravidade)}
             ` : ''}
         `;
@@ -419,10 +421,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (emergencyKeys.some(k => texto.includes(k))) {
             urgencia = true;
-            sinaisGravidade.push('Sintoma de emergência identificado na queixa');
+            sinaisGravidade.push('Possível sinal de emergência observado — procure socorro');
         }
         if (urgentKeys.some(k => texto.includes(k))) {
-            if (!urgencia) sinaisGravidade.push('Sintoma de atenção identificado na queixa');
+            if (!urgencia) sinaisGravidade.push('Possível sinal de atenção observado — monitore e procure orientação');
         }
 
         // Orientações baseadas no nível
@@ -440,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Mantenha a criança hidratada com líquidos em pequenas quantidades.',
                 'Monitore a temperatura a cada 2-4 horas.',
                 'Mantenha a criança em repouso e em ambiente arejado.',
-                'Antitérmico (paracetamol/dipirona) se febre ≥38.5°C, conforme dose pediátrica.'
+                'Consulte um profissional de saúde sobre uso de antitérmicos antes de medicar.'
             );
         } else {
             orientacoes.push(

@@ -47,9 +47,15 @@
   </style>
 </head>
 <body class="bg-slate-100 text-slate-900">
+
+  <!-- BANNER LEGAL FIXO -->
+  <div style="position:sticky;top:0;z-index:999;background:#fef3c7;border-bottom:2px solid #f59e0b;padding:6px 12px;text-align:center;font-size:12px;font-weight:600;color:#92400e;">
+    ⚠️ ORIENTAÇÃO EDUCATIVA — Não é diagnóstico médico. Em emergências, ligue <strong>SAMU 192</strong> ou <strong>Bombeiros 193</strong>.
+  </div>
+
   <main class="max-w-3xl mx-auto p-4 sm:p-6">
     <header class="mb-6 text-center relative">
-      <h1 class="text-3xl font-extrabold text-teal-800" data-i18n="main_title">Triagem Gineco-Obstetrícia</h1>
+      <h1 class="text-3xl font-extrabold text-teal-800" data-i18n="main_title">Guia de Saúde da Mulher</h1>
       <p class="text-sm text-slate-600 mt-2" data-i18n="subtitle">
         Ferramenta de apoio à decisão. <strong>Não substitui uma consulta médica.</strong>
       </p>
@@ -71,7 +77,7 @@
 
     <!-- Page 1: Profile Selection -->
     <div id="page-1" class="page active">
-        <h2 class="font-semibold text-lg text-slate-800 text-center mb-4" data-i18n="select_profile_title">1. Selecione o Perfil da Paciente</h2>
+        <h2 class="font-semibold text-lg text-slate-800 text-center mb-4" data-i18n="select_profile_title">1. Selecione o Perfil da Pessoa</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div onclick="selectProfile('gestante')" class="profile-box bg-white shadow-md rounded-2xl p-6 text-center cursor-pointer">
                 <span class="text-6xl">🤰</span>
@@ -119,7 +125,8 @@
 
         <!-- Vitals -->
         <div class="bg-white shadow-md rounded-2xl p-5 mb-5">
-            <h3 class="font-semibold text-lg text-slate-800 mb-3" data-i18n="vitals_title">Sinais Vitais (Opcional)</h3>
+            <h3 class="font-semibold text-lg text-slate-800 mb-3" data-i18n="vitals_title">Dados Observados (Opcional)</h3>
+            <p class="text-xs text-slate-400 mb-2">Esses dados NÃO são armazenados. Usados apenas para orientação educativa.</p>
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
                 <div>
                   <label for="pas" class="block text-sm font-medium text-slate-600">PAS</label>
@@ -166,7 +173,7 @@
 
         <!-- Action Buttons -->
         <div class="flex flex-wrap gap-4 mt-6 items-center">
-            <button id="analisarBtn" class="px-6 py-3 rounded-xl bg-teal-700 text-white font-semibold shadow-lg hover:bg-teal-800 transition-all transform hover:scale-105" tabindex="0" data-i18n="analyze_button">Analisar Sinais</button>
+            <button id="analisarBtn" class="px-6 py-3 rounded-xl bg-teal-700 text-white font-semibold shadow-lg hover:bg-teal-800 transition-all transform hover:scale-105" tabindex="0" data-i18n="analyze_button">Ver Orientações</button>
         </div>
     </div>
 
@@ -174,7 +181,8 @@
     <div id="page-3" class="page">
         <section id="resultado" class="rounded-2xl p-5 border-4">
             <div id="nivel" class="text-2xl font-extrabold mb-3 flex items-center"></div>
-            <h3 class="font-semibold text-slate-800 mb-2" data-i18n="result_advice_title">Aconselhamento e Plano de Ação:</h3>
+            <h3 class="font-semibold text-slate-800 mb-2" data-i18n="result_advice_title">Orientações — O que fazer agora:</h3>
+            <p class="text-xs text-amber-600 mb-2">⚠️ Orientação educativa. Não substitui avaliação profissional.</p>
             <div id="aconselhamento" class="mt-2 text-sm leading-relaxed space-y-2"></div>
             
             <!-- Emergency Actions -->
@@ -200,7 +208,7 @@
             </details>
             <div class="mt-4 flex flex-wrap gap-3">
                 <button id="copiarBtn" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition-colors" data-i18n="copy_summary_button">Copiar Resumo</button>
-                <button onclick="resetApp()" class="px-4 py-2 bg-teal-700 text-white rounded-lg text-sm font-semibold hover:bg-teal-600 transition-colors" data-i18n="new_triage_button">Nova Triagem</button>
+                <button onclick="resetApp()" class="px-4 py-2 bg-teal-700 text-white rounded-lg text-sm font-semibold hover:bg-teal-600 transition-colors" data-i18n="new_triage_button">Nova Avaliação</button>
             </div>
         </section>
     </div>
@@ -393,7 +401,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            message: `Você é um assistente médico especializado em gineco-obstetrícia. Analise os seguintes dados de triagem GOB e forneça uma classificação de urgência em formato JSON no idioma ${currentLang}. Dados: ${JSON.stringify(gobData, null, 2)}`
+            message: `Você é um orientador educativo de primeiros socorros em gineco-obstetrícia. Com base nos dados informados, forneça orientações educativas e uma classificação de urgência em formato JSON no idioma ${currentLang}. IMPORTANTE: Não faça diagnósticos. Use linguagem diretiva ("Procure atendimento", "Vá ao pronto-socorro"). Dados: ${JSON.stringify(gobData, null, 2)}`
           })
         });
         
